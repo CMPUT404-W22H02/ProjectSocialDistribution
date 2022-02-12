@@ -22,6 +22,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
+# Proposed Heroku solution by https://stackoverflow.com/users/354577/chris 
+# https://stackoverflow.com/questions/47949022/git-heroku-how-to-hide-my-secret-key
 SECRET_KEY = os.getenv('SECRET_KEY', 'Optional default value')
 
 # SECURITY WARNING: don't run with debug turned on in production!
