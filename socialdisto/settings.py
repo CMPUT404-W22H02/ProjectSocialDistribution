@@ -26,9 +26,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-import django_on_heroku
 import os
 from pathlib import Path
+
+import django_on_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,7 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'accounts',
-    'inbox'
+    'inbox',
 ]
 
 MIDDLEWARE = [
@@ -146,4 +147,6 @@ STATIC_URL = '/static/'
 django_on_heroku.settings(locals())
 
 # Account authentication
-LOGIN_REDIRECT_URL = '/inbox/'
+AUTH_USER_MODEL = "accounts.NodeUser"
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'accounts:logged_in'
