@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',
+    'inbox'
 ]
 
 MIDDLEWARE = [
@@ -74,7 +76,9 @@ ROOT_URLCONF = 'socialdisto.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -140,3 +144,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 django_on_heroku.settings(locals())
+
+# Account authentication
+LOGIN_REDIRECT_URL = '/inbox/'
