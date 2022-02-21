@@ -144,7 +144,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-django_on_heroku.settings(locals())
+django_on_heroku.settings(locals(), test_runner=False)
 
 # Account authentication
 AUTH_USER_MODEL = "accounts.NodeUser"
