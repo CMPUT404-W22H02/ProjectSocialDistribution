@@ -14,13 +14,31 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from uuid import uuid4
 from django.contrib.auth.models import AbstractUser
-from django.db.models import BooleanField
+from django.db.models import BooleanField, UUIDField, URLField, CharField
+from django.urls import reverse
 
 
 class NodeUser(AbstractUser):
-    account_activated = BooleanField(null=False, default=False)
+    uuid_id = UUIDField(primary_key=True, default=uuid4, editable=False)
+    id = URLField()
+    host = URLField()
+    display_name = CharField(max_length=20, blank=False)
+    account_activated = BooleanField(default=False)
+
+    def get_absolute_url(self):
+        return reverse('accounts:api_author', args=[str(self.uuid_id)])
+    
+    # Author id must be traceable to the server the author belongs to
+    def save(self, *args, **kwargs):
+        protocol = 'http://'
+        self.id = protocol + self.host + self.get_absolute_url()
+        super(NodeUser, self).save(*args, **kwargs)
 
     @property
     def type(self):
         return 'author'
+    
+    class Meta:
+        ordering = ['uuid_id']

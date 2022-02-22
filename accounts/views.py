@@ -30,6 +30,11 @@ class RegisterCreateView(CreateView):
     template_name = 'accounts/register.html'
     form_class = RegistrationForm
 
+    def form_valid(self, form):
+        host = self.request.get_host()
+        form.instance.host = host
+        return super(RegisterCreateView, self).form_valid(form)
+
 class HomeRedirectView(RedirectView):
     pattern_name = 'accounts:login'
 
@@ -45,10 +50,10 @@ class AuthorList(ListAPIView):
     items = 'items'
 
     def list(self, request):
-        """Override: key-value output for author list, pagination only enabled if query params specified"""
+        """Override: key-value output for author list, pagination only enabled if query params specified."""
         template = {'type': 'authors', 'items': None }
 
-        queryset = self.get_queryset()
+        queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
 
         if page is not None:
@@ -61,6 +66,6 @@ class AuthorList(ListAPIView):
         return Response(template)
 
 class AuthorDetail(RetrieveAPIView):
-    """GET a specific author on the server by id"""
+    """GET a specific author on the server by id."""
     queryset = NodeUser.objects.all()
     serializer_class = NodeUserSerializer
