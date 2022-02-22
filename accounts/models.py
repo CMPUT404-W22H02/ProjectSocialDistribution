@@ -23,8 +23,11 @@ from django.urls import reverse
 class NodeUser(AbstractUser):
     uuid_id = UUIDField(primary_key=True, default=uuid4, editable=False)
     id = URLField()
+    url = URLField()
     host = URLField()
     display_name = CharField(max_length=20, blank=False)
+    github = URLField()
+
     account_activated = BooleanField(default=False)
 
     def get_absolute_url(self):
@@ -34,6 +37,7 @@ class NodeUser(AbstractUser):
     def save(self, *args, **kwargs):
         protocol = 'http://'
         self.id = protocol + self.host + self.get_absolute_url()
+        self.url = self.id
         super(NodeUser, self).save(*args, **kwargs)
 
     @property
