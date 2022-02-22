@@ -15,8 +15,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from uuid import uuid4
+
 from django.contrib.auth.models import AbstractUser
-from django.db.models import BooleanField, UUIDField, URLField, CharField
+from django.db.models import BooleanField, CharField, URLField, UUIDField
 from django.urls import reverse
 
 

@@ -17,8 +17,8 @@
 from django.urls import include, path
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from .views import (AuthorList, AuthorDetail, HomeRedirectView, LoggedInRedirectView,
-                    RegisterCreateView)
+from .views import (AuthorDetail, AuthorList, HomeRedirectView,
+                    LoggedInRedirectView, RegisterCreateView)
 
 app_name = 'accounts'
 
