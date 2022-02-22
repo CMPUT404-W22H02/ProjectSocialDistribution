@@ -17,11 +17,13 @@
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
 from rest_framework import generics
+from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 
 from .forms import RegistrationForm
 from .models import NodeUser
 from .serializers import NodeUserSerializer
+from socialdisto.pagination import CustomPagination
 
 
 class RegisterCreateView(CreateView):
@@ -38,12 +40,14 @@ class AuthorList(generics.ListAPIView):
     """Get all authors on the server."""
     queryset = NodeUser.objects.all()
     serializer_class = NodeUserSerializer
+    pagination_class = CustomPagination
 
     def list(self, request):
         """Override: key-value output for author list"""
         queryset = self.get_queryset()
-        serializer = NodeUserSerializer(queryset, many=True)
-        return Response({'type': 'authors', 'items': serializer.data})
+        p = self.paginate_queryset(queryset)
+        serializer = NodeUserSerializer(p, many=True)
+        return self.get_paginated_response({'type': 'authors', 'items': serializer.data})
 
 class AuthorDetail(generics.RetrieveAPIView):
     """GET a specific author on the server by id"""
