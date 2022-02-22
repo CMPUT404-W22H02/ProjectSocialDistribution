@@ -34,7 +34,7 @@ class HomeRedirectView(RedirectView):
 class LoggedInRedirectView(RedirectView):
     pattern_name = 'inbox:home'
 
-class AuthorList(generics.ListCreateAPIView):
+class AuthorList(generics.ListAPIView):
     """Get all authors on the server."""
     queryset = NodeUser.objects.all()
     serializer_class = NodeUserSerializer
