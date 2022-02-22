@@ -25,6 +25,8 @@ from .models import NodeUser
 from .serializers import NodeUserSerializer
 from socialdisto.pagination import CustomPagination
 
+from accounts import serializers
+
 
 class RegisterCreateView(CreateView):
     template_name = 'accounts/register.html'
@@ -37,17 +39,28 @@ class LoggedInRedirectView(RedirectView):
     pattern_name = 'inbox:home'
 
 class AuthorList(generics.ListAPIView):
-    """Get all authors on the server."""
+    """Get all authors on the server with optional pagination."""
     queryset = NodeUser.objects.all()
     serializer_class = NodeUserSerializer
     pagination_class = CustomPagination
 
+    items = 'items'
+
     def list(self, request):
-        """Override: key-value output for author list"""
+        """Override: key-value output for author list, pagination only enabled if query params specified"""
+        template = {'type': 'authors', 'items': None }
+
         queryset = self.get_queryset()
-        p = self.paginate_queryset(queryset)
-        serializer = NodeUserSerializer(p, many=True)
-        return self.get_paginated_response({'type': 'authors', 'items': serializer.data})
+        page = self.paginate_queryset(queryset)
+
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            template[self.items] = serializer.data
+            return self.get_paginated_response(template)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        template[self.items] = serializer.data
+        return Response(template)
 
 class AuthorDetail(generics.RetrieveAPIView):
     """GET a specific author on the server by id"""
