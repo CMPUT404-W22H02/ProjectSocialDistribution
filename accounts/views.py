@@ -17,15 +17,13 @@
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
 from rest_framework import generics
-from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
+
+from socialdisto.pagination import CustomPagination
 
 from .forms import RegistrationForm
 from .models import NodeUser
 from .serializers import NodeUserSerializer
-from socialdisto.pagination import CustomPagination
-
-from accounts import serializers
 
 
 class RegisterCreateView(CreateView):
