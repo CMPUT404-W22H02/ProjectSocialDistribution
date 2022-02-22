@@ -14,13 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
 
 from .models import NodeUser
 
 
-class NodeUserSerializer(serializers.ModelSerializer):
-    
+class NodeUserSerializer(ModelSerializer):
+
     class Meta:
         model = NodeUser
         fields = ['type', 'username', 'id']

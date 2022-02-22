@@ -16,7 +16,7 @@
 
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
-from rest_framework import generics
+from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
 from socialdisto.pagination import CustomPagination
@@ -36,7 +36,7 @@ class HomeRedirectView(RedirectView):
 class LoggedInRedirectView(RedirectView):
     pattern_name = 'inbox:home'
 
-class AuthorList(generics.ListAPIView):
+class AuthorList(ListAPIView):
     """Get all authors on the server with optional pagination."""
     queryset = NodeUser.objects.all()
     serializer_class = NodeUserSerializer
@@ -60,7 +60,7 @@ class AuthorList(generics.ListAPIView):
         template[self.items] = serializer.data
         return Response(template)
 
-class AuthorDetail(generics.RetrieveAPIView):
+class AuthorDetail(RetrieveAPIView):
     """GET a specific author on the server by id"""
     queryset = NodeUser.objects.all()
     serializer_class = NodeUserSerializer

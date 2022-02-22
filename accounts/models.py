@@ -15,11 +15,11 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from django.contrib.auth.models import AbstractUser
-from django.db import models
+from django.db.models import BooleanField
 
 
 class NodeUser(AbstractUser):
-    account_activated = models.BooleanField(null=False, default=False)
+    account_activated = BooleanField(null=False, default=False)
 
     @property
     def type(self):

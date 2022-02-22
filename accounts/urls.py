@@ -19,7 +19,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from accounts import views
 
-from .views import (AuthorList, HomeRedirectView, LoggedInRedirectView,
+from .views import (AuthorList, AuthorDetail, HomeRedirectView, LoggedInRedirectView,
                     RegisterCreateView)
 
 app_name = 'accounts'
@@ -32,7 +32,7 @@ urlpatterns = [
 
     # REST API endpoints
     path('authors/', AuthorList.as_view()),
-    path('author/<int:pk>/', views.AuthorDetail.as_view())
+    path('author/<int:pk>/', AuthorDetail.as_view())
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
