@@ -15,8 +15,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from django.urls import include, path
+from rest_framework.urlpatterns import format_suffix_patterns
 
-from .views import HomeRedirectView, LoggedInRedirectView, RegisterCreateView
+from accounts import views
+
+from .views import (AuthorList, HomeRedirectView, LoggedInRedirectView,
+                    RegisterCreateView)
 
 app_name = 'accounts'
 
@@ -25,4 +29,10 @@ urlpatterns = [
     path('', HomeRedirectView.as_view(), name='home'),
     path('register/', RegisterCreateView.as_view(), name='register'),
     path('logged-in/', LoggedInRedirectView.as_view(), name='logged_in'),
+
+    # REST API endpoints
+    path('authors/', AuthorList.as_view()),
+    path('author/<int:pk>/', views.AuthorDetail.as_view())
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)

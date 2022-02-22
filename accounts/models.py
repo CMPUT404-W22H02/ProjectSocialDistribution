@@ -21,3 +21,6 @@ from django.db import models
 class NodeUser(AbstractUser):
     account_activated = models.BooleanField(null=False, default=False)
 
+    @property
+    def type(self):
+        return 'author'

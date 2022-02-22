@@ -14,13 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from django.contrib.auth.forms import UserCreationForm
+from rest_framework import serializers
 
 from .models import NodeUser
 
 
-class RegistrationForm(UserCreationForm):
+class NodeUserSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = NodeUser
-        fields = ['username', 'password1', 'password2']
+        fields = ['type', 'username', 'id']
