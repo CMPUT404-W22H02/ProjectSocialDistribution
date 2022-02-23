@@ -14,8 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from django.http import Http404
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
+from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView, RetrieveAPIView
 from rest_framework.response import Response
 
@@ -23,7 +25,7 @@ from socialdisto.pagination import CustomPagination
 
 from .forms import RegistrationForm
 from .models import NodeUser
-from .serializers import NodeUserSerializer, FollowerSerializer
+from .serializers import NodeUserSerializer
 
 
 class RegisterCreateView(CreateView):
@@ -71,7 +73,7 @@ class AuthorDetail(RetrieveAPIView):
     serializer_class = NodeUserSerializer
 
 class FollowerList(ListAPIView):
-    """Get a list of authors who follow a specific author."""
+    """GET a list of authors who follow a specific author."""
     serializer_class = NodeUserSerializer
 
     items = 'items'
@@ -89,4 +91,22 @@ class FollowerList(ListAPIView):
     
         serializer = self.get_serializer(queryset, many=True)
         template[self.items] = serializer.data
+        return Response(template)
+    
+class FollowerExistsView(APIView):
+    """GET - check if one author follows another."""
+    def get(self, request, *args, **kwargs):
+        template = {'type': 'follower exists', 'detail': False}
+
+        author_uuid_id = self.kwargs['pk']
+        follower_uuid_id = self.kwargs['fk']
+        
+        author_queryset = NodeUser.objects.filter(uuid_id=author_uuid_id)
+        if not author_queryset.first():
+            raise Http404
+        
+        follower_queryset = author_queryset.first().followers.filter(uuid_id=follower_uuid_id)
+        if not follower_queryset.first():
+            return Response(template)
+        template['exists'] = True
         return Response(template)

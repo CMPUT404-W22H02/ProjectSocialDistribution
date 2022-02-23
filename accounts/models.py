@@ -23,7 +23,7 @@ from django.urls import reverse
 
 
 class NodeUser(AbstractUser):
-    uuid_id = UUIDField(primary_key=True, default=uuid4, editable=False)
+    uuid_id = CharField(primary_key=True, default=uuid4, editable=False, max_length=255)
     id = URLField()
     url = URLField()
     host = URLField()

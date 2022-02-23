@@ -18,7 +18,7 @@ from django.urls import include, path
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from .views import (AuthorDetail, AuthorList, HomeRedirectView,
-                    LoggedInRedirectView, RegisterCreateView, FollowerList)
+                    LoggedInRedirectView, RegisterCreateView, FollowerList, FollowerExistsView)
 
 app_name = 'accounts'
 
@@ -31,7 +31,8 @@ urlpatterns = [
     # REST API endpoints
     path('authors/', AuthorList.as_view(), name='api_authors'),
     path('authors/<str:pk>/', AuthorDetail.as_view(), name='api_author'),
-    path('authors/<str:pk>/followers/', FollowerList.as_view(), name='api_followers')
+    path('authors/<str:pk>/followers/', FollowerList.as_view(), name='api_followers'),
+    path('authors/<str:pk>/followers/<str:fk>/', FollowerExistsView.as_view(), name='api_follower_exists')
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)
