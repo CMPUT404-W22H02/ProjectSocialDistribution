@@ -17,6 +17,7 @@
 from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
+from django.db.models import ManyToManyField
 from django.db.models import BooleanField, CharField, URLField, UUIDField
 from django.urls import reverse
 
@@ -28,6 +29,9 @@ class NodeUser(AbstractUser):
     host = URLField()
     display_name = CharField(max_length=20, blank=False)
     github = URLField()
+
+    # Bi-directional follow is a true friend
+    followers = ManyToManyField('self', symmetrical=False)
 
     account_activated = BooleanField(default=False)
 

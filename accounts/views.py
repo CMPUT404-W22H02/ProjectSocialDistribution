@@ -23,7 +23,7 @@ from socialdisto.pagination import CustomPagination
 
 from .forms import RegistrationForm
 from .models import NodeUser
-from .serializers import NodeUserSerializer
+from .serializers import NodeUserSerializer, FollowerSerializer
 
 
 class RegisterCreateView(CreateView):
@@ -51,7 +51,7 @@ class AuthorList(ListAPIView):
 
     def list(self, request):
         """Override: key-value output for author list, pagination only enabled if query params specified."""
-        template = {'type': 'authors', 'items': None }
+        template = {'type': 'authors', 'items': None}
 
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
@@ -69,3 +69,24 @@ class AuthorDetail(RetrieveAPIView):
     """GET a specific author on the server by id."""
     queryset = NodeUser.objects.all()
     serializer_class = NodeUserSerializer
+
+class FollowerList(ListAPIView):
+    """Get a list of authors who follow a specific author."""
+    serializer_class = NodeUserSerializer
+
+    items = 'items'
+
+    def get_queryset(self):
+        uuid_id = self.kwargs['pk']
+        queryset = NodeUser.objects.filter(uuid_id=uuid_id)[0].followers.all()
+        return queryset
+
+    def list(self, request, *args, **kwargs):
+        """Override: key-value output for follower list, pagination only enabled if qu"""
+        template = {'type': 'followers', 'items': None}
+
+        queryset = self.filter_queryset(self.get_queryset())
+    
+        serializer = self.get_serializer(queryset, many=True)
+        template[self.items] = serializer.data
+        return Response(template)
