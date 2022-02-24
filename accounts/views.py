@@ -18,8 +18,9 @@ from django.http import Http404
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
 from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView
 from rest_framework.response import Response
+from urllib.parse import urlencode, unquote
 
 from socialdisto.pagination import CustomPagination
 
@@ -53,7 +54,7 @@ class AuthorList(ListAPIView):
 
     def list(self, request):
         """Override: key-value output for author list, pagination only enabled if query params specified."""
-        template = {'type': 'authors', 'items': None}
+        template = {'type': 'authors', self.items: None}
 
         queryset = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(queryset)
@@ -67,10 +68,18 @@ class AuthorList(ListAPIView):
         template[self.items] = serializer.data
         return Response(template)
 
-class AuthorDetail(RetrieveAPIView):
+class AuthorDetail(RetrieveUpdateAPIView):
     """GET a specific author on the server by id."""
     queryset = NodeUser.objects.all()
     serializer_class = NodeUserSerializer
+    http_method_names = ['get', 'post', 'head', 'options']
+
+    # Override the default UpdateAPIView PUT with POST instead
+    def post(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
+    
+    # def put(self, request, *args, **kwargs):
+    #     return self.partial_update(request, *args, **kwargs)
 
 class FollowerList(ListAPIView):
     """GET a list of authors who follow a specific author."""
@@ -99,7 +108,8 @@ class FollowerExistsView(APIView):
         template = {'type': 'follower exists', 'detail': False}
 
         author_uuid_id = self.kwargs['pk']
-        follower_uuid_id = self.kwargs['fk']
+        # Follower id may be remote user, so expecting a urlencoded url id of the user
+        follower_uuid_id = unquote(self.kwargs['fk'])
         
         author_queryset = NodeUser.objects.filter(uuid_id=author_uuid_id)
         if not author_queryset.first():
