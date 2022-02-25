@@ -26,9 +26,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
-import django_on_heroku
 import os
 from pathlib import Path
+
+import django_on_heroku
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -57,6 +58,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts',
+    'inbox',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -74,7 +78,9 @@ ROOT_URLCONF = 'socialdisto.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates')
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -119,6 +125,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# REST framework
+# https://www.django-rest-framework.org/#installation
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny'
+    ]
+}
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
@@ -139,4 +154,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-django_on_heroku.settings(locals())
+django_on_heroku.settings(locals(), test_runner=False)
+
+# Account authentication
+AUTH_USER_MODEL = "accounts.NodeUser"
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'accounts:logged_in'
