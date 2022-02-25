@@ -23,4 +23,4 @@ class NodeUserSerializer(ModelSerializer):
 
     class Meta:
         model = NodeUser
-        fields = ['type', 'display_name', 'id', 'url', 'host', 'github', 'followers']
+        fields = ['type', 'display_name', 'id', 'url', 'host', 'github']

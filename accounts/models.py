@@ -17,8 +17,7 @@
 from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
-from django.db.models import ManyToManyField
-from django.db.models import BooleanField, CharField, URLField
+from django.db.models import BooleanField, CharField, ManyToManyField, URLField
 from django.urls import reverse
 
 

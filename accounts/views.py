@@ -14,16 +14,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from urllib.parse import unquote, urlencode
+
+import requests
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
-from rest_framework.views import APIView
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.response import Response
 from rest_framework import status
-from urllib.parse import urlencode, unquote
-import requests
+from rest_framework.generics import (ListAPIView, RetrieveUpdateAPIView,
+                                     RetrieveUpdateDestroyAPIView)
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from socialdisto.pagination import CustomPagination
 
