@@ -16,6 +16,8 @@
 
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.http import urlencode
+from rest_framework import status
 
 from .models import NodeUser
 
@@ -26,103 +28,192 @@ class PermissionTests(TestCase):
         url = reverse('inbox:home')
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
-class AuthorsTests(TestCase):
-    """Test authors/ endpoints"""
-    def setUp(self):
-        NodeUser.objects.create(display_name='John Doe', username='johndoe')
-        NodeUser.objects.create(display_name='Jane Doe', username='janedoe')
+class AuthorTestCases(TestCase):
+    """Setup boilerplate configuration and NodeUser querystring lookups."""
+    def create_users(self):
+        self.kwarg_display_name = 'display_name'
+        self.kwarg_user_name = 'username'
+        self.kwarg_github = 'github'
+        self.node_users = [
+            {self.kwarg_display_name: 'John Doe', self.kwarg_user_name: 'johndoe'},
+            {self.kwarg_display_name: 'Jane Doe', self.kwarg_user_name: 'janedoe'}
+        ]
+
+        for user in self.node_users:
+            NodeUser.objects.create(display_name=user[self.kwarg_display_name], username=user[self.kwarg_user_name])
     
-    def test_authors_all(self):
-        """Test endpoint for all authors, no pagination."""
-        url = reverse('accounts:api_authors')
+    def set_url(self, url_name, *args, **kwargs):
+        self.url = reverse(url_name, kwargs=kwargs)
+    
+    def set_disallowed_methods(self, disallowed):
+        self.disallowed_methods = disallowed
+    
+    def set_pagination_defaults(self, page, size):
+        self.page = page
+        self.size = size
+    
+    def get_author_id(self, display_name):
+        return NodeUser.objects.filter(display_name=display_name).values('uuid_id')[0]['uuid_id']
+
+class APIAuthorsTests(AuthorTestCases):
+    """Test authors/ URI."""
+    def setUp(self):
+        self.create_users()
+        self.url_name = 'accounts:api_authors'
+        self.set_url(self.url_name)
+        self.set_disallowed_methods([self.client.post, self.client.delete, self.client.put])
+        self.set_pagination_defaults(page=1, size=1)
+    
+    def test_authors_success(self):
+        """GET authors/ success."""
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        for user in self.node_users:
+            self.assertContains(response, user[self.kwarg_display_name])
+
+    def test_authors_pagination_success(self):
+        """Test correctness of pagination response fields, GET authors/?page=#size=# success."""
+        self.page = 1
+        self.size = 1
+        url = self.url + self.pagination_params
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'John')
-        self.assertContains(response, 'Jane')
-
-    def test_author_pagination_response(self):
-        """Test correctness of pagination response fields."""
-        page = 1
-        size = 1
-        url = reverse('accounts:api_authors') + f'?page={page}&size={size}'
-        response = self.client.get(url)
-        
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Should these fail, pagination scheme may have changed and should be checked to still work.
         self.assertContains(response, 'count')
         self.assertContains(response, 'next')
         self.assertContains(response, 'previous')
         self.assertContains(response, 'results')
     
-    def test_author_pagination_next(self):
-        """Test second page of the pagination."""
-        page = 2
-        size = 1
-        url = reverse('accounts:api_authors') + f'?page={page}&size={size}'
+    def test_authors_pagination_next(self):
+        """Test second page of pagination from test_authors_pagination_success()."""
+        self.page = 2
+        self.size = len(self.node_users) - 1
+        url = self.url + self.pagination_params
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
     
-    def test_author_pagination_not_found(self):
-        """Test a page outside of pagination range."""
-        page = 2
-        size = 2
-        url = reverse('accounts:api_authors') + f'?page={page}&size={size}'
+    def test_authors_pagination_404(self):
+        """Test page outside of pagination range returns 404."""
+        page = len(self.node_users) + 1
+        size = 1
+        url = self.url + self.pagination_params
         response = self.client.get(url)
+    
+    def test_authors_method_not_allowed(self):
+        """Test disallowed methods return 405."""
+        for method in self.disallowed_methods:
+            response = method(self.url)
 
-        self.assertEqual(response.status_code, 404)
+            self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    @property
+    def pagination_params(self):
+        return f'?page={self.page}&size={self.size}'
+
+class APIAuthorProfileTests(AuthorTestCases):
+    """Tests authors/{AUTHOR_ID} URI."""
+    def setUp(self):
+        self.create_users()
+        self.url_name = 'accounts:api_author'
+        self.set_disallowed_methods([self.client.delete, self.client.put])
     
     def test_author_profile_found(self):
-        """Test authors/{id} endpoint for an existing author."""
-        id = NodeUser.objects.filter(display_name='John Doe').values('uuid_id')[0]
-        url = reverse('accounts:api_author', kwargs={'pk': id['uuid_id']})
-        response = self.client.get(url)
+        """GET authors/{author_id} success."""
+        for user in self.node_users:
+            id = self.get_author_id(user[self.kwarg_display_name])
+            self.set_url('accounts:api_author', pk=id)
+            response = self.client.get(self.url)
 
-        self.assertContains(response, 'John')
-        self.assertNotContains(response, 'Jane')
-
-        id = NodeUser.objects.filter(display_name='Jane Doe').values('uuid_id')[0]
-        url = reverse('accounts:api_author', kwargs={'pk': id['uuid_id']})
-        response = self.client.get(url)
-
-        self.assertContains(response, 'Jane')
-        self.assertNotContains(response, 'John')
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertContains(response, user[self.kwarg_display_name])
     
-    def test_author_profile_not_found(self):
-        """Test authors/{id} endpoint not found."""
-        url = reverse('accounts:api_author', kwargs={'pk': 'doesnotexist'})
-        response = self.client.get(url)
+    def test_author_profile_404(self):
+        """GET authors/{author_id} 404."""
+        self.set_url(self.url_name, pk='AuthorIdDoesNotExist')
+        response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
     
-    def test_author_profile_update_full_success(self):
-        """Update using POST, updating all/many editable fields."""
-        id = NodeUser.objects.filter(display_name='John Doe').values('uuid_id')[0]
-        url = reverse('accounts:api_author', kwargs={'pk': id['uuid_id']})
-        
-        new_display_name = 'Jon Doe'
-        new_github_url = 'https://github.com/jondoe'
-        response = self.client.post(url, data={'display_name': new_display_name, 'github': new_github_url})
+    def test_author_profile_full_update_success(self):
+        """POST authors/{author_id} success, all editable fields modified."""
+        updates = [
+            {self.kwarg_display_name: 'Jon Doe', self.kwarg_github: 'https://github.com/jondoe'},
+            {self.kwarg_display_name: 'Janet Doe', self.kwarg_github: 'https://github.com/janetdoe'}
+        ]
+        for user, update in zip(self.node_users, updates):
+            id = self.get_author_id(user[self.kwarg_display_name])
+            self.set_url(self.url_name, pk=id)
+            
+            response = self.client.post(self.url, data={self.kwarg_display_name: update[self.kwarg_display_name], 
+                                                        self.kwarg_github: update[self.kwarg_github]})
+            
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(response.status_code, 200)
-        
-        response = self.client.get(url)
-        self.assertContains(response, new_display_name)
-        self.assertContains(response, new_github_url)
-        self.assertNotContains(response, 'John Doe')
+            # Verify updates
+            response = self.client.get(self.url)
+            self.assertContains(response, update[self.kwarg_display_name])
+            self.assertContains(response, update[self.kwarg_github])
     
-    def test_author_profile_update_partial_success(self):
-        """Update using POST, updating only one editable field."""
-        id = NodeUser.objects.filter(display_name='John Doe').values('uuid_id')[0]
-        url = reverse('accounts:api_author', kwargs={'pk': id['uuid_id']})
-        
-        new_display_name = 'Jon Doe'
-        response = self.client.post(url, data={'display_name': new_display_name})
+    def test_author_profile_partial_update_success(self):
+        """Post authors/{author_id} success, one editable field modified."""
+        updates = [
+            {self.kwarg_github: 'https://github.com/jondoe'},
+            {self.kwarg_github: 'https://github.com/janetdoe'}
+        ]
+        for user, update in zip(self.node_users, updates):
+            id = self.get_author_id(user[self.kwarg_display_name])
+            self.set_url(self.url_name, pk=id)
 
-        self.assertEqual(response.status_code, 200)
-        
+            response = self.client.post(self.url, data={self.kwarg_github: update[self.kwarg_github]})
+
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+            # Verify partial update
+            response = self.client.get(self.url)
+            self.assertContains(response, update[self.kwarg_github])
+            self.assertContains(response, user[self.kwarg_display_name])
+    
+    def test_author_profile_bad_requests(self):
+        """Test disallowed methods return 405."""
+        for user, method in zip(self.node_users, self.disallowed_methods):
+            id = self.get_author_id(user[self.kwarg_display_name])
+            self.set_url(self.url_name, pk=id)
+            response = method(self.url)
+
+            self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+class FollowersTests(TestCase):
+    """Test followers/ endpoints."""
+    def setUp(self):
+        NodeUser.objects.create(display_name='John Doe', username='johndoe')
+        NodeUser.objects.create(display_name='Jane Doe', username='janedoe')
+    
+    def test_author_followers_all_success(self):
+        """Test authors/{id}/followers/ endpoint success."""
+        id = NodeUser.objects.filter(display_name='John Doe').values('uuid_id')[0]
+        url = reverse('accounts:api_followers', kwargs={'pk': id['uuid_id']})
         response = self.client.get(url)
-        self.assertContains(response, new_display_name)
-        self.assertNotContains(response, 'John Doe')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+    def test_author_followers_404(self):
+        """Author or foreign id not found for authors/{id}/{followers/{f_id} endpoint."""
+    
+    def test_author_followers_not_follower(self):
+        """Test authors/{id}/followers/{f_id} where f_id is *not* following id."""
+        id = NodeUser.objects.filter(display_name='John Doe').values('uuid_id')[0]
+        f_id = NodeUser.objects.filter(display_name='Jane Doe').values('id')[0]
+        # f_id must be the full url authors/{id} endpoint of that user and be uriencoded, as the author may be remote.
+        # slice off the 'url=' prefix
+        f_id = urlencode(f_id)[3:]
+        url = reverse('accounts:api_follower_exists', kwargs={'pk': id['uuid_id'], 'fk': f_id})
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, 'false')
