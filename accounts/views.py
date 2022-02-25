@@ -22,10 +22,10 @@ from django.shortcuts import get_object_or_404
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
 from rest_framework import status
-from rest_framework.generics import (ListAPIView, RetrieveUpdateAPIView,
+from rest_framework.generics import (CreateAPIView, ListAPIView,
+                                     RetrieveUpdateAPIView,
                                      RetrieveUpdateDestroyAPIView)
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from socialdisto.pagination import CustomPagination
 
@@ -115,13 +115,6 @@ class FollowerExistsView(RetrieveUpdateDestroyAPIView):
 
     # Response template
     items = 'items'
-
-    # def get_queryset(self):
-    #     uuid_id = self.kwargs['pk']
-    #     queryset = NodeUser.objects.filter(uuid_id=uuid_id)
-    #     if not queryset:
-    #         raise Http404
-    #     return queryset
     
     def get_author(self):
         """Get authors/{AUTHOR_ID} object."""
@@ -176,43 +169,5 @@ class FollowerExistsView(RetrieveUpdateDestroyAPIView):
         a.followers.remove(f)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-        # Do not destroy the object, only remove the relationship
-        
-    
-        
-
-    # def get(self, request, *args, **kwargs):
-    #     """Check if one author follows another - guaranteed to be bidirection if true."""
-    #     template = {'type': 'followers', 'items': None}
-    #     author_uuid_id = self.kwargs['pk']
-    #     # Follower id may be remote user, so expecting a urlencoded url id of the user
-    #     follower_id = unquote(self.kwargs['fk'])
-
-    #     author_queryset = NodeUser.objects.filter(uuid_id=author_uuid_id)
-    #     if not author_queryset.first():
-    #         raise Http404
-        
-    #     follower_queryset = author_queryset.first().followers.filter(id=follower_id)
-        
-        
-
-
-#         # template = {'type': 'follower', 'items': []}
-        
-
-#         # author_uuid_id = self.kwargs['pk']
-#         # # Follower id may be remote user, so expecting a urlencoded url id of the user
-#         # follower_uuid_id = unquote(self.kwargs['fk'])
-        
-#         # author_queryset = NodeUser.objects.filter(uuid_id=author_uuid_id)
-#         # if not author_queryset.first():
-#         #     raise Http404
-        
-#         # follower_queryset = author_queryset.first().followers.filter(uuid_id=follower_uuid_id)
-#         # if not follower_queryset.first():
-#         #     return Response(template)
-#         # template['exists'] = True
-#         # return Response(template)
-    
-#     def put(self, request, *args, **kwargs):
-#         """Add FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID."""
+class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
+    """GET, POST, PUT, and DELETE Posts at authors/AUTHOR_ID/posts/POST_ID."""

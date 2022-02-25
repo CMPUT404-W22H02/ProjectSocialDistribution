@@ -14,10 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from tkinter import CASCADE
+from unittest.util import _MAX_LENGTH
 from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
-from django.db.models import BooleanField, CharField, ManyToManyField, URLField
+from django.db.models import (CASCADE, BooleanField, CharField,
+                              ManyToManyField, Model, OneToOneField, URLField)
+from django.forms import IntegerField
 from django.urls import reverse
 
 
@@ -28,9 +32,10 @@ class NodeUser(AbstractUser):
     host = CharField(max_length=255, editable=False)
     display_name = CharField(max_length=20, blank=False)
     github = URLField(blank=True)
+    # TODO: profile images when server image hosting is implemented.
 
     # Bi-directional follow is a true friend
-    followers = ManyToManyField('self', db_constraint=False)
+    followers = ManyToManyField('self')
 
     account_activated = BooleanField(default=False)
 
@@ -50,3 +55,87 @@ class NodeUser(AbstractUser):
     
     class Meta:
         ordering = ['uuid_id']
+
+class FollowRequest(Model):
+    """Object sent to a user to request a follow relationship."""
+    actor = OneToOneField(NodeUser, on_delete=CASCADE, related_name='requester')
+    object = OneToOneField(NodeUser, on_delete=CASCADE, related_name='requestee')
+
+    @property
+    def type(self):
+        return 'follow'
+    
+    class Meta:
+        pass
+
+class Post(Model):
+    """Post object sent to a NodeUser inbox."""
+    title = CharField(max_length=255)
+    id = URLField(editable=False, primary_key=True)
+    source = URLField(blank=True)
+    origin = URLField(blank=True)
+    description = CharField(max_length=255)
+
+    content_choices = (
+            ('text/markdown', 'text/markdown'),
+            ('text/plain', 'text/plain'),
+            ('application/base64', 'application/base64'),
+            ('image/png;base64', 'image/png;base64'),
+            ('image/jpeg;base64', 'image/jpeg;base64')
+        )
+    content_type = CharField(choices=content_choices, max_length=255)
+
+    author = OneToOneField(NodeUser, on_delete=CASCADE)
+
+    # TODO: categories: need to determine how to put a list of strings here
+
+    count = IntegerField()
+    comments = URLField()
+    # TODO: comment_src to the serializer
+    # TODO: published requires ISO 8601 timestamp see here https://gist.github.com/bryanchow/1195854/32c7ebb1cfca38ccec0b71b7ed17ab1c497c7d74
+    visibility_choices = (
+        ('PUBLIC', 'PUBLIC'),
+        ('PRIVATE', 'PRIVATE')
+    )
+    visibility = CharField(choices=visibility_choices, max_length=255)
+    unlisted = BooleanField()
+
+    class Meta:
+        # Default ordering in comment_src will be by when the post was published.
+        # ordering = ['published']
+        pass
+
+    @property
+    def type(self):
+        return 'post'
+
+# TODO: Image posts
+class Image(Model):
+    pass
+
+class Comment(Model):
+    """Comment object sent to a NodeUser inbox, related to a specific Post."""
+    author = OneToOneField(NodeUser, on_delete=CASCADE)
+    comment = CharField(max_length=500)
+    # TODO: published requires ISO 8601 timestamp see here https://gist.github.com/bryanchow/1195854/32c7ebb1cfca38ccec0b71b7ed17ab1c497c7d74
+    id = URLField(editable=False, primary_key=True)
+
+    @property
+    def type(self):
+        return 'comment'
+    
+    class Meta:
+        pass
+
+class Like(Model):
+    """Like object sent to a NodeUser inbox, related to either a Post or a Comment."""
+    summary = CharField(max_length=255)
+    author = OneToOneField(NodeUser, on_delete=CASCADE)
+    object = URLField(editable=False, primary_key=True)
+
+    @property
+    def type(self):
+        return 'like'
+
+    class Meta:
+        pass
