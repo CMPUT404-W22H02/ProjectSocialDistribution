@@ -30,7 +30,7 @@ class PermissionTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
-class AuthorTestCases(TestCase):
+class APITestCase(TestCase):
     """Setup boilerplate configuration and NodeUser querystring lookups."""
     def create_users(self):
         self.kwarg_display_name = 'display_name'
@@ -47,6 +47,10 @@ class AuthorTestCases(TestCase):
     def set_url(self, url_name, *args, **kwargs):
         self.url = reverse(url_name, kwargs=kwargs)
     
+    def uriencode(self, url):
+        key = 'url'
+        return urlencode({'url': url})[len(key)+1:]
+    
     def set_disallowed_methods(self, disallowed):
         self.disallowed_methods = disallowed
     
@@ -56,8 +60,11 @@ class AuthorTestCases(TestCase):
     
     def get_author_id(self, display_name):
         return NodeUser.objects.filter(display_name=display_name).values('uuid_id')[0]['uuid_id']
+    
+    def get_author_url(self, display_name):
+        return NodeUser.objects.filter(display_name=display_name).values('id')[0]['id']
 
-class APIAuthorsTests(AuthorTestCases):
+class APIAuthorsTests(APITestCase):
     """Test authors/ URI."""
     def setUp(self):
         self.create_users()
@@ -116,7 +123,7 @@ class APIAuthorsTests(AuthorTestCases):
     def pagination_params(self):
         return f'?page={self.page}&size={self.size}'
 
-class APIAuthorProfileTests(AuthorTestCases):
+class APIAuthorProfileTests(APITestCase):
     """Tests authors/{AUTHOR_ID} URI."""
     def setUp(self):
         self.create_users()
@@ -188,32 +195,72 @@ class APIAuthorProfileTests(AuthorTestCases):
 
             self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-class FollowersTests(TestCase):
-    """Test followers/ endpoints."""
+class APIFollowersTests(APITestCase):
+    """Test authors/{AUTHOR_ID}/followers URI."""
     def setUp(self):
-        NodeUser.objects.create(display_name='John Doe', username='johndoe')
-        NodeUser.objects.create(display_name='Jane Doe', username='janedoe')
+        self.create_users()
+        self.url_name = 'accounts:api_followers'
+        self.set_disallowed_methods([self.client.post, self.client.delete, self.client.put])
     
-    def test_author_followers_all_success(self):
-        """Test authors/{id}/followers/ endpoint success."""
-        id = NodeUser.objects.filter(display_name='John Doe').values('uuid_id')[0]
-        url = reverse('accounts:api_followers', kwargs={'pk': id['uuid_id']})
-        response = self.client.get(url)
+    def test_followers_success(self):
+        """GET authors/{AUTHOR_ID}/followers success."""
+        for user in self.node_users:
+            id = self.get_author_id(user[self.kwarg_display_name])
+            self.set_url(self.url_name, pk=id)
+            response = self.client.get(self.url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+            self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+# TODO: need to configure HOST_NAME to actually test the followers/... URI methods
+# as it makes additional HTTP requests.
+# class APIFollowerActions(APITestCase):
+#     """Test authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}"""
+#     def setUp(self):
+#         self.create_users()
+#         self.url_name = 'accounts:api_follower_action'
+#         self.set_disallowed_methods([self.client.post])
     
-    def test_author_followers_404(self):
-        """Author or foreign id not found for authors/{id}/{followers/{f_id} endpoint."""
-    
-    def test_author_followers_not_follower(self):
-        """Test authors/{id}/followers/{f_id} where f_id is *not* following id."""
-        id = NodeUser.objects.filter(display_name='John Doe').values('uuid_id')[0]
-        f_id = NodeUser.objects.filter(display_name='Jane Doe').values('id')[0]
-        # f_id must be the full url authors/{id} endpoint of that user and be uriencoded, as the author may be remote.
-        # slice off the 'url=' prefix
-        f_id = urlencode(f_id)[3:]
-        url = reverse('accounts:api_follower_exists', kwargs={'pk': id['uuid_id'], 'fk': f_id})
-        response = self.client.get(url)
+#     def test_follower_add_success(self):
+#         """PUT authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID} success."""
+#         pk = self.get_author_id('John Doe')
+#         breakpoint()
+#         fk = self.uriencode(self.get_author_url('Jane Doe'))
         
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertContains(response, 'false')
+#         self.set_url(self.url_name, pk=pk, fk=fk)
+#         response = self.client.put(self.url)
+
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+#     def test_follower_check_success(self):
+#         """GET authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID} success."""
+
+
+# class FollowersTests(TestCase):
+#     """Test followers/ endpoints."""
+#     def setUp(self):
+#         NodeUser.objects.create(display_name='John Doe', username='johndoe')
+#         NodeUser.objects.create(display_name='Jane Doe', username='janedoe')
+    
+#     def test_author_followers_all_success(self):
+#         """Test authors/{id}/followers/ endpoint success."""
+#         id = NodeUser.objects.filter(display_name='John Doe').values('uuid_id')[0]
+#         url = reverse('accounts:api_followers', kwargs={'pk': id['uuid_id']})
+#         response = self.client.get(url)
+
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+    
+#     def test_author_followers_404(self):
+#         """Author or foreign id not found for authors/{id}/{followers/{f_id} endpoint."""
+    
+#     def test_author_followers_not_follower(self):
+#         """Test authors/{id}/followers/{f_id} where f_id is *not* following id."""
+#         id = NodeUser.objects.filter(display_name='John Doe').values('uuid_id')[0]
+#         f_id = NodeUser.objects.filter(display_name='Jane Doe').values('id')[0]
+#         # f_id must be the full url authors/{id} endpoint of that user and be uriencoded, as the author may be remote.
+#         # slice off the 'url=' prefix
+#         f_id = urlencode(f_id)[3:]
+#         url = reverse('accounts:api_follower_exists', kwargs={'pk': id['uuid_id'], 'fk': f_id})
+#         response = self.client.get(url)
+        
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertContains(response, 'false')

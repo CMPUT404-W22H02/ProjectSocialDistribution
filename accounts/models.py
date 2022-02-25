@@ -31,7 +31,7 @@ class NodeUser(AbstractUser):
     github = URLField(blank=True)
 
     # Bi-directional follow is a true friend
-    followers = ManyToManyField('self', symmetrical=False)
+    followers = ManyToManyField('self', db_constraint=False)
 
     account_activated = BooleanField(default=False)
 
