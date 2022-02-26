@@ -16,11 +16,18 @@
 
 from rest_framework.serializers import ModelSerializer
 
-from .models import NodeUser
+from .models import NodeUser, Post
 
 
 class NodeUserSerializer(ModelSerializer):
 
     class Meta:
         model = NodeUser
-        fields = ['type', 'display_name', 'id', 'url', 'host', 'github']
+        # TODO: profile image
+        fields = ['type', 'id', 'url', 'host', 'display_name', 'github']
+
+class PostSerializer(ModelSerializer):
+
+    class Meta:
+        model = Post
+        fields = '__all__'
