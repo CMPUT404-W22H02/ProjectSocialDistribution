@@ -26,8 +26,7 @@ from django.urls import reverse
 
 
 class NodeUser(AbstractUser):
-    uuid_id = CharField(primary_key=True, default=uuid4, editable=False, max_length=255)
-    id = URLField(editable=False)
+    id = URLField(primary_key=True, editable=False)
     url = URLField(editable=False)
     host = CharField(max_length=255, editable=False)
     display_name = CharField(max_length=20, blank=False)
@@ -39,14 +38,17 @@ class NodeUser(AbstractUser):
 
     account_activated = BooleanField(default=False)
 
+    uuid_id = CharField(default=uuid4, editable=False, max_length=255)
+
     def get_absolute_url(self):
-        return reverse('accounts:api_author', args=[str(self.uuid_id)])
+        return reverse('accounts:api_author_details', args=[str(self.uuid_id)])
     
     # Author id must be traceable to the server the author belongs to
     def save(self, *args, **kwargs):
-        protocol = 'http://'
-        self.id = protocol + self.host + self.get_absolute_url()
+        scheme = 'http://'
+        self.id = scheme + self.host + self.get_absolute_url()
         self.url = self.id
+        self.host = scheme + self.host
         super(NodeUser, self).save(*args, **kwargs)
 
     @property
@@ -54,7 +56,7 @@ class NodeUser(AbstractUser):
         return 'author'
     
     class Meta:
-        ordering = ['uuid_id']
+        ordering = ['id']
 
 class FollowRequest(Model):
     """Object sent to a user to request a follow relationship."""
@@ -70,11 +72,13 @@ class FollowRequest(Model):
 
 class Post(Model):
     """Post object sent to a NodeUser inbox."""
+    uuid_id = CharField(default=uuid4, editable=False, max_length=255)
     title = CharField(max_length=255)
-    id = URLField(editable=False, primary_key=True)
+    id = URLField(editable=False, primary_key=True, unique=True)
     source = URLField(blank=True)
     origin = URLField(blank=True)
     description = CharField(max_length=255)
+    host = URLField(blank=True, editable=False)
 
     content_choices = (
             ('text/markdown', 'text/markdown'),
@@ -90,7 +94,7 @@ class Post(Model):
     # TODO: categories: need to determine how to put a list of strings here
 
     count = IntegerField()
-    comments = URLField()
+    # TODO: comments = URLField()
     # TODO: comment_src to the serializer
     # TODO: published requires ISO 8601 timestamp see here https://gist.github.com/bryanchow/1195854/32c7ebb1cfca38ccec0b71b7ed17ab1c497c7d74
     visibility_choices = (
@@ -104,6 +108,16 @@ class Post(Model):
         # Default ordering in comment_src will be by when the post was published.
         # ordering = ['published']
         pass
+
+    def get_absolute_url(self):
+        return reverse('accounts:api_posts', args=[str(self.uuid_id)])
+    
+    # Author id must be traceable to the server the author belongs to
+    def save(self, *args, **kwargs):
+        protocol = 'http://'
+        self.id = protocol + self.host + self.get_absolute_url()
+        self.url = self.id
+        super(Post, self).save(*args, **kwargs)
 
     @property
     def type(self):
