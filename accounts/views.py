@@ -18,6 +18,7 @@ from uuid import uuid4
 
 import requests
 from django.http import Http404
+from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic.base import RedirectView
@@ -202,6 +203,11 @@ class FollowerExistsView(RetrieveUpdateDestroyAPIView):
         author.followers.remove(follower)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class ProfileView(CreateView):
+
+    def get(self, request, template_name="accounts/profile.html"):
+        return TemplateResponse(request, template_name)
 
 class PostListView(ListCreateAPIView):
     """GET recent posts from AUTHOR_ID (paginated) and POST to create a new post with a newly generated POST_ID."""
