@@ -16,10 +16,7 @@
 
 from django.test import TestCase
 from django.urls import reverse
-from django.utils.http import urlencode
 from rest_framework import status
-
-from .models import NodeUser
 
 
 class PermissionTests(TestCase):
@@ -30,48 +27,48 @@ class PermissionTests(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
-class APITestCase(TestCase):
-    """Setup boilerplate configuration and NodeUser querystring lookups."""
-    def create_users(self):
-        self.kwarg_display_name = 'display_name'
-        self.kwarg_user_name = 'username'
-        self.kwarg_github = 'github'
-        self.node_users = [
-            {self.kwarg_display_name: 'John Doe', self.kwarg_user_name: 'johndoe'},
-            {self.kwarg_display_name: 'Jane Doe', self.kwarg_user_name: 'janedoe'}
-        ]
+# class APITestCase(TestCase):
+#     """Setup boilerplate configuration and NodeUser querystring lookups."""
+#     def create_users(self):
+#         self.kwarg_display_name = 'display_name'
+#         self.kwarg_user_name = 'username'
+#         self.kwarg_github = 'github'
+#         self.node_users = [
+#             {self.kwarg_display_name: 'John Doe', self.kwarg_user_name: 'johndoe'},
+#             {self.kwarg_display_name: 'Jane Doe', self.kwarg_user_name: 'janedoe'}
+#         ]
 
-        for user in self.node_users:
-            NodeUser.objects.create(display_name=user[self.kwarg_display_name], username=user[self.kwarg_user_name])
+#         for user in self.node_users:
+#             NodeUser.objects.create(display_name=user[self.kwarg_display_name], username=user[self.kwarg_user_name])
     
-    def set_url(self, url_name, *args, **kwargs):
-        self.url = reverse(url_name, kwargs=kwargs)
+#     def set_url(self, url_name, *args, **kwargs):
+#         self.url = reverse(url_name, kwargs=kwargs)
     
-    def uriencode(self, url):
-        key = 'url'
-        return urlencode({'url': url})[len(key)+1:]
+#     def uriencode(self, url):
+#         key = 'url'
+#         return urlencode({'url': url})[len(key)+1:]
     
-    def set_disallowed_methods(self, disallowed):
-        self.disallowed_methods = disallowed
+#     def set_disallowed_methods(self, disallowed):
+#         self.disallowed_methods = disallowed
     
-    def set_pagination_defaults(self, page, size):
-        self.page = page
-        self.size = size
+#     def set_pagination_defaults(self, page, size):
+#         self.page = page
+#         self.size = size
     
-    def get_author_id(self, display_name):
-        return NodeUser.objects.filter(display_name=display_name).values('uuid_id')[0]['uuid_id']
+#     def get_author_id(self, display_name):
+#         return NodeUser.objects.filter(display_name=display_name).values('uuid_id')[0]['uuid_id']
     
-    def get_author_url(self, display_name):
-        return NodeUser.objects.filter(display_name=display_name).values('id')[0]['id']
+#     def get_author_url(self, display_name):
+#         return NodeUser.objects.filter(display_name=display_name).values('id')[0]['id']
 
-class APIAuthorsTests(APITestCase):
-    """Test authors/ URI."""
-    def setUp(self):
-        self.create_users()
-        self.url_name = 'accounts:api_author_list'
-        self.set_url(self.url_name)
-        self.set_disallowed_methods([self.client.post, self.client.delete, self.client.put])
-        self.set_pagination_defaults(page=1, size=1)
+# class APIAuthorsTests(APITestCase):
+#     """Test authors/ URI."""
+#     def setUp(self):
+#         self.create_users()
+#         self.url_name = 'accounts:api_author_list'
+#         self.set_url(self.url_name)
+#         self.set_disallowed_methods([self.client.post, self.client.delete, self.client.put])
+#         self.set_pagination_defaults(page=1, size=1)
     
     # Re-enable once refactors with LiveServerTestCase are complete
     # def test_authors_success(self):
@@ -83,19 +80,19 @@ class APIAuthorsTests(APITestCase):
     #     for user in self.node_users:
     #         self.assertContains(response, user[self.kwarg_display_name])
 
-    def test_authors_pagination_success(self):
-        """Test correctness of pagination response fields, GET authors/?page=#size=# success."""
-        self.page = 1
-        self.size = 1
-        url = self.url + self.pagination_params
-        response = self.client.get(url)
+    # def test_authors_pagination_success(self):
+    #     """Test correctness of pagination response fields, GET authors/?page=#size=# success."""
+    #     self.page = 1
+    #     self.size = 1
+    #     url = self.url + self.pagination_params
+    #     response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # Should these fail, pagination scheme may have changed and should be checked to still work.
-        self.assertContains(response, 'count')
-        self.assertContains(response, 'next')
-        self.assertContains(response, 'previous')
-        self.assertContains(response, 'results')
+    #     self.assertEqual(response.status_code, status.HTTP_200_OK)
+    #     # Should these fail, pagination scheme may have changed and should be checked to still work.
+    #     self.assertContains(response, 'count')
+    #     self.assertContains(response, 'next')
+    #     self.assertContains(response, 'previous')
+    #     self.assertContains(response, 'results')
     
     # Re-enable once refactors with LiveServerTestCase are complete
     # def test_authors_pagination_next(self):
@@ -108,40 +105,40 @@ class APIAuthorsTests(APITestCase):
 
     #     self.assertEqual(response.status_code, status.HTTP_200_OK)
     
-    def test_authors_pagination_404(self):
-        """Test page outside of pagination range returns 404."""
-        page = len(self.node_users) + 1
-        size = 1
-        url = self.url + self.pagination_params
-        response = self.client.get(url)
+#     def test_authors_pagination_404(self):
+#         """Test page outside of pagination range returns 404."""
+#         page = len(self.node_users) + 1
+#         size = 1
+#         url = self.url + self.pagination_params
+#         response = self.client.get(url)
     
-    def test_authors_method_not_allowed(self):
-        """Test disallowed methods return 405."""
-        for method in self.disallowed_methods:
-            response = method(self.url)
+#     def test_authors_method_not_allowed(self):
+#         """Test disallowed methods return 405."""
+#         for method in self.disallowed_methods:
+#             response = method(self.url)
 
-            self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+#             self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-    @property
-    def pagination_params(self):
-        return f'?page={self.page}&size={self.size}'
+#     @property
+#     def pagination_params(self):
+#         return f'?page={self.page}&size={self.size}'
 
-class APIAuthorProfileTests(APITestCase):
-    """Tests authors/{AUTHOR_ID} URI."""
-    def setUp(self):
-        self.create_users()
-        self.url_name = 'accounts:api_author_details'
-        self.set_disallowed_methods([self.client.delete, self.client.put])
+# class APIAuthorProfileTests(APITestCase):
+#     """Tests authors/{AUTHOR_ID} URI."""
+#     def setUp(self):
+#         self.create_users()
+#         self.url_name = 'accounts:api_author_details'
+#         self.set_disallowed_methods([self.client.delete, self.client.put])
     
-    def test_author_profile_found(self):
-        """GET authors/{author_id} success."""
-        for user in self.node_users:
-            id = self.get_author_id(user[self.kwarg_display_name])
-            self.set_url('accounts:api_author_details', id=id)
-            response = self.client.get(self.url)
+#     def test_author_profile_found(self):
+#         """GET authors/{author_id} success."""
+#         for user in self.node_users:
+#             id = self.get_author_id(user[self.kwarg_display_name])
+#             self.set_url('accounts:api_author_details', id=id)
+#             response = self.client.get(self.url)
 
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            self.assertContains(response, user[self.kwarg_display_name])
+#             self.assertEqual(response.status_code, status.HTTP_200_OK)
+#             self.assertContains(response, user[self.kwarg_display_name])
     
     # def test_author_profile_404(self):
     #     """GET authors/{author_id} 404."""
@@ -189,14 +186,14 @@ class APIAuthorProfileTests(APITestCase):
     #         self.assertContains(response, update[self.kwarg_github])
     #         self.assertContains(response, user[self.kwarg_display_name])
     
-    def test_author_profile_bad_requests(self):
-        """Test disallowed methods return 405."""
-        for user, method in zip(self.node_users, self.disallowed_methods):
-            id = self.get_author_id(user[self.kwarg_display_name])
-            self.set_url(self.url_name, id=id)
-            response = method(self.url)
+    # def test_author_profile_bad_requests(self):
+    #     """Test disallowed methods return 405."""
+    #     for user, method in zip(self.node_users, self.disallowed_methods):
+    #         id = self.get_author_id(user[self.kwarg_display_name])
+    #         self.set_url(self.url_name, id=id)
+    #         response = method(self.url)
 
-            self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+    #         self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
 # class APIFollowersTests(APITestCase):
 #     """Test authors/{AUTHOR_ID}/followers URI."""

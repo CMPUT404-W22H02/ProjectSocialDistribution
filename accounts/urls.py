@@ -19,7 +19,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from .views import (AuthorDetailView, AuthorListView, FollowerExistsView,
                     FollowerListView, HomeRedirectView, LoggedInRedirectView,
-                    RegisterCreateView)
+                    PostDetailView, PostListView, RegisterCreateView)
 
 app_name = 'accounts'
 
@@ -31,11 +31,11 @@ urlpatterns = [
 
     # REST API endpoints
     path('authors/', AuthorListView.as_view(), name='api_author_list'),
-    path('authors/<str:id>/', AuthorDetailView.as_view(), name='api_author_details'),
-    path('authors/<str:id>/followers/', FollowerListView.as_view(), name='api_followers'),
-    path('authors/<str:id>/followers/<path:f_id>/', FollowerExistsView.as_view(), name='api_follower_action'),
-    # path('authors/<str:pk>/posts/', PostListView.as_view(), name='api_posts'),
-    # path('authors/<str:pk>/posts/<path:fk>', PostDetailView.as_view(), name='api_post'),
+    path('authors/<str:author_id>/', AuthorDetailView.as_view(), name='api_author_details'),
+    path('authors/<str:author_id>/followers/', FollowerListView.as_view(), name='api_followers'),
+    path('authors/<str:author_id>/followers/<path:follower_id>/', FollowerExistsView.as_view(), name='api_follower_action'),
+    path('authors/<str:author_id>/posts/', PostListView.as_view(), name='api_post_list'),
+    path('authors/<str:author_id>/posts/<path:post_id>', PostDetailView.as_view(), name='api_post_detail'),
     
 ]
 

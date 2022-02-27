@@ -14,15 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from tkinter import CASCADE
-from unittest.util import _MAX_LENGTH
 from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
-from django.db.models import (CASCADE, BooleanField, CharField,
+from django.db.models import (CASCADE, BooleanField, CharField, ForeignKey,
                               ManyToManyField, Model, OneToOneField, URLField)
 from django.forms import IntegerField
-from django.urls import reverse
 
 
 class NodeUser(AbstractUser):
@@ -41,15 +38,7 @@ class NodeUser(AbstractUser):
     uuid_id = CharField(default=uuid4, editable=False, max_length=255)
 
     def get_absolute_url(self):
-        return reverse('accounts:api_author_details', args=[str(self.uuid_id)])
-    
-    # Author id must be traceable to the server the author belongs to
-    def save(self, *args, **kwargs):
-        scheme = 'http://'
-        self.id = scheme + self.host + self.get_absolute_url()
-        self.url = self.id
-        self.host = scheme + self.host
-        super(NodeUser, self).save(*args, **kwargs)
+        return self.id
 
     @property
     def type(self):
@@ -72,13 +61,11 @@ class FollowRequest(Model):
 
 class Post(Model):
     """Post object sent to a NodeUser inbox."""
-    uuid_id = CharField(default=uuid4, editable=False, max_length=255)
     title = CharField(max_length=255)
-    id = URLField(editable=False, primary_key=True, unique=True)
+    id = URLField(primary_key=True, unique=True, blank=True)
     source = URLField(blank=True)
     origin = URLField(blank=True)
     description = CharField(max_length=255)
-    host = URLField(blank=True, editable=False)
 
     content_choices = (
             ('text/markdown', 'text/markdown'),
@@ -89,7 +76,7 @@ class Post(Model):
         )
     content_type = CharField(choices=content_choices, max_length=255)
 
-    author = OneToOneField(NodeUser, on_delete=CASCADE)
+    author = ForeignKey(NodeUser, on_delete=CASCADE)
 
     # TODO: categories: need to determine how to put a list of strings here
 
@@ -107,16 +94,18 @@ class Post(Model):
     class Meta:
         # Default ordering in comment_src will be by when the post was published.
         # ordering = ['published']
-        pass
+        ordering = ['id']
 
     def get_absolute_url(self):
-        return reverse('accounts:api_posts', args=[str(self.uuid_id)])
+        return self.id
     
     # Author id must be traceable to the server the author belongs to
     def save(self, *args, **kwargs):
-        protocol = 'http://'
-        self.id = protocol + self.host + self.get_absolute_url()
-        self.url = self.id
+        breakpoint()
+        if not self.id:
+            self.id = self.author.id + f'posts/{str(uuid4())}'
+            self.url = self.id
+        
         super(Post, self).save(*args, **kwargs)
 
     @property
