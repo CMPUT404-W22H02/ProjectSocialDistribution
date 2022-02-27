@@ -19,11 +19,12 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from .views import (AuthorDetailView, AuthorListView, FollowerExistsView,
                     FollowerListView, HomeRedirectView, LoggedInRedirectView,
-                    PostDetailView, PostListView, RegisterCreateView)
+                    PostDetailView, PostListView, RegisterCreateView, ProfileView)
 
 app_name = 'accounts'
 
 urlpatterns = [
+    path('profile/', ProfileView.as_view(), name='profile_view'),
     path('', include('django.contrib.auth.urls')),
     path('', HomeRedirectView.as_view(), name='home'),
     path('register/', RegisterCreateView.as_view(), name='register'),
