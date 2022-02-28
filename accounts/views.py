@@ -28,11 +28,11 @@ from rest_framework.generics import (CreateAPIView, ListAPIView,
                                      RetrieveUpdateDestroyAPIView)
 from rest_framework.response import Response
 
-from socialdisto.pagination import CustomPagination
+from socialdisto.pagination import CommentPagination, CustomPagination
 
 from .forms import RegistrationForm
-from .models import NodeUser, Post
-from .serializers import NodeUserSerializer, PostSerializer
+from .models import NodeUser, Post, Comment
+from .serializers import CommentCreationSerializer, CommentSerializer, NodeUserSerializer, PostSerializer
 
 
 class RegisterCreateView(CreateView):
@@ -245,19 +245,6 @@ class PostListView(ListCreateAPIView):
         template[items] = serializer.data
         return Response(template)
 
-    def post(self, request, *args, **kwargs):
-        request.data._mutable = True
-        request.data['host'] = request.get_host()
-        request.data._mutable = False
-        
-        return self.create(request, *args, **kwargs)
-    
-    def get_serializer(self, *args, **kwargs):
-        serializer_class = self.get_serializer_class()
-        kwargs['context'] = self.get_serializer_context()
-
-        return serializer_class(*args, **kwargs)
-
 class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
@@ -298,3 +285,55 @@ class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
         request.data['id'] = 'http://' + request.get_host() + request.path
         request.data.mutable = False
         return self.create(request, *args, **kwargs)
+
+class CommentListView(ListCreateAPIView):
+    queryset = Comment.objects.all()
+    pagination_class = CommentPagination
+    http_method_names = ['get', 'post', 'head', 'options']
+    view_name = 'accounts:api_comment_list'
+
+    _author_id = 'author_id'
+    _post_id = 'post_id'
+    _items = 'items'
+
+    def get_post_id(self, request):
+        kwargs = {self._author_id: self.kwargs[self._author_id], self._post_id: self.kwargs[self._post_id]}
+        return request.get_host() + reverse('accounts:api_post_detail', kwargs=kwargs)
+
+    def get_queryset(self):
+        queryset = self.queryset
+        
+        try:
+            breakpoint()
+            queryset = queryset.filter(id__contains=self.get_post_id(self.request))
+        except:
+            raise Http404
+        return queryset
+    
+    def get_serializer(self, *args, **kwargs):
+        kwargs['context'] = self.get_serializer_context()
+        if 'data' in kwargs:
+            return CommentCreationSerializer(*args, **kwargs)
+        return CommentSerializer(*args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        template = {'type': 'comment', self._items: None}
+        
+        queryset = self.get_queryset()
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            template[self._items] = serializer.data
+            return self.get_paginated_response(template)
+
+        serializer = self.get_serializer(queryset, many=True)
+        template[self._items] = serializer.data
+        return Response(template)
+    
+    def post(self, request, *args, **kwargs):
+        request.POST._mutable = True
+        request.data['post'] = 'http://' + self.get_post_id(request)
+        request.POST._mutable = False
+        return self.create(request, *args, **kwargs)
+    

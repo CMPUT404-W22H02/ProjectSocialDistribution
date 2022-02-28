@@ -81,7 +81,7 @@ class Post(Model):
     # TODO: categories: need to determine how to put a list of strings here
 
     count = IntegerField()
-    # TODO: comments = URLField()
+    comments = URLField(unique=True, blank=True)
     # TODO: comment_src to the serializer
     # TODO: published requires ISO 8601 timestamp see here https://gist.github.com/bryanchow/1195854/32c7ebb1cfca38ccec0b71b7ed17ab1c497c7d74
     visibility_choices = (
@@ -101,10 +101,9 @@ class Post(Model):
     
     # Author id must be traceable to the server the author belongs to
     def save(self, *args, **kwargs):
-        breakpoint()
         if not self.id:
             self.id = self.author.id + f'posts/{str(uuid4())}'
-            self.url = self.id
+            self.comments = self.id + '/comments/'
         
         super(Post, self).save(*args, **kwargs)
 
@@ -118,10 +117,17 @@ class Image(Model):
 
 class Comment(Model):
     """Comment object sent to a NodeUser inbox, related to a specific Post."""
-    author = OneToOneField(NodeUser, on_delete=CASCADE)
+    author = ForeignKey(NodeUser, on_delete=CASCADE)
     comment = CharField(max_length=500)
     # TODO: published requires ISO 8601 timestamp see here https://gist.github.com/bryanchow/1195854/32c7ebb1cfca38ccec0b71b7ed17ab1c497c7d74
-    id = URLField(editable=False, primary_key=True)
+    id = URLField(primary_key=True, unique=True, blank=True)
+    post = ForeignKey(Post, on_delete=CASCADE)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.id = self.post.id + f'/comments/{str(uuid4())}'
+        
+        super(Comment, self).save(*args, **kwargs)
 
     @property
     def type(self):

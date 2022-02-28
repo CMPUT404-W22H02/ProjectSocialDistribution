@@ -16,7 +16,7 @@
 
 from rest_framework.serializers import ModelSerializer
 
-from .models import NodeUser, Post
+from .models import NodeUser, Post, Comment
 
 
 class NodeUserSerializer(ModelSerializer):
@@ -30,4 +30,17 @@ class PostSerializer(ModelSerializer):
 
     class Meta:
         model = Post
+        fields = '__all__'
+
+class CommentSerializer(ModelSerializer):
+    author = NodeUserSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['comment', 'id', 'author']
+
+class CommentCreationSerializer(ModelSerializer):
+
+    class Meta:
+        model = Comment
         fields = '__all__'
