@@ -207,7 +207,7 @@ class FollowerExistsView(RetrieveUpdateDestroyAPIView):
 class ProfileView(CreateView):
 
     def get(self, request, template_name="accounts/profile.html"):
-        return TemplateResponse(request, template_name)
+        return TemplateResponse(request, template_name, {'uid':request.user.id})
 
 class PostListView(ListCreateAPIView):
     """GET recent posts from AUTHOR_ID (paginated) and POST to create a new post with a newly generated POST_ID."""
