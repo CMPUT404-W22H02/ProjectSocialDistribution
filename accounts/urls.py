@@ -19,7 +19,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from .views import (AuthorDetailView, AuthorListView, FollowerExistsView,
                     FollowerListView, HomeRedirectView, LoggedInRedirectView,
-                    PostDetailView, PostListView, RegisterCreateView, CommentListView)
+                    PostDetailView, PostListView, RegisterCreateView, CommentListView, PostLikesView, AuthorLikedView)
 
 app_name = 'accounts'
 
@@ -36,7 +36,9 @@ urlpatterns = [
     path('authors/<str:author_id>/followers/<path:follower_id>/', FollowerExistsView.as_view(), name='api_follower_action'),
     path('authors/<str:author_id>/posts/', PostListView.as_view(), name='api_post_list'),
     path('authors/<str:author_id>/posts/<str:post_id>', PostDetailView.as_view(), name='api_post_detail'),
-    path('authors/<str:author_id>/posts/<str:post_id>/comments/',CommentListView.as_view(), name='api_comment_list'),
+    path('authors/<str:author_id>/posts/<str:post_id>/comments/', CommentListView.as_view(), name='api_comment_list'),
+    path('authors/<str:author_id>/posts/<str:post_id>/likes', PostLikesView.as_view(), name='api_post_likes'),
+    path('authors/<str:author_id>/liked', AuthorLikedView.as_view(), name='api_author_liked')
     
 ]
 

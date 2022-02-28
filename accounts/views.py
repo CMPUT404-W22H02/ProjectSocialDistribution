@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from msilib.schema import ListView
 from uuid import uuid4
 
 import requests
@@ -31,7 +32,7 @@ from rest_framework.response import Response
 from socialdisto.pagination import CommentPagination, CustomPagination
 
 from .forms import RegistrationForm
-from .models import NodeUser, Post, Comment
+from .models import NodeUser, Post, Comment, Like
 from .serializers import CommentCreationSerializer, CommentSerializer, NodeUserSerializer, PostSerializer
 
 
@@ -304,7 +305,6 @@ class CommentListView(ListCreateAPIView):
         queryset = self.queryset
         
         try:
-            breakpoint()
             queryset = queryset.filter(id__contains=self.get_post_id(self.request))
         except:
             raise Http404
@@ -337,3 +337,53 @@ class CommentListView(ListCreateAPIView):
         request.POST._mutable = False
         return self.create(request, *args, **kwargs)
     
+class PostLikesView(ListAPIView):
+    serializer_class = CommentSerializer
+    http_method_names = ['get', 'head', 'options']
+
+    _author_id = 'author_id'
+    _post_id = 'post_id'
+
+    def get_post_id(self):
+        kwargs = {self._author_id: self.kwargs[self._author_id], self._post_id: self.kwargs[self._post_id]}
+        return self.request.get_host() + reverse('accounts:api_post_detail', kwargs=kwargs)
+
+    def get_queryset(self):
+        queryset = Like.objects.all()
+
+        # Don't 404 if there are no likes at all
+        if not queryset:
+            return queryset
+
+        try:
+            queryset = queryset.filter(object__contains=self.get_post_id())
+        except:
+            raise Http404
+        
+        return queryset
+
+class AuthorLikedView(ListAPIView):
+    serializer_class = CommentSerializer
+    http_method_names = ['get', 'head', 'options']
+
+    _author_id = 'author_id'
+
+    def get_author_id(self):
+        kwargs = {self._author_id: self.kwargs[self._author_id]}
+        return self.request.get_host() + reverse('accounts:api_author_details')
+
+    def get_queryset(self):
+        queryset = Like.objects.all()
+
+        # Don't 404 if there are no likes at all
+        if not queryset:
+            return queryset
+
+        try:
+            queryset = queryset.filter(author__id__contains=self.get_author_id())
+        except:
+            raise Http404
+        
+        return queryset
+
+

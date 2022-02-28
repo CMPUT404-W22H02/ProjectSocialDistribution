@@ -16,7 +16,7 @@
 
 from rest_framework.serializers import ModelSerializer
 
-from .models import NodeUser, Post, Comment
+from .models import Like, NodeUser, Post, Comment
 
 
 class NodeUserSerializer(ModelSerializer):
@@ -43,4 +43,11 @@ class CommentCreationSerializer(ModelSerializer):
 
     class Meta:
         model = Comment
+        fields = '__all__'
+
+class LikeSerializer(ModelSerializer):
+    author = NodeUserSerializer(read_only=True)
+
+    class Meta:
+        model = Like
         fields = '__all__'

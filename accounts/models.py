@@ -140,7 +140,7 @@ class Like(Model):
     """Like object sent to a NodeUser inbox, related to either a Post or a Comment."""
     summary = CharField(max_length=255)
     author = OneToOneField(NodeUser, on_delete=CASCADE)
-    object = URLField(editable=False, primary_key=True)
+    object = URLField(primary_key=True)
 
     @property
     def type(self):
