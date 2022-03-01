@@ -2,14 +2,12 @@
 {% load static %}
 
 {% block body %}
-{% csrf_token %}
 <script src="{% static 'accounts/js/author/profile.js' %}"></script>
 <html>
     <h1>User Profile</h1>
     <body onload="getProfile('{{uid}}')">
         <form method="post">
             {% csrf_token %}
-            {{ form.as_p }}
     <div><p>Display Name - <input type="text" id="newname" style="display: none;"><span id="dname"></span></p> 
         <p>ID - <span id="did"></span></p> 
         <p>URL - <span id="durl"></span></p> 

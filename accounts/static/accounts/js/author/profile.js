@@ -32,13 +32,12 @@ function getCookie(name) {
 
 function postProfile(uid){
     const csrftoken = getCookie('csrftoken');
-    console.log(csrftoken)
     var myDiv = document.getElementById("newname");
     var name = myDiv.value
     var myDiv = document.getElementById("newgh");
     var gh = myDiv.value
     if(name!=""){
-        let fetchRes = fetch(
+        fetch(
             uid, {
                 method: 'POST',
                 headers: {

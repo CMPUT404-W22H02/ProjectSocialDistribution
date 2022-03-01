@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from django.contrib.auth.forms import UserCreationForm
-
+from django import forms
 from .models import NodeUser
 
 

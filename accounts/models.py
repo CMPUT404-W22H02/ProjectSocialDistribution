@@ -101,7 +101,6 @@ class Post(Model):
     
     # Author id must be traceable to the server the author belongs to
     def save(self, *args, **kwargs):
-        breakpoint()
         if not self.id:
             self.id = self.author.id + f'posts/{str(uuid4())}'
             self.url = self.id
