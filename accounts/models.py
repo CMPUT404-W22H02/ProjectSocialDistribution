@@ -18,14 +18,15 @@ from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
 from django.db.models import (CASCADE, BooleanField, CharField, ForeignKey,
-                              ManyToManyField, Model, OneToOneField, URLField)
-from django.forms import IntegerField
+                              IntegerField, ManyToManyField, Model,
+                              OneToOneField, URLField, UUIDField)
 
 
 class NodeUser(AbstractUser):
-    id = URLField(primary_key=True, editable=False)
-    url = URLField(editable=False)
-    host = CharField(max_length=255, editable=False)
+    # API fields
+    id = URLField(primary_key=True, max_length=255)
+    url = URLField()
+    host = CharField(max_length=255)
     display_name = CharField(max_length=20, blank=False)
     github = URLField(blank=True)
     # TODO: profile images when server image hosting is implemented.
@@ -33,12 +34,17 @@ class NodeUser(AbstractUser):
     # Bi-directional follow is a true friend
     followers = ManyToManyField('self')
 
+    # Server registration management
     account_activated = BooleanField(default=False)
-
-    uuid_id = CharField(default=uuid4, editable=False, max_length=255)
 
     def get_absolute_url(self):
         return self.id
+    
+    def save(self, *args, **kwargs):
+        """Link newly created author to an inbox."""
+        inbox = Inbox(author=self.id)
+        inbox.save()
+        super(NodeUser, self).save(*args, **kwargs)
 
     @property
     def type(self):
@@ -62,7 +68,7 @@ class FollowRequest(Model):
 class Post(Model):
     """Post object sent to a NodeUser inbox."""
     title = CharField(max_length=255)
-    id = URLField(primary_key=True, unique=True, blank=True)
+    id = URLField(primary_key=True, blank=True)
     source = URLField(blank=True)
     origin = URLField(blank=True)
     description = CharField(max_length=255)
@@ -80,7 +86,7 @@ class Post(Model):
 
     # TODO: categories: need to determine how to put a list of strings here
 
-    count = IntegerField()
+    count = IntegerField(default=0)
     comments = URLField(unique=True, blank=True)
     # TODO: comment_src to the serializer
     # TODO: published requires ISO 8601 timestamp see here https://gist.github.com/bryanchow/1195854/32c7ebb1cfca38ccec0b71b7ed17ab1c497c7d74
@@ -95,6 +101,8 @@ class Post(Model):
         # Default ordering in comment_src will be by when the post was published.
         # ordering = ['published']
         ordering = ['id']
+        # TODO: How to handle same post sent to same inbox by different senders.
+        # unique_together = ['id', 'inbox']
 
     def get_absolute_url(self):
         return self.id
@@ -140,7 +148,8 @@ class Like(Model):
     """Like object sent to a NodeUser inbox, related to either a Post or a Comment."""
     summary = CharField(max_length=255)
     author = OneToOneField(NodeUser, on_delete=CASCADE)
-    object = URLField(primary_key=True)
+    object = URLField()
+    uuid = UUIDField(primary_key=True, default=uuid4())
 
     @property
     def type(self):
@@ -148,3 +157,11 @@ class Like(Model):
 
     class Meta:
         pass
+
+class Inbox(Model):
+    author = URLField(primary_key=True)
+    posts = ManyToManyField(Post)
+
+    @property
+    def type(self):
+        return 'inbox'

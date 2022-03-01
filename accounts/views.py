@@ -27,13 +27,15 @@ from rest_framework import status
 from rest_framework.generics import (CreateAPIView, ListAPIView,
                                      ListCreateAPIView, RetrieveUpdateAPIView,
                                      RetrieveUpdateDestroyAPIView)
+from rest_framework.mixins import DestroyModelMixin
 from rest_framework.response import Response
 
 from socialdisto.pagination import CommentPagination, CustomPagination
 
 from .forms import RegistrationForm
-from .models import NodeUser, Post, Comment, Like
-from .serializers import CommentCreationSerializer, CommentSerializer, NodeUserSerializer, PostSerializer
+from .models import Comment, Inbox, Like, NodeUser, Post
+from .serializers import (CommentCreationSerializer, CommentSerializer,
+                          NodeUserSerializer, PostSerializer)
 
 
 class RegisterCreateView(CreateView):
@@ -55,19 +57,18 @@ class LoggedInRedirectView(RedirectView):
     pattern_name = 'inbox:home'
 
 class AuthorListView(ListAPIView):
-    """Retrieve all author profiles on the server with optional pagination."""
+    """Retrieve all authors registered on the server."""
     queryset = NodeUser.objects.all()
     serializer_class = NodeUserSerializer
     pagination_class = CustomPagination
     http_method_names = ['get', 'head', 'options']
 
     def list(self, request):
-        """Filter out possible remote profiles created from foreign key relationships."""
         items = 'items'
         template = {'type': 'authors', items: None}
 
-        host = request.get_host()
-        queryset = self.filter_queryset(self.get_queryset()).filter(host__contains=host)
+        queryset = self.filter_queryset(self.get_queryset())
+        # queryset = queryset.filter(host__contains=self.request.get_host())
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -386,4 +387,69 @@ class AuthorLikedView(ListAPIView):
         
         return queryset
 
+class InboxView(ListCreateAPIView, DestroyModelMixin):
+    serializer_class = PostSerializer
+    pagination_class = CustomPagination
+    http_method_names = ['get', 'post', 'head', 'options']
 
+    _type = 'type'
+    _items = 'items'
+    _inbox = 'inbox'
+    _author = 'author'
+    _author_id = 'author_id'
+    _type_post = 'post'
+    _type_follow = 'follow'
+    _type_like = 'like'
+
+    def get_author_id(self):
+        kwargs = {self._author_id: self.kwargs[self._author_id]}
+        return self.request.get_host() + reverse('accounts:api_author_details', kwargs=kwargs)
+
+    def queryset_post(self):
+        if self.request[self._type] == self._type_post:
+            try:
+                queryset = Inbox.objects.filter(author__contains=self.get_author_id())
+            except:
+                raise Http404
+        elif self.request[self._type] == self._type_follow:
+            pass
+        elif self.request[self._type] == self._type_like:
+            pass
+    
+    def queryset_get(self):
+        queryset = Post.objects.all()
+
+        if not queryset:
+            return queryset
+        
+        try:
+            queryset = queryset.filter(id__contains=self.get_author_id())
+        except:
+            raise Http404
+        
+        return queryset
+
+    def queryset_delete(self):
+        pass
+
+    def get_queryset(self):
+        if self.request.method == 'GET':
+            return self.queryset_get()
+        elif self.request.method == 'POST':
+            return self.queryset_post()
+        elif self.request.method == 'DELETE':
+            pass
+
+    def list(self, request, *args, **kwargs):
+        template = {self._type: self._inbox, self._author: 'http://' + self.get_author_id(), self._items: None}
+        queryset = self.queryset_get()
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            template[self._items] = serializer.data
+            return self.get_paginated_response(template)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        template[self._items] = serializer.data
+        return Response(template)

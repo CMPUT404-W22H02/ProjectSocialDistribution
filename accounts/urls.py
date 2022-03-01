@@ -17,9 +17,11 @@
 from django.urls import include, path
 from rest_framework.urlpatterns import format_suffix_patterns
 
-from .views import (AuthorDetailView, AuthorListView, FollowerExistsView,
-                    FollowerListView, HomeRedirectView, LoggedInRedirectView,
-                    PostDetailView, PostListView, RegisterCreateView, CommentListView, PostLikesView, AuthorLikedView)
+from .views import (AuthorDetailView, AuthorLikedView, AuthorListView,
+                    CommentListView, FollowerExistsView, FollowerListView,
+                    HomeRedirectView, InboxView, LoggedInRedirectView,
+                    PostDetailView, PostLikesView, PostListView,
+                    RegisterCreateView)
 
 app_name = 'accounts'
 
@@ -38,7 +40,8 @@ urlpatterns = [
     path('authors/<str:author_id>/posts/<str:post_id>', PostDetailView.as_view(), name='api_post_detail'),
     path('authors/<str:author_id>/posts/<str:post_id>/comments/', CommentListView.as_view(), name='api_comment_list'),
     path('authors/<str:author_id>/posts/<str:post_id>/likes', PostLikesView.as_view(), name='api_post_likes'),
-    path('authors/<str:author_id>/liked', AuthorLikedView.as_view(), name='api_author_liked')
+    path('authors/<str:author_id>/liked', AuthorLikedView.as_view(), name='api_author_liked'),
+    path('authors/<str:author_id>/inbox', InboxView.as_view(), name='api_inbox_get')
     
 ]
 

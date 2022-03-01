@@ -14,9 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from uuid import uuid4
 from django.test import TestCase
-from django.urls import reverse
 from rest_framework import status
+
+from .models import NodeUser
 
 
 class PermissionTests(TestCase):
@@ -26,6 +28,76 @@ class PermissionTests(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+class APITestCase(TestCase):
+    """REST API test case setUp boilerplate."""
+    def setUp(self):
+        self.pk = 'id'
+        self.username = 'username'
+        self.display = 'display_name'
+        self.github = 'github'
+        self.host = 'host'
+
+        self.u1_uuid = str(uuid4())
+        self.u1 = {self.pk: '/authors/'+self.u1_uuid+'/', self.username: 'johndoe', self.display: 'John Doe',
+                    self.github: 'https://github.com/jondoe'}
+        NodeUser.objects.create(id=self.u1[self.pk], username=self.u1[self.username], display_name=self.u1[self.display], 
+                                github=self.u1[self.github])
+        
+        self.u2_uuid = str(uuid4())
+        self.u2 = {self.pk: '/authors/'+self.u2_uuid+'/', self.username: 'janendoe', self.display: 'Jane Doe',
+                    self.github: 'https://github.com/janedoe'}
+        NodeUser.objects.create(id=self.u2[self.pk], username=self.u2[self.username], display_name=self.u2[self.display], 
+                                github=self.u2[self.github])
+    
+class AuthorListTests(APITestCase):
+    """Test GET service/authors/."""   
+    def test_get_success(self):
+        """GET /authors/ success."""
+        response = self.client.get('/authors/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, self.u1[self.pk])
+    
+    def test_pagination(self):
+        """GET /authors/?page=1&size=1 should split into 2 pages."""
+        response = self.client.get('/authors/?page=1&size=1')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, 'count')
+        self.assertContains(response, 'next')
+        self.assertContains(response, 'previous')
+        self.assertContains(response, 'results')
+
+        response = self.client.get('/authors/?page=2&size=1')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+class SingleAuthorTests(APITestCase):
+    """Test GET service/authors/AUTHOR_ID/."""
+    def test_get_success(self):
+        """GET /authors/AUTHOR_ID/ success."""
+        response = self.client.get(f'/authors/{self.u1_uuid}/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, self.u1[self.pk])
+        self.assertContains(response, self.u1[self.display])
+        self.assertContains(response, self.u1[self.github])
+
+        response = self.client.get(f'/authors/{self.u2_uuid}/')
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertContains(response, self.u2[self.pk])
+        self.assertContains(response, self.u2[self.display])
+        self.assertContains(response, self.u2[self.github])
+    
+    def test_get_404(self):
+        """GET /authors/AUTHOR_ID/ NOT FOUND."""
+        response = self.client.get('/authors/11111/')
+
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+
+
 
 # class APITestCase(TestCase):
 #     """Setup boilerplate configuration and NodeUser querystring lookups."""
