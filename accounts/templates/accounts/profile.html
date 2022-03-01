@@ -2,15 +2,23 @@
 {% load static %}
 
 {% block body %}
+{% csrf_token %}
 <script src="{% static 'accounts/js/author/profile.js' %}"></script>
 <html>
-    <h1>Home Page</h1>
-    <div><p id="dname">Display Name</p>
-        <p id="dtype">Type</p>
-        <p id="did">ID</p>
-        <p id="durl">URL</p>
-        <p id="dgh">Github</p>
-    <input type="button" value="Submit" onclick="getProfile('{{uid}}')">
+    <h1>User Profile</h1>
+    <body onload="getProfile('{{uid}}')">
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+    <div><p>Display Name - <input type="text" id="newname" style="display: none;"><span id="dname"></span></p> 
+        <p>ID - <span id="did"></span></p> 
+        <p>URL - <span id="durl"></span></p> 
+        <p>Github - <input type="text" id="newgh" style="display: none;"><span id="dgh"></span></p> 
+    </div>
+    <input type="button" id="sBtn" value="Submit" onclick="postProfile('{{uid}}')" style="display: none;">
+    </form>
+    <input type="button" id="eBtn" value="Edit Profile" onclick="editProfile()">
+    </body>
 </html>
 
 
