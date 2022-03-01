@@ -37,26 +37,28 @@ function postProfile(uid){
     var name = myDiv.value
     var myDiv = document.getElementById("newgh");
     var gh = myDiv.value
-    let fetchRes = fetch(
-        uid, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify({
-                display_name: name,
-                github: gh
+    if(name!=""){
+        let fetchRes = fetch(
+            uid, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken
+                },
+                body: JSON.stringify({
+                    display_name: name,
+                    github: gh
+                })
             })
-        })
-        .then(res => res.json())
-        .then(data => {
-            console.log(data)
-        })
-        .catch(error => {
-        console.log(error)
-        })  ;
-    edited();
+            .then(res => res.json())
+            .then(data => {
+                console.log(data);
+                edited();
+            })
+            .catch(error => {
+            console.log(error)
+            })  ;
+        }
 }
 
 function edited(){
