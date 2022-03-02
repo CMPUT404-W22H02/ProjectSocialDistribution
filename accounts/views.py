@@ -212,37 +212,23 @@ class FollowerExistsView(RetrieveUpdateDestroyAPIView):
         
         return response.json()
 
+# TODO: Image serializer implementation - base64 decoding
 class PostListView(ListCreateAPIView):
     """GET recent posts from AUTHOR_ID (paginated) and POST to create a new post with a newly generated POST_ID."""
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'head', 'options']
-    view_name = 'accounts:api_post_list'
-
-    _author_id = 'author_id'
-
-    def get_author_id(self, request):
-        kwargs = {self._author_id: self.kwargs[self._author_id]}
-        return request.get_host() + reverse(self.view_name, kwargs=kwargs)
-    
-    def get_author_posts_queryset(self, request):
-        """Get all posts made created by AUTHOR_ID."""
-        queryset = self.get_queryset()
-
-        if not queryset:
-            return queryset
-
-        id = self.get_author_id(request)
-        queryset = queryset.filter(id__contains=id)
-        
-        return queryset
 
     def list(self, request, *args, **kwargs):
         items = 'items'
         template = {'type': 'posts', items: None}
 
-        queryset = self.get_author_posts_queryset(request)
+        queryset = self.get_queryset()
+        if not queryset:
+            return queryset
+        
+        queryset = queryset.filter(id__contains=self.author_id())
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -254,17 +240,23 @@ class PostListView(ListCreateAPIView):
         template[items] = serializer.data
         return Response(template)
 
+    def author_id(self):
+        """Return AUTHOR_ID with hostname prefix."""
+        key = 'author_id'
+        view_name = 'accounts:api_author_details'
+        kwargs = {key: self.kwargs[key]}
+        return self.request.get_host() + reverse(view_name, kwargs=kwargs)
+
 class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'options']
     view_name = 'accounts:api_post_detail'
 
-    _author_id = 'author_id'
-    _post_id = 'post_id'
-
-    def get_post_id(self):
-        kwargs = {self._author_id: self.kwargs[self._author_id], self._post_id: self.kwargs[self._post_id]}
+    def post_id(self):
+        author_id = 'author_id'
+        post_id = 'post_id'
+        kwargs = {author_id: self.kwargs[author_id], post_id: self.kwargs[post_id]}
         return reverse(self.view_name, kwargs=kwargs)
 
     def get_object(self):
@@ -273,7 +265,7 @@ class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
         if not queryset:
             raise Http404
 
-        queryset = queryset.filter(id__contains=self.get_post_id())
+        queryset = queryset.filter(id__contains=self.post_id())
 
         obj = get_object_or_404(queryset)
 
@@ -286,14 +278,15 @@ class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
         """Update the post whose id is POST_ID."""
         return self.partial_update(request, *args, **kwargs)
     
-    # TODO: PK really shouldn't be editable, need a workaround for duplication checks
-    # that isn't complete crap.
     def put(self, request, *args, **kwargs):
         """Create a new post where its id is POST_ID."""
-        request.data._mutable = True
-        request.data['id'] = 'http://' + request.get_host() + request.path
-        request.data.mutable = False
         return self.create(request, *args, **kwargs)
+    
+    def perform_create(self, serializer):
+        """Override: need to insert the POST_ID."""
+        serializer.save(
+            id=f'http://{self.request.get_host()}{self.request.path}'
+        )
 
 class CommentListView(ListCreateAPIView):
     queryset = Comment.objects.all()
@@ -340,9 +333,9 @@ class CommentListView(ListCreateAPIView):
         return Response(template)
     
     def post(self, request, *args, **kwargs):
-        request.POST._mutable = True
-        request.data['post'] = 'http://' + self.get_post_id(request)
-        request.POST._mutable = False
+        # request.POST._mutable = True
+        # request.data['post'] = 'http://' + self.get_post_id(request)
+        # request.POST._mutable = False
         return self.create(request, *args, **kwargs)
     
 class PostLikesView(ListAPIView):

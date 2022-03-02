@@ -52,6 +52,7 @@ class PostSerializer(ModelSerializer):
     class Meta:
         model = Post
         fields = '__all__'
+        ordering_fields = ['published']
 
 class InboxSerializer(ModelSerializer):
 

@@ -14,9 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from django.urls import reverse
 from uuid import uuid4
+
 from django.test import TestCase
+from django.urls import reverse
 from rest_framework import status
 
 from .models import NodeUser

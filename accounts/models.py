@@ -14,12 +14,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from datetime import datetime
 from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
-from django.db.models import (CASCADE, BooleanField, CharField, ForeignKey,
-                              IntegerField, ManyToManyField, Model,
+from django.db.models import (CASCADE, BooleanField, CharField, DateTimeField,
+                              ForeignKey, IntegerField, ManyToManyField, Model,
                               OneToOneField, URLField, UUIDField)
+from django.utils.timezone import now
 
 
 class NodeUser(AbstractUser):
@@ -68,8 +70,8 @@ class FollowRequest(Model):
 
 class Post(Model):
     """Post object sent to a NodeUser inbox."""
-    title = CharField(max_length=255)
     id = URLField(primary_key=True, blank=True)
+    title = CharField(max_length=255)
     source = URLField(blank=True)
     origin = URLField(blank=True)
     description = CharField(max_length=255)
@@ -90,7 +92,7 @@ class Post(Model):
     count = IntegerField(default=0)
     comments = URLField(unique=True, blank=True)
     # TODO: comment_src to the serializer
-    # TODO: published requires ISO 8601 timestamp see here https://gist.github.com/bryanchow/1195854/32c7ebb1cfca38ccec0b71b7ed17ab1c497c7d74
+    published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'))
     visibility_choices = (
         ('PUBLIC', 'PUBLIC'),
         ('PRIVATE', 'PRIVATE')
@@ -99,11 +101,7 @@ class Post(Model):
     unlisted = BooleanField()
 
     class Meta:
-        # Default ordering in comment_src will be by when the post was published.
-        # ordering = ['published']
-        ordering = ['id']
-        # TODO: How to handle same post sent to same inbox by different senders.
-        # unique_together = ['id', 'inbox']
+        pass
 
     def get_absolute_url(self):
         return self.id
@@ -113,7 +111,7 @@ class Post(Model):
         if not self.id:
             self.id = self.author.id + f'posts/{str(uuid4())}'
             self.comments = self.id + '/comments/'
-        
+
         super(Post, self).save(*args, **kwargs)
 
     @property
