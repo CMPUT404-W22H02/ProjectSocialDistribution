@@ -126,15 +126,15 @@ class Comment(Model):
     """Comment object sent to a NodeUser inbox, related to a specific Post."""
     author = ForeignKey(NodeUser, on_delete=CASCADE)
     comment = CharField(max_length=500)
-    # TODO: published requires ISO 8601 timestamp see here https://gist.github.com/bryanchow/1195854/32c7ebb1cfca38ccec0b71b7ed17ab1c497c7d74
+    published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'))
     id = URLField(primary_key=True, unique=True, blank=True)
     post = ForeignKey(Post, on_delete=CASCADE)
 
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.id = self.post.id + f'/comments/{str(uuid4())}'
+    # def save(self, *args, **kwargs):
+    #     if not self.id:
+    #         self.id = self.post.id + f'/comments/{str(uuid4())}'
         
-        super(Comment, self).save(*args, **kwargs)
+    #     super(Comment, self).save(*args, **kwargs)
 
     @property
     def type(self):

@@ -31,7 +31,8 @@ class CommentSerializer(ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['comment', 'id', 'author']
+        fields = ['type', 'author', 'comment', 'published', 'id']
+        ordering_fields = ['published']
 
 class CommentCreationSerializer(ModelSerializer):
 

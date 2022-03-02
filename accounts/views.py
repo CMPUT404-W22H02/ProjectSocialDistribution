@@ -251,13 +251,14 @@ class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'options']
-    view_name = 'accounts:api_post_detail'
+    
 
     def post_id(self):
+        view_name = 'accounts:api_post_detail'
         author_id = 'author_id'
         post_id = 'post_id'
         kwargs = {author_id: self.kwargs[author_id], post_id: self.kwargs[post_id]}
-        return reverse(self.view_name, kwargs=kwargs)
+        return reverse(view_name, kwargs=kwargs)
 
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
@@ -290,7 +291,7 @@ class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
 
 class CommentListView(ListCreateAPIView):
     queryset = Comment.objects.all()
-    pagination_class = CommentPagination
+    pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'head', 'options']
     view_name = 'accounts:api_comment_list'
 
@@ -298,29 +299,14 @@ class CommentListView(ListCreateAPIView):
     _post_id = 'post_id'
     _items = 'items'
 
-    def get_post_id(self, request):
-        kwargs = {self._author_id: self.kwargs[self._author_id], self._post_id: self.kwargs[self._post_id]}
-        return request.get_host() + reverse('accounts:api_post_detail', kwargs=kwargs)
-
-    def get_queryset(self):
-        queryset = self.queryset
-        
-        try:
-            queryset = queryset.filter(id__contains=self.get_post_id(self.request))
-        except:
-            raise Http404
-        return queryset
-    
-    def get_serializer(self, *args, **kwargs):
-        kwargs['context'] = self.get_serializer_context()
-        if 'data' in kwargs:
-            return CommentCreationSerializer(*args, **kwargs)
-        return CommentSerializer(*args, **kwargs)
-
     def list(self, request, *args, **kwargs):
         template = {'type': 'comment', self._items: None}
         
         queryset = self.get_queryset()
+        try:
+            queryset = queryset.filter(id__contains=self.post_id())
+        except:
+            raise Http404
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -332,11 +318,24 @@ class CommentListView(ListCreateAPIView):
         template[self._items] = serializer.data
         return Response(template)
     
-    def post(self, request, *args, **kwargs):
-        # request.POST._mutable = True
-        # request.data['post'] = 'http://' + self.get_post_id(request)
-        # request.POST._mutable = False
-        return self.create(request, *args, **kwargs)
+    def get_serializer(self, *args, **kwargs):
+        kwargs['context'] = self.get_serializer_context()
+        if 'data' in kwargs:
+            return CommentCreationSerializer(*args, **kwargs)
+        return CommentSerializer(*args, **kwargs)
+    
+    def perform_create(self, serializer):
+        """Override: need to insert the POST_ID."""
+        serializer.save(
+            id=f'http://{self.post_id()}/comments/{str(uuid4())}'
+        )
+    
+    def post_id(self):
+        view_name = 'accounts:api_post_detail'
+        author_id = 'author_id'
+        post_id = 'post_id'
+        kwargs = {author_id: self.kwargs[author_id], post_id: self.kwargs[post_id]}
+        return self.request.get_host() + reverse(view_name, kwargs=kwargs)
     
 class PostLikesView(ListAPIView):
     serializer_class = CommentSerializer
