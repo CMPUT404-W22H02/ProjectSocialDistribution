@@ -20,7 +20,8 @@ from webbrowser import get
 
 import requests
 from django.http import Http404
-from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
@@ -50,6 +51,17 @@ class RegisterCreateView(CreateView):
         form.instance.url = form.instance.id
         
         return super(RegisterCreateView, self).form_valid(form)
+
+class ProfileView(CreateView):
+
+    def get(self, request, template_name="accounts/profile.html"):
+        return TemplateResponse(request, template_name, {'uid':request.user.id})
+
+class CreatePost(CreateView):
+
+    def get(self, request, template_name="accounts/create.html"):
+        return TemplateResponse(request, template_name, {'uid':request.user.id})
+
 
 class HomeRedirectView(RedirectView):
     pattern_name = 'accounts:login'

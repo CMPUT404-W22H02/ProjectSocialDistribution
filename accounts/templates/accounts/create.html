@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<script src="{% static 'accounts/js/author/create.js' %}"></script>
+<html>
+    <h1>Create Post</h1>
+    <body></body>
+        <form method="post">
+            {% csrf_token %}
+    <div>
+        <p>Title - <input type="text" id="postTitle"></p> 
+        <p>Source - <input type="text" id="postSource"></p> 
+        <p>Origin - <input type="text" id="postOrigin"></p> 
+        <p>Description - <input type="text" id="postDesc"></p> 
+        <label for="visibility">Visibility - </label>
+        <select name="visibility" id="visibility">
+        <option value="PUBLIC">PUBLIC</option>
+        <option value="PRIVATE">PRIVATE</option>
+        </select>
+        <p>Unlisted - <input type="checkbox" id="unlisted"></p> 
+        </div>
+    <input type="button" id="sBtn" value="Submit" onclick="newPost('{{uid}}')">
+    </form>
+    </body>
+</html>
+{% endblock %}
