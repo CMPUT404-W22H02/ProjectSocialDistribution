@@ -14,9 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from msilib.schema import ListView
 from uuid import uuid4
-from webbrowser import get
 
 import requests
 from django.http import Http404
@@ -252,7 +250,6 @@ class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
     serializer_class = PostSerializer
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'options']
     
-
     def post_id(self):
         view_name = 'accounts:api_post_detail'
         author_id = 'author_id'
