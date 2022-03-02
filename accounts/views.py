@@ -16,6 +16,7 @@
 
 from msilib.schema import ListView
 from uuid import uuid4
+from webbrowser import get
 
 import requests
 from django.http import Http404
@@ -133,6 +134,7 @@ class FollowerListView(ListAPIView):
             author = queryset.filter(id__contains=self.author_id())
             queryset = queryset.filter(followers__in=author)
         except:
+            # Don't 404 on an empty queryset, just return an empty follower list
             queryset = self.get_queryset()
     
         serializer = self.get_serializer(queryset, many=True)
@@ -148,27 +150,11 @@ class FollowerExistsView(RetrieveUpdateDestroyAPIView):
     _items = 'items'
     _author_id = 'author_id'
     _follower_id = 'follower_id'
-    
-    def get_author_object(self, request):
-        queryset = self.get_queryset()
-        id = request.get_host() + '/authors/' + self.kwargs[self._author_id]
-        author = get_object_or_404(queryset, id__contains=id)
-        
-        return author
-    
-    def follower_profile(self):
-        """GET Request follower profile."""
-        id = self.kwargs[self._follower_id] + '/'
-        response = requests.get(id)
-        
-        if response.status_code == status.HTTP_404_NOT_FOUND:
-            raise Http404
-        
-        return response.json()
 
     def get(self, request, *args, **kwargs):
         """Check if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID."""
-        author = self.get_author_object(request)
+        queryset = self.get_queryset()
+        author = get_object_or_404(queryset, id__contains=self.author_id())
         queryset = author.followers.all().filter(id__contains=self.kwargs[self._follower_id])
         
         serializer = self.get_serializer(queryset, many=True)
@@ -195,11 +181,36 @@ class FollowerExistsView(RetrieveUpdateDestroyAPIView):
     def delete(self, request, *args, **kwargs):
         """Remove FOREIGN_AUTHOR_ID from AUTHOR_ID followers."""
         author = self.get_author_object(request)
+        queryset = author.followers.all().filter(id__contains=self.kwargs[self._follower_id])
+        follower = get_object_or_404(queryset, id__contains=self.author_id)
+
         follower = author.followers.all().get(id__contains=self.kwargs[self._follower_id])
 
         author.followers.remove(follower)
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def author_id(self):
+        """Return AUTHOR_ID with hostname prefix."""
+        key = 'author_id'
+        view_name = 'accounts:api_author_details'
+        kwargs = {key: self.kwargs[key]}
+        return self.request.get_host() + reverse(view_name, kwargs=kwargs)
+    
+    def get_author_object(self, request):
+        queryset = self.get_queryset()
+        author = get_object_or_404(queryset, id__contains=self.author_id())
+        return author
+    
+    def follower_profile(self):
+        """GET Request follower profile."""
+        id = self.kwargs[self._follower_id] + '/'
+        response = requests.get(id)
+        
+        if response.status_code == status.HTTP_404_NOT_FOUND:
+            raise Http404
+        
+        return response.json()
 
 class PostListView(ListCreateAPIView):
     """GET recent posts from AUTHOR_ID (paginated) and POST to create a new post with a newly generated POST_ID."""
