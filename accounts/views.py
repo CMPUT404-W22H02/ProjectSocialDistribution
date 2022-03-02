@@ -18,6 +18,7 @@ from uuid import uuid4
 
 import requests
 from django.http import Http404, HttpResponseBadRequest
+from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic.base import RedirectView
@@ -52,6 +53,22 @@ class RegisterCreateView(CreateView):
         Inbox.objects.create(author=self.object)
         
         return super().form_valid(form)
+
+class DisplayPostView(CreateView):
+
+    def get(self, request, template_name="accounts/post.html", *args, **kwargs):
+        author = self.kwargs['url'].split("posts/")[0]
+        return TemplateResponse(request, template_name, {'uid':request.user.id, 'url':self.kwargs['url'], 'author':author})
+
+class ProfileView(CreateView):
+
+    def get(self, request, template_name="accounts/profile.html"):
+        return TemplateResponse(request, template_name, {'uid':request.user.id})
+
+class CreatePost(CreateView):
+
+    def get(self, request, template_name="accounts/create.html"):
+        return TemplateResponse(request, template_name, {'uid':request.user.id})
 
 class HomeRedirectView(RedirectView):
     pattern_name = 'accounts:login'

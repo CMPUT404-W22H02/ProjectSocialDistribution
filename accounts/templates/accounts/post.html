@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<script src="{% static 'accounts/js/author/post.js' %}"></script>
+<html>
+    <h1>Post Details</h1>
+    <body onload="getPost('{{url}}', '{{uid}}', '{{author}}')">
+        <form method="post">
+            {% csrf_token %}
+    <div><p>Title - <input type="text" id="newTitle" style="display: none;"><span id="title"></span></p> 
+        <p>Description - <input type="text" id="newDesc" style="display: none;"><span id="desc"></span></p> 
+        <p>Visibility - <span id="vis"></span></p>
+        <span id="newVis" style="display: none;">
+        <select name="valVisName" id="valVis">
+        <option value="PUBLIC">PUBLIC</option>
+        <option value="PRIVATE">PRIVATE</option>
+        </select>
+        </span>
+        <p>Source - <input type="text" id="newSource" style="display: none;"><span id="source"></span></p> 
+        <p>Origin - <input type="text" id="newOrigin" style="display: none;"><span id="origin"></span></p> 
+        <p>Unlisted - <input type="checkbox" id="newLis" style="display: none;"><span id="lis"></span></p> 
+    </div>
+    <input type="button" id="sBtn" value="Submit" onclick="postPost('{{url}}')" style="display: none;">
+    </form>
+    <input type="button" id="eBtn" value="Edit Post" onclick="editPost()" style="display: none;">
+    <button value="Delete" onclick="delPost('{{url}}')" id="dBtn" style="display: none;">Delete</button>
+    </body>
+</html>
+
+
+{% endblock %}

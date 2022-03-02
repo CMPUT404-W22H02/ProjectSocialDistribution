@@ -21,16 +21,19 @@ from .views import (AuthorDetailView, AuthorLikedView, AuthorListView,
                     CommentListView, FollowerExistsView, FollowerListView,
                     HomeRedirectView, InboxView, LoggedInRedirectView,
                     PostDetailView, PostLikesView, PostListView,
-                    RegisterCreateView)
+                    RegisterCreateView, ProfileView,
+                    CreatePost, DisplayPostView)
 
 app_name = 'accounts'
 
 urlpatterns = [
     path('', include('django.contrib.auth.urls')),
     path('', HomeRedirectView.as_view(), name='home'),
+    path('create/', CreatePost.as_view(), name="create_post_view"),
+    path('profile/', ProfileView.as_view(), name='profile_view'),
     path('register/', RegisterCreateView.as_view(), name='register'),
     path('logged-in/', LoggedInRedirectView.as_view(), name='logged_in'),
-
+    path('post/<path:url>', DisplayPostView.as_view(), name="post display"),
     # REST API endpoints
     path('authors/', AuthorListView.as_view(), name='api_author_list'),
     path('authors/<str:author_id>/', AuthorDetailView.as_view(), name='api_author_details'),
