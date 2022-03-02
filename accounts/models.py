@@ -130,12 +130,6 @@ class Comment(Model):
     id = URLField(primary_key=True, unique=True, blank=True)
     post = ForeignKey(Post, on_delete=CASCADE)
 
-    # def save(self, *args, **kwargs):
-    #     if not self.id:
-    #         self.id = self.post.id + f'/comments/{str(uuid4())}'
-        
-    #     super(Comment, self).save(*args, **kwargs)
-
     @property
     def type(self):
         return 'comment'

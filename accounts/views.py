@@ -291,16 +291,12 @@ class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
 
 class CommentListView(ListCreateAPIView):
     queryset = Comment.objects.all()
-    pagination_class = CustomPagination
+    pagination_class = CommentPagination
     http_method_names = ['get', 'post', 'head', 'options']
-    view_name = 'accounts:api_comment_list'
-
-    _author_id = 'author_id'
-    _post_id = 'post_id'
-    _items = 'items'
 
     def list(self, request, *args, **kwargs):
-        template = {'type': 'comment', self._items: None}
+        items = 'items'
+        template = {'type': 'comments', items: None}
         
         queryset = self.get_queryset()
         try:
@@ -311,11 +307,11 @@ class CommentListView(ListCreateAPIView):
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            template[self._items] = serializer.data
+            template[items] = serializer.data
             return self.get_paginated_response(template)
 
         serializer = self.get_serializer(queryset, many=True)
-        template[self._items] = serializer.data
+        template[items] = serializer.data
         return Response(template)
     
     def get_serializer(self, *args, **kwargs):
