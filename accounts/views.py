@@ -68,7 +68,7 @@ class AuthorListView(ListAPIView):
         template = {'type': 'authors', items: None}
 
         queryset = self.filter_queryset(self.get_queryset())
-        # queryset = queryset.filter(host__contains=self.request.get_host())
+        queryset = queryset.filter(host__contains=self.request.get_host())
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -116,28 +116,24 @@ class FollowerListView(ListAPIView):
     """GET a list of authors who follow a specific author."""
     queryset = NodeUser.objects.all()
     serializer_class = NodeUserSerializer
-
-    _author_id = 'author_id'
     
-    def get_author_id(self, request):
-        return request.get_host() + '/authors/' + self.kwargs[self._author_id]
-
-    def get_author_followers_queryset(self, request):
-        """Get the followers queryset from an author's profile on the server."""
-        queryset = self.get_queryset()
-        id = self.get_author_id(request)
-        author = get_object_or_404(queryset, id__contains=id)
-
-        self.check_object_permissions(self.request, author)
-
-        return author.followers.all()
+    def author_id(self):
+        """Return AUTHOR_ID with hostname prefix."""
+        key = 'author_id'
+        view_name = 'accounts:api_author_details'
+        kwargs = {key: self.kwargs[key]}
+        return self.request.get_host() + reverse(view_name, kwargs=kwargs)
 
     def list(self, request, *args, **kwargs):
-        """Filter out possible remote profiles created from forein key relationships."""
         items = 'items'
         template = {'type': 'followers', items: None}
 
-        queryset = self.get_author_followers_queryset(request)
+        try:
+            queryset = self.get_queryset()
+            author = queryset.filter(id__contains=self.author_id())
+            queryset = queryset.filter(followers__in=author)
+        except:
+            queryset = self.get_queryset()
     
         serializer = self.get_serializer(queryset, many=True)
         template[items] = serializer.data
@@ -187,7 +183,7 @@ class FollowerExistsView(RetrieveUpdateDestroyAPIView):
         # FOREIGN_AUTHOR_ID may be remote, so need to make a request for the profile.
         profile = self.follower_profile()
 
-        obj, created = NodeUser.objects.get_or_create(id=profile[self._author_id])
+        obj, created = NodeUser.objects.get_or_create(id=profile['id'])
         
         author = self.get_author_object(request)
         author.followers.add(obj)

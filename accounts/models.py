@@ -34,8 +34,9 @@ class NodeUser(AbstractUser):
     # Bi-directional follow is a true friend
     followers = ManyToManyField('self')
 
+    # TODO: admin optional enforcement of registration activation
     # Server registration management
-    account_activated = BooleanField(default=False)
+    # account_activated = BooleanField(default=False)
 
     def get_absolute_url(self):
         return self.id
