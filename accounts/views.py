@@ -33,7 +33,7 @@ from socialdisto.pagination import CommentPagination, CustomPagination
 
 from .forms import RegistrationForm
 from .models import Comment, Inbox, Like, NodeUser, Post
-from .serializers import (CommentCreationSerializer, CommentSerializer,
+from .serializers import (CommentCreationSerializer, CommentSerializer, InboxSerializer,
                           NodeUserSerializer, PostSerializer)
 
 
@@ -46,8 +46,12 @@ class RegisterCreateView(CreateView):
         form.instance.host = host
         form.instance.id = 'http://' + host + reverse('accounts:api_author_details', kwargs={'author_id': str(uuid4())}) 
         form.instance.url = form.instance.id
+
+        self.object = form.save()
+        Inbox.objects.create(author=self.object)
+        breakpoint()
         
-        return super(RegisterCreateView, self).form_valid(form)
+        return super().form_valid(form)
 
 class HomeRedirectView(RedirectView):
     pattern_name = 'accounts:login'
@@ -222,11 +226,11 @@ class PostListView(ListCreateAPIView):
         items = 'items'
         template = {'type': 'posts', items: None}
 
-        queryset = self.get_queryset()
-        if not queryset:
-            return queryset
-        
-        queryset = queryset.filter(id__contains=self.author_id())
+        queryset = self.get_queryset() 
+        try:
+            queryset = queryset.filter(id__contains=self.author_id())
+        except:
+            pass
 
         page = self.paginate_queryset(queryset)
         if page is not None:
@@ -250,13 +254,15 @@ class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
     serializer_class = PostSerializer
     http_method_names = ['get', 'post', 'put', 'delete', 'head', 'options']
     
-    def post_id(self):
-        view_name = 'accounts:api_post_detail'
-        author_id = 'author_id'
-        post_id = 'post_id'
-        kwargs = {author_id: self.kwargs[author_id], post_id: self.kwargs[post_id]}
-        return reverse(view_name, kwargs=kwargs)
-
+    # TODO: must be authenticated.
+    def post(self, request, *args, **kwargs):
+        """Update the post whose id is POST_ID."""
+        return self.partial_update(request, *args, **kwargs)
+    
+    def put(self, request, *args, **kwargs):
+        """Create a new post where its id is POST_ID."""
+        return self.create(request, *args, **kwargs)
+    
     def get_object(self):
         queryset = self.filter_queryset(self.get_queryset())
 
@@ -271,20 +277,18 @@ class PostDetailView(RetrieveUpdateDestroyAPIView, CreateAPIView):
 
         return obj
     
-    # TODO: must be authenticated.
-    def post(self, request, *args, **kwargs):
-        """Update the post whose id is POST_ID."""
-        return self.partial_update(request, *args, **kwargs)
-    
-    def put(self, request, *args, **kwargs):
-        """Create a new post where its id is POST_ID."""
-        return self.create(request, *args, **kwargs)
-    
     def perform_create(self, serializer):
         """Override: need to insert the POST_ID."""
         serializer.save(
             id=f'http://{self.request.get_host()}{self.request.path}'
         )
+
+    def post_id(self):
+        view_name = 'accounts:api_post_detail'
+        author_id = 'author_id'
+        post_id = 'post_id'
+        kwargs = {author_id: self.kwargs[author_id], post_id: self.kwargs[post_id]}
+        return reverse(view_name, kwargs=kwargs)
 
 class CommentListView(ListCreateAPIView):
     queryset = Comment.objects.all()
@@ -331,15 +335,17 @@ class CommentListView(ListCreateAPIView):
         return self.request.get_host() + reverse(view_name, kwargs=kwargs)
     
 class PostLikesView(ListAPIView):
+    queryset = Like.objects.all()
     serializer_class = CommentSerializer
     http_method_names = ['get', 'head', 'options']
-
-    _author_id = 'author_id'
-    _post_id = 'post_id'
 
     def get_post_id(self):
         kwargs = {self._author_id: self.kwargs[self._author_id], self._post_id: self.kwargs[self._post_id]}
         return self.request.get_host() + reverse('accounts:api_post_detail', kwargs=kwargs)
+    
+    def list(self, request, *args, **kwargs):
+        """Omit pagination."""
+        queryset = self.get_queryset()
 
     def get_queryset(self):
         queryset = Like.objects.all()
@@ -349,11 +355,18 @@ class PostLikesView(ListAPIView):
             return queryset
 
         try:
-            queryset = queryset.filter(object__contains=self.get_post_id())
+            queryset = queryset.filter(object__contains=self.post_id())
         except:
             raise Http404
         
         return queryset
+    
+    def post_id(self):
+        view_name = 'accounts:api_post_detail'
+        author_id = 'author_id'
+        post_id = 'post_id'
+        kwargs = {author_id: self.kwargs[author_id], post_id: self.kwargs[post_id]}
+        return self.request.get_host() + reverse(view_name, kwargs=kwargs)
 
 class AuthorLikedView(ListAPIView):
     serializer_class = CommentSerializer
@@ -380,68 +393,125 @@ class AuthorLikedView(ListAPIView):
         return queryset
 
 class InboxView(ListCreateAPIView, DestroyModelMixin):
-    serializer_class = PostSerializer
     pagination_class = CustomPagination
     http_method_names = ['get', 'post', 'head', 'options']
 
     _type = 'type'
     _items = 'items'
-    _inbox = 'inbox'
-    _author = 'author'
-    _author_id = 'author_id'
-    _type_post = 'post'
-    _type_follow = 'follow'
-    _type_like = 'like'
+    # _inbox = 'inbox'
+    # _author = 'author'
+    # _author_id = 'author_id'
+    # _type_post = 'post'
+    # _type_follow = 'follow'
+    # _type_like = 'like'
 
-    def get_author_id(self):
-        kwargs = {self._author_id: self.kwargs[self._author_id]}
-        return self.request.get_host() + reverse('accounts:api_author_details', kwargs=kwargs)
-
-    def queryset_post(self):
-        if self.request[self._type] == self._type_post:
-            try:
-                queryset = Inbox.objects.filter(author__contains=self.get_author_id())
-            except:
-                raise Http404
-        elif self.request[self._type] == self._type_follow:
-            pass
-        elif self.request[self._type] == self._type_like:
-            pass
-    
-    def queryset_get(self):
+    def list(self, request, *args, **kwargs):
+        template = {'type': 'inbox', 'author': f'http://{self.author_id()}', self._items: None}
         queryset = Post.objects.all()
-
-        if not queryset:
-            return queryset
         
         try:
-            queryset = queryset.filter(id__contains=self.get_author_id())
+            inbox = Inbox.objects.filter(author__id__contains=self.author_id())
+            queryset = queryset.filter(inbox__in=inbox)
         except:
             raise Http404
         
-        return queryset
-
-    def queryset_delete(self):
-        pass
-
-    def get_queryset(self):
-        if self.request.method == 'GET':
-            return self.queryset_get()
-        elif self.request.method == 'POST':
-            return self.queryset_post()
-        elif self.request.method == 'DELETE':
-            pass
-
-    def list(self, request, *args, **kwargs):
-        template = {self._type: self._inbox, self._author: 'http://' + self.get_author_id(), self._items: None}
-        queryset = self.queryset_get()
-
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            template[self._items] = serializer.data
-            return self.get_paginated_response(template)
+        # page = self.paginate_queryset(queryset)
+        # if page is not None:
+        #     serializer = self.get_serializer(page, many=True)
+        #     template[self._items] = serializer.data
+        #     return self.get_paginated_response(template)
         
         serializer = self.get_serializer(queryset, many=True)
         template[self._items] = serializer.data
-        return Response(template)
+        return Response([])
+
+    def create(self, request, *args, **kwargs):
+        if request.data[self._type] == Post:
+            self.create_post(request, *args, **kwargs)
+
+    def create_post(self, request, *args, **kwargs):
+        # Check if post already exists on the server
+        try:
+            obj = Post.objects.all().get(id=request.data['id'])
+            inbox = Inbox.objects.all().get(author=self.author_id())
+            inbox.posts.add(obj)
+            return Response(status=status.HTTP_200_OK)
+        except Post.DoesNotExist:
+            kwargs['context'] = self.get_serializer_context()
+            serializer = PostSerializer(*args, **kwargs)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+
+            obj = Post.objects.all().get(id=request.data['id'])
+            inbox = Inbox.objects.all().get(author=self.author_id())
+            inbox.posts.add(obj)
+
+            headers = self.get_success_headers(serializer.data)
+            return Response(serializer.data, status=status.HTTP_201_OK, headers=headers)
+    
+    def get_serializer(self, *args, **kwargs):
+        kwargs['context'] = self.get_serializer_context()
+        
+        if self.request.method == 'GET':
+            return PostSerializer(*args, **kwargs)
+
+    def author_id(self):
+        """Return AUTHOR_ID with hostname prefix."""
+        key = 'author_id'
+        view_name = 'accounts:api_author_details'
+        kwargs = {key: self.kwargs[key]}
+        return self.request.get_host() + reverse(view_name, kwargs=kwargs)
+
+    
+    # def get_author_id(self):
+    #     kwargs = {self._author_id: self.kwargs[self._author_id]}
+    #     return self.request.get_host() + reverse('accounts:api_author_details', kwargs=kwargs)
+
+    # def queryset_post(self):
+    #     if self.request[self._type] == self._type_post:
+    #         try:
+    #             queryset = Inbox.objects.filter(author__contains=self.get_author_id())
+    #         except:
+    #             raise Http404
+    #     elif self.request[self._type] == self._type_follow:
+    #         pass
+    #     elif self.request[self._type] == self._type_like:
+    #         pass
+    
+    # def queryset_get(self):
+    #     queryset = Post.objects.all()
+
+    #     if not queryset:
+    #         return queryset
+        
+    #     try:
+    #         queryset = queryset.filter(id__contains=self.get_author_id())
+    #     except:
+    #         raise Http404
+        
+    #     return queryset
+
+    # def queryset_delete(self):
+    #     pass
+
+    # def get_queryset(self):
+    #     if self.request.method == 'GET':
+    #         return self.queryset_get()
+    #     elif self.request.method == 'POST':
+    #         return self.queryset_post()
+    #     elif self.request.method == 'DELETE':
+    #         pass
+
+    # def list(self, request, *args, **kwargs):
+    #     template = {self._type: self._inbox, self._author: 'http://' + self.get_author_id(), self._items: None}
+    #     queryset = self.queryset_get()
+
+    #     page = self.paginate_queryset(queryset)
+    #     if page is not None:
+    #         serializer = self.get_serializer(page, many=True)
+    #         template[self._items] = serializer.data
+    #         return self.get_paginated_response(template)
+        
+    #     serializer = self.get_serializer(queryset, many=True)
+    #     template[self._items] = serializer.data
+    #     return Response(template)

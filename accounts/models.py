@@ -42,12 +42,6 @@ class NodeUser(AbstractUser):
 
     def get_absolute_url(self):
         return self.id
-    
-    def save(self, *args, **kwargs):
-        """Link newly created author to an inbox."""
-        inbox = Inbox(author=self.id)
-        inbox.save()
-        super(NodeUser, self).save(*args, **kwargs)
 
     @property
     def type(self):
@@ -56,21 +50,9 @@ class NodeUser(AbstractUser):
     class Meta:
         ordering = ['id']
 
-class FollowRequest(Model):
-    """Object sent to a user to request a follow relationship."""
-    actor = OneToOneField(NodeUser, on_delete=CASCADE, related_name='requester')
-    object = OneToOneField(NodeUser, on_delete=CASCADE, related_name='requestee')
-
-    @property
-    def type(self):
-        return 'follow'
-    
-    class Meta:
-        pass
-
 class Post(Model):
     """Post object sent to a NodeUser inbox."""
-    id = URLField(primary_key=True, blank=True)
+    id = URLField(primary_key=True, blank=True, unique=True)
     title = CharField(max_length=255)
     source = URLField(blank=True)
     origin = URLField(blank=True)
@@ -118,6 +100,14 @@ class Post(Model):
     def type(self):
         return 'post'
 
+class Inbox(Model):
+    author = OneToOneField(NodeUser, on_delete=CASCADE)
+    posts = ManyToManyField(Post)
+
+    @property
+    def type(self):
+        return 'inbox'
+
 # TODO: Image posts
 class Image(Model):
     pass
@@ -142,19 +132,24 @@ class Like(Model):
     summary = CharField(max_length=255)
     author = OneToOneField(NodeUser, on_delete=CASCADE)
     object = URLField()
-    uuid = UUIDField(primary_key=True, default=uuid4())
+    inbox = ForeignKey(Inbox, on_delete=CASCADE)
 
     @property
     def type(self):
         return 'like'
 
     class Meta:
-        pass
+        unique_together = ['author', 'object']
 
-class Inbox(Model):
-    author = URLField(primary_key=True)
-    posts = ManyToManyField(Post)
+class FollowRequest(Model):
+    """Object sent to a user to request a follow relationship."""
+    actor = OneToOneField(NodeUser, on_delete=CASCADE, related_name='requester')
+    object = OneToOneField(NodeUser, on_delete=CASCADE, related_name='requestee')
+    inbox = ForeignKey(Inbox, on_delete=CASCADE)
 
     @property
     def type(self):
-        return 'inbox'
+        return 'follow'
+    
+    class Meta:
+        pass

@@ -59,4 +59,4 @@ class InboxSerializer(ModelSerializer):
 
     class Meta:
         model = Inbox
-        fields = ['type', 'author','posts']
+        fields = ['type', 'author', 'items']
