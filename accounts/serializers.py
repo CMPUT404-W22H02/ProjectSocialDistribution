@@ -16,7 +16,7 @@
 
 from rest_framework.serializers import ModelSerializer
 
-from .models import Comment, Inbox, Like, NodeUser, Post
+from .models import Comment, FollowRequest, Inbox, Like, NodeUser, Post
 
 
 class NodeUserSerializer(ModelSerializer):
@@ -60,3 +60,11 @@ class InboxSerializer(ModelSerializer):
     class Meta:
         model = Inbox
         fields = ['type', 'author', 'items']
+
+class FollowRequestSerializer(ModelSerializer):
+    actor = NodeUserSerializer(read_only=True)
+    object = NodeUserSerializer(read_only=True)
+
+    class Meta:
+        model = FollowRequest
+        fields = '__all__'
