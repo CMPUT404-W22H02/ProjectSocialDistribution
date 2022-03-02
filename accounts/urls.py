@@ -17,19 +17,15 @@
 from django.urls import include, path
 from rest_framework.urlpatterns import format_suffix_patterns
 
-
 from .views import (AuthorDetailView, AuthorLikedView, AuthorListView,
                     CommentListView, FollowerExistsView, FollowerListView,
                     HomeRedirectView, InboxView, LoggedInRedirectView,
                     PostDetailView, PostLikesView, PostListView,
                     RegisterCreateView)
 
-
 app_name = 'accounts'
 
 urlpatterns = [
-    path('create/', CreatePost.as_view(), name="create_post_view"),
-    path('profile/', ProfileView.as_view(), name='profile_view'),
     path('', include('django.contrib.auth.urls')),
     path('', HomeRedirectView.as_view(), name='home'),
     path('register/', RegisterCreateView.as_view(), name='register'),
