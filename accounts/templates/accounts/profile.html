@@ -1,22 +1,27 @@
-{% extends 'base.html' %}
 {% load static %}
 
 {% block body %}
 <script src="{% static 'accounts/js/author/profile.js' %}"></script>
 <html>
-    <h1>User Profile</h1>
+    <head>
+        <link rel="stylesheet"  href="{%  static  'accounts/profile.css'  %}">  
+    </head>
+    <h1 class="title">PROJECT SOCIAL DISTRIBUTION</h1>
     <body onload="getProfile('{{uid}}')">
+        <div class="everything">
         <form method="post">
             {% csrf_token %}
-    <div><p>Display Name - <input type="text" id="newname" style="display: none;"><span id="dname"></span></p> 
+            <div class="data">
+    <p>Display Name - <input type="text" id="newname" style="display: none;"><span id="dname"></span></p> 
         <p>ID - <span id="did"></span></p> 
         <p>URL - <span id="durl"></span></p> 
         <p>Github - <input type="text" id="newgh" style="display: none;"><span id="dgh"></span></p> 
-    </div>
-    <input type="button" id="sBtn" value="Submit" onclick="postProfile('{{uid}}')" style="display: none;">
+    <input type="button" class="sBtn" id="sBtn" value="Submit" onclick="postProfile('{{uid}}')" style="display: none;">
     </form>
-    <input type="button" id="eBtn" value="Edit Profile" onclick="editProfile()">
-    </body>
+    <input type="button" class="eBtn" id="eBtn" value="Edit Profile" onclick="editProfile()">
+</div>
+</div>    
+</body>
 </html>
 
 
