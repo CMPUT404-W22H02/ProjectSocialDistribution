@@ -23,6 +23,18 @@ function getPost(url, uid, author){
                         var myDiv = document.getElementById("origin");
                         myDiv.innerHTML = response['origin'];                      
                     })
+    document.getElementById("comList").innerHTML = ""
+    let fetchCom = fetch(
+        url+"/comments/");
+                fetchCom.then(res =>
+                    res.json()).then(response => {
+                        console.log(response)   
+                        for(comment in response["results"]["items"]){
+                            newCom = response["results"]["items"][comment]
+                            console.log(newCom)
+                            document.getElementById("comList").innerHTML += '<li>' + "Comment - " + newCom["comment"] + '<br>' + "Author - " + newCom["author"]["display_name"] + '</li>';
+                        }                  
+                    })
 }
 
 function reset(formdata){
@@ -155,3 +167,45 @@ function delPost(url){
         }})
         .then(console.log(res))
     }
+
+function addCom(){
+    var myDiv = document.getElementById("comSec")
+    myDiv.style.display = "initial";
+    var myDiv = document.getElementById("aBtn")
+    myDiv.style.visibility = "collapse";
+    var myDiv = document.getElementById("scBtn")
+    myDiv.style.display = "initial";
+}
+
+function postCom(url, uid, author){
+    const csrftoken = getCookie('csrftoken');
+    formdata = {}
+    var myDiv = document.getElementById("comment");
+    formdata["comment"] = myDiv.value
+    formdata["author"] = uid
+    formdata["post"] = url
+    fetch(
+        url+"/comments/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(formdata)
+        })
+        .then(res => res.json())
+        .then(data => {
+            console.log(data);
+            var myDiv = document.getElementById("scBtn")
+            myDiv.style.display = "none";
+            var myDiv = document.getElementById("comSec")
+            myDiv.style.display = "none";
+            var myDiv = document.getElementById("aBtn")
+            myDiv.style.visibility = "initial";
+            getPost(url, uid, author)
+        })
+        .catch(error => {
+            console.log("ERROR BOY")
+            console.log(error)
+        })  ;
+}

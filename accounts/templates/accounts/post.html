@@ -25,7 +25,11 @@
     </form>
     <input type="button" id="eBtn" value="Edit Post" onclick="editPost()" style="display: none;">
     <button value="Delete" onclick="delPost('{{url}}')" id="dBtn" style="display: none;">Delete</button>
-    </body>
+    <h3>Comments</h3><button onclick="addCom()" id="aBtn">Add Comment</button>  <br>
+    <p id="comSec" style="display: none;">Comment - <input type="text" id="comment"></p>
+    <input type="button" id="scBtn" value="Submit" onclick="postCom('{{url}}', '{{uid}}', '{{author}}')" style="display: none;">
+    <ul id="comList"></ul>
+</body>
 </html>
 
 
