@@ -31,6 +31,50 @@ function newPost(uid){
     formdata["unlisted"] = myDiv.checked;
     formdata["author"] = uid;
     formdata["content_type"] = "text/plain";
+    console.log(uid)
+    host=uid.split("authors")[0]
+    console.log(host)
+
+    const all_node = []
+    let fetchCom = fetch(host+"authors/");
+    fetchCom.then(res =>
+        res.json()).then(response => {
+        for(let i=0; i< response.items.length; i++){
+            node=response.items[i]['id']
+            all_node.push(node)
+            
+        }                  
+    })
+    .then(function(){
+        console.log("all authors",all_node)
+        if (formdata.unlisted===false){
+            if(formdata.visibility === "PUBLIC"){
+                for(let node of all_node){
+                    authorID = node.split("/authors/")[1].slice(0,-1)
+                    var urlToPostInboxItem = host +"authors/" + authorID +'/inbox';
+                    console.log("url", urlToPostInboxItem)
+                    fetch(urlToPostInboxItem,{
+                        method: 'POST',
+                        headers: {
+                        'Content-Type' : 'application/json',
+                        'X-CSRFToken' : "{{ csrf_token }}"
+                        },
+                        body: formdata 
+                    })
+                    console.log(formdata)
+                
+                    
+                    }
+
+                }
+
+            }else{
+                //do it when post is priavte
+                console.log("private")
+            }
+
+        
+    })
     fetch(
         uid+'posts/', {
             method: 'POST',
@@ -42,7 +86,9 @@ function newPost(uid){
         })
         .then(res => res.json())
         .then(data => {
+            console.log("data")
             console.log(data);
+
             postID = data["id"]
             authorID = data["author"]
             postID = postID.split(authorID)[1]
@@ -50,8 +96,10 @@ function newPost(uid){
             host = authorID.split("authors")[0]
             service = host.split("://")[1]
             authorID = authorID.split("/authors/")[1].slice(0,-1)
-            window.location = host+"post/"+data["id"]
+            window.location = host+"post/"+data["id"] 
+
         })
+        
         .catch(error => {
             console.log("ERROR BOY")
         console.log(error)
