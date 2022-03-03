@@ -18,6 +18,7 @@ from uuid import uuid4
 
 import requests
 from django.http import Http404, HttpResponseBadRequest
+from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from django.views.generic.base import RedirectView
@@ -52,6 +53,22 @@ class RegisterCreateView(CreateView):
         Inbox.objects.create(author=self.object)
         
         return super().form_valid(form)
+
+class DisplayPostView(CreateView):
+
+    def get(self, request, template_name="accounts/post.html", *args, **kwargs):
+        author = self.kwargs['url'].split("posts/")[0]
+        return TemplateResponse(request, template_name, {'uid':request.user.id, 'url':self.kwargs['url'], 'author':author})
+
+class ProfileView(CreateView):
+
+    def get(self, request, template_name="accounts/profile.html"):
+        return TemplateResponse(request, template_name, {'uid':request.user.id})
+
+class CreatePost(CreateView):
+
+    def get(self, request, template_name="accounts/create.html"):
+        return TemplateResponse(request, template_name, {'uid':request.user.id})
 
 class HomeRedirectView(RedirectView):
     pattern_name = 'accounts:login'
@@ -487,6 +504,62 @@ class InboxView(ListCreateAPIView, DestroyModelMixin):
         
     def get_serializer_class(self):
         if self.request.method == 'GET':
+
+            return PostSerializer
+
+        elif self.request.method == 'POST':
+            # Must be a type in the payload
+            if self._type not in self.request.data.keys():
+                return PostSerializer
+
+            if self.request.data[self._type] == 'post':
+                return PostSerializer
+            elif self.request.data[self._type] == 'follow':
+                return FollowRequestSerializer
+            elif self.request.data[self._type] == 'like':
+                return LikeSerializer
+        
+    def author_id(self):
+        """Return AUTHOR_ID with hostname prefix."""
+        key = 'author_id'
+        view_name = 'accounts:api_author_details'
+        kwargs = {key: self.kwargs[key]}
+        return self.request.get_host() + reverse(view_name, kwargs=kwargs)
+
+    
+class InboxxView(ListCreateAPIView, DestroyModelMixin):
+    queryset = Post.objects.all()
+    pagination_class = CustomPagination
+
+    _items = 'items'
+
+    def get(self, request, template_name='accounts/inbox.html',*args, **kwargs):
+        template = {'type': 'inbox', 'author': f'http://{self.author_id()}', self._items: None}
+        queryset = self.get_queryset()
+        
+        try:
+            inbox = Inbox.objects.filter(author__id__contains=self.author_id())
+            queryset = queryset.filter(inbox__in=inbox)
+        except:
+            raise Http404
+        
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            template[self._items] = serializer.data
+            return self.get_paginated_response(template)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        template[self._items] = serializer.data
+        author=self.author_id()
+        context={'author': author,
+                'template': template, 'uid':request.user.id, 'author_id': self.kwargs['author_id']}
+
+        return TemplateResponse(request, template_name, context)
+
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+
             return PostSerializer
 
         elif self.request.method == 'POST':

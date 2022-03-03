@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<script src="{% static 'accounts/js/author/inbox.js' %}"></script>
+<script src="{% static 'accounts/js/author/profile.js' %}"></script>
+<html>
+    <h1>Inbox</h1>
+
+    <body onload="getInbox('{{uid}}','{{author_id}}', '{{template}}' , '{{author}}')">
+        <p>Current inbox: '{{template.items}}'</p>
+        {% if template %}
+            <ul id="template">
+            <script>
+                var template=[];
+            </script>
+            {% for e_template in template.items %}
+                {% if e_template %}
+                    <script>
+                        template.push(JSON.parse('{{e_template}}'));
+                    </script>
+                    <p>'{{e_template}}' - send a node.</p>
+
+                {% else %}
+
+                {% endif %}
+            {% endfor %} 
+            </ul>
+            
+        {% else %}
+            <p>Empty Inbox</p>
+        {% endif %}
+
+        
+        <p>-------</p>
+        <form method="post">
+            {% csrf_token %}
+            <div>
+                <p>Display Name - <input type="text" id="newname" style="display: none;"><span id="dname"></span></p> 
+            </div>
+        
+        </form>
+    <input type="button" id="eBtn" value="delete" onclick="delete_all('{{template.items}}')">
+    </body>
+</html>
+
+
+{% endblock %}
