@@ -1,6 +1,7 @@
 function getProfile(uid){
     let fetchRes = fetch(
         uid);
+        console.log(uid)
                 fetchRes.then(res =>
                     res.json()).then(response => {
                         console.log(response)
