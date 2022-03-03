@@ -364,6 +364,9 @@ class PostLikesView(ListAPIView):
         """Omit pagination."""
         queryset = self.get_queryset()
 
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
     def get_queryset(self):
         queryset = Like.objects.all()
 
