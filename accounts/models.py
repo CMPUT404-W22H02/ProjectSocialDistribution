@@ -14,18 +14,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from datetime import datetime
 from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
-from django.db.models import (CASCADE, BooleanField, CharField, ForeignKey,
-                              ManyToManyField, Model, OneToOneField, URLField)
-from django.forms import IntegerField
+from django.db.models import (CASCADE, BooleanField, CharField, DateTimeField,
+                              ForeignKey, IntegerField, ManyToManyField, Model,
+                              OneToOneField, URLField, UUIDField)
+from django.utils.timezone import now
 
 
 class NodeUser(AbstractUser):
-    id = URLField(primary_key=True, editable=False)
-    url = URLField(editable=False)
-    host = CharField(max_length=255, editable=False)
+    # API fields
+    id = URLField(primary_key=True, max_length=255)
+    url = URLField()
+    host = CharField(max_length=255)
     display_name = CharField(max_length=20, blank=False)
     github = URLField(blank=True)
     # TODO: profile images when server image hosting is implemented.
@@ -33,9 +36,9 @@ class NodeUser(AbstractUser):
     # Bi-directional follow is a true friend
     followers = ManyToManyField('self')
 
-    account_activated = BooleanField(default=False)
-
-    uuid_id = CharField(default=uuid4, editable=False, max_length=255)
+    # TODO: admin optional enforcement of registration activation
+    # Server registration management
+    # account_activated = BooleanField(default=False)
 
     def get_absolute_url(self):
         return self.id
@@ -47,22 +50,10 @@ class NodeUser(AbstractUser):
     class Meta:
         ordering = ['id']
 
-class FollowRequest(Model):
-    """Object sent to a user to request a follow relationship."""
-    actor = OneToOneField(NodeUser, on_delete=CASCADE, related_name='requester')
-    object = OneToOneField(NodeUser, on_delete=CASCADE, related_name='requestee')
-
-    @property
-    def type(self):
-        return 'follow'
-    
-    class Meta:
-        pass
-
 class Post(Model):
     """Post object sent to a NodeUser inbox."""
+    id = URLField(primary_key=True, blank=True, unique=True)
     title = CharField(max_length=255)
-    id = URLField(primary_key=True, unique=True, blank=True)
     source = URLField(blank=True)
     origin = URLField(blank=True)
     description = CharField(max_length=255)
@@ -80,10 +71,10 @@ class Post(Model):
 
     # TODO: categories: need to determine how to put a list of strings here
 
-    count = IntegerField()
-    # TODO: comments = URLField()
+    count = IntegerField(default=0)
+    comments = URLField(unique=True, blank=True)
     # TODO: comment_src to the serializer
-    # TODO: published requires ISO 8601 timestamp see here https://gist.github.com/bryanchow/1195854/32c7ebb1cfca38ccec0b71b7ed17ab1c497c7d74
+    published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'))
     visibility_choices = (
         ('PUBLIC', 'PUBLIC'),
         ('PRIVATE', 'PRIVATE')
@@ -92,25 +83,30 @@ class Post(Model):
     unlisted = BooleanField()
 
     class Meta:
-        # Default ordering in comment_src will be by when the post was published.
-        # ordering = ['published']
-        ordering = ['id']
+        pass
 
     def get_absolute_url(self):
         return self.id
     
     # Author id must be traceable to the server the author belongs to
     def save(self, *args, **kwargs):
-        breakpoint()
         if not self.id:
             self.id = self.author.id + f'posts/{str(uuid4())}'
-            self.url = self.id
-        
+            self.comments = self.id + '/comments/'
+
         super(Post, self).save(*args, **kwargs)
 
     @property
     def type(self):
         return 'post'
+
+class Inbox(Model):
+    author = OneToOneField(NodeUser, on_delete=CASCADE)
+    posts = ManyToManyField(Post)
+
+    @property
+    def type(self):
+        return 'inbox'
 
 # TODO: Image posts
 class Image(Model):
@@ -118,10 +114,11 @@ class Image(Model):
 
 class Comment(Model):
     """Comment object sent to a NodeUser inbox, related to a specific Post."""
-    author = OneToOneField(NodeUser, on_delete=CASCADE)
+    author = ForeignKey(NodeUser, on_delete=CASCADE)
     comment = CharField(max_length=500)
-    # TODO: published requires ISO 8601 timestamp see here https://gist.github.com/bryanchow/1195854/32c7ebb1cfca38ccec0b71b7ed17ab1c497c7d74
-    id = URLField(editable=False, primary_key=True)
+    published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'))
+    id = URLField(primary_key=True, unique=True, blank=True)
+    post = ForeignKey(Post, on_delete=CASCADE)
 
     @property
     def type(self):
@@ -134,11 +131,25 @@ class Like(Model):
     """Like object sent to a NodeUser inbox, related to either a Post or a Comment."""
     summary = CharField(max_length=255)
     author = OneToOneField(NodeUser, on_delete=CASCADE)
-    object = URLField(editable=False, primary_key=True)
+    object = URLField()
+    inbox = ForeignKey(Inbox, on_delete=CASCADE)
 
     @property
     def type(self):
         return 'like'
 
+    class Meta:
+        unique_together = ['author', 'object']
+
+class FollowRequest(Model):
+    """Object sent to a user to request a follow relationship."""
+    actor = OneToOneField(NodeUser, on_delete=CASCADE, related_name='requester')
+    object = OneToOneField(NodeUser, on_delete=CASCADE, related_name='requestee')
+    inbox = ForeignKey(Inbox, on_delete=CASCADE)
+
+    @property
+    def type(self):
+        return 'follow'
+    
     class Meta:
         pass

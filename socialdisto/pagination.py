@@ -21,3 +21,6 @@ class CustomPagination(PageNumberPagination):
     """Project level pagination class for paginating rest api"""
     page_size_query_param = 'size'
     page_query_param = 'page'
+
+class CommentPagination(CustomPagination):
+    page_size = 5

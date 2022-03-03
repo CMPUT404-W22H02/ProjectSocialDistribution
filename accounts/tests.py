@@ -14,9 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from uuid import uuid4
+
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
+
+from .models import NodeUser
 
 
 class PermissionTests(TestCase):
@@ -26,6 +30,115 @@ class PermissionTests(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+# TODO: Reconfig Heroku deployments for Postgres, make a TEST heroku deployment and call directly against the deployed
+# application for testing. Testing without a hostname when so many resource id's are structured around the service name
+# being a unique identifier for remote access is a dealbreaker.
+
+# class APITestCase(TestCase):
+#     """REST API test case setUp boilerplate - hits against live dev deployment server."""
+#     def setUp(self):
+#         self.service = 
+
+# class APITestCase(TestCase):
+#     """REST API test case setUp boilerplate."""
+#     def setUp(self):
+#         self.pk = 'id'
+#         self.username = 'username'
+#         self.display = 'display_name'
+#         self.github = 'github'
+#         self.host = 'host'
+
+#         self.u1_uuid = str(uuid4())
+#         self.u1 = {self.pk: '/authors/'+self.u1_uuid+'/', self.username: 'johndoe', self.display: 'John Doe',
+#                     self.github: 'https://github.com/jondoe'}
+#         NodeUser.objects.create(id=self.u1[self.pk], username=self.u1[self.username], display_name=self.u1[self.display], 
+#                                 github=self.u1[self.github])
+        
+#         self.u2_uuid = str(uuid4())
+#         self.u2 = {self.pk: '/authors/'+self.u2_uuid+'/', self.username: 'janendoe', self.display: 'Jane Doe',
+#                     self.github: 'https://github.com/janedoe'}
+#         NodeUser.objects.create(id=self.u2[self.pk], username=self.u2[self.username], display_name=self.u2[self.display], 
+#                                 github=self.u2[self.github])
+        
+#         self.u3_uuid = str(uuid4())
+#         self.u3 = {self.pk: '/authors/'+self.u3_uuid+'/', self.username: 'jackndoe', self.display: 'Jack Doe',
+#                     self.github: 'https://github.com/jackdoe'}
+#         NodeUser.objects.create(id=self.u3[self.pk], username=self.u3[self.username], display_name=self.u3[self.display], 
+#                                 github=self.u3[self.github])
+    
+# class AuthorListTests(APITestCase):
+#     """Test GET service/authors/."""   
+#     def test_get_success(self):
+#         """GET /authors/ success."""
+#         response = self.client.get('/authors/')
+
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertContains(response, self.u1[self.pk])
+    
+#     def test_pagination(self):
+#         """GET /authors/?page=1&size=1 should split into 2 pages."""
+#         response = self.client.get('/authors/?page=1&size=1')
+
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertContains(response, 'count')
+#         self.assertContains(response, 'next')
+#         self.assertContains(response, 'previous')
+#         self.assertContains(response, 'results')
+
+#         response = self.client.get('/authors/?page=2&size=1')
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+# class SingleAuthorTests(APITestCase):
+#     """Test GET, POST service/authors/AUTHOR_ID/."""
+#     def test_get_success(self):
+#         """GET /authors/AUTHOR_ID/ success."""
+#         response = self.client.get(f'/authors/{self.u1_uuid}/')
+
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertContains(response, self.u1[self.pk])
+#         self.assertContains(response, self.u1[self.display])
+#         self.assertContains(response, self.u1[self.github])
+
+#         response = self.client.get(f'/authors/{self.u2_uuid}/')
+
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertContains(response, self.u2[self.pk])
+#         self.assertContains(response, self.u2[self.display])
+#         self.assertContains(response, self.u2[self.github])
+    
+#     def test_author_404(self):
+#         """GET /authors/AUTHOR_ID/ NOT FOUND."""
+#         response = self.client.get('/authors/11111/')
+
+#         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+#         response = self.client.post('/authors/22222/')
+
+#         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+    
+#     def test_post_success(self):
+#         """POST /authors/AUTHOR_ID/ success."""
+#         modify = {self.display: 'Janet Doe'}
+
+#         response = self.client.post(f'/authors/{self.u2_uuid}/', data=modify)
+
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertContains(response, modify[self.display])
+
+# class FollowersTests(APITestCase):
+#     """Test GET /service/authors/AUTHOR_ID/followers/ and GET, PUT, DELETE /service/authors/AUTHOR_ID/followers/FOREIGN_AUTHOR_ID."""
+#     # TODO: PUT must be authenticated
+#     def test_put_success(self):
+#         response = self.client.put(f'/authors/{self.u1_uuid}/followers/{self.u2_uuid}/')
+
+#         self.assertEqual(response.status_code, status.HTTP_200_OK)
+#         self.assertContains(response, 'John Doe')
+#         self.assertContains(response, 'Jane Doe')
+
+
+
+
 
 # class APITestCase(TestCase):
 #     """Setup boilerplate configuration and NodeUser querystring lookups."""

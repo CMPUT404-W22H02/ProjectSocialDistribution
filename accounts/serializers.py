@@ -16,7 +16,7 @@
 
 from rest_framework.serializers import ModelSerializer
 
-from .models import NodeUser, Post
+from .models import Comment, FollowRequest, Inbox, Like, NodeUser, Post
 
 
 class NodeUserSerializer(ModelSerializer):
@@ -26,8 +26,45 @@ class NodeUserSerializer(ModelSerializer):
         # TODO: profile image
         fields = ['type', 'id', 'url', 'host', 'display_name', 'github']
 
+class CommentSerializer(ModelSerializer):
+    author = NodeUserSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['type', 'author', 'comment', 'published', 'id']
+        ordering_fields = ['published']
+
+class CommentCreationSerializer(ModelSerializer):
+
+    class Meta:
+        model = Comment
+        fields = '__all__'
+
+class LikeSerializer(ModelSerializer):
+    author = NodeUserSerializer(read_only=True)
+
+    class Meta:
+        model = Like
+        fields = '__all__'
+
 class PostSerializer(ModelSerializer):
+    commentSrc = CommentSerializer(read_only=True)
 
     class Meta:
         model = Post
+        fields = '__all__'
+        ordering_fields = ['published']
+
+class InboxSerializer(ModelSerializer):
+
+    class Meta:
+        model = Inbox
+        fields = ['type', 'author', 'items']
+
+class FollowRequestSerializer(ModelSerializer):
+    actor = NodeUserSerializer(read_only=True)
+    object = NodeUserSerializer(read_only=True)
+
+    class Meta:
+        model = FollowRequest
         fields = '__all__'
