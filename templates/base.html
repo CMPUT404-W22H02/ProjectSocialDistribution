@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 {% load static %}
 
-<html lang="en">
+<html lang="en" style="margin: 0px;
+   height: 100%;
+   width: 100%;">
     <head>
         <meta charset="utf-8">
+        <link rel="stylesheet" href="base.css">
         {% block page_meta %}
         {% endblock %}
 
         <title>{% block title %}Project Social Distribution{% endblock %}</title>       
     </head>
-
-    <body>
-        {% block body %}
-        {% endblock %}
-    </body>
+    <body style="min-height: 100%; width: 100%; background-image: linear-gradient(to right, #c0392b, #8e44ad);"></body>
+    {% block body %}
+    {% endblock %}
 </html>
