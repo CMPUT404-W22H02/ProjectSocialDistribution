@@ -15,12 +15,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
-from django.http import Http404
+from django.http import Http404, HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.mixins import DestroyModelMixin
-
+from rest_framework import status
 from socialdisto.pagination import  CustomPagination
 
 from accounts.models import Inbox, Post
@@ -57,6 +57,23 @@ class InboxxView(ListCreateAPIView, DestroyModelMixin):
                 'template': template, 'uid':request.user.id, 'author_id': self.kwargs['author_id']}
 
         return TemplateResponse(request, template_name, context)
+    def delete(self, request, template_name='accounts/inbox.html',*args, **kwargs):
+        if (not request.user or request.user.is_anonymous):
+            return HttpResponse('Unauthorized', status=401)
+       
+        try:
+
+            inbox = Inbox.objects.filter(author__id__contains=self.author_id())
+            if(inbox):
+                for each in inbox:
+                    each.delete()
+            context={'uid':request.user.id, 'author_id': self.kwargs['author_id']}
+
+            return HttpResponse(status=status.HTTP_204_NO_CONTENT)
+        except:
+            return Http404
+
+
 
     def get_serializer_class(self):
         if self.request.method == 'GET':

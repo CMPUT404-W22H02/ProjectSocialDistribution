@@ -34,7 +34,7 @@ urlpatterns = [
     path('register/', RegisterCreateView.as_view(), name='register'),
     path('logged-in/', LoggedInRedirectView.as_view(), name='logged_in'),
     path('post/<path:url>', DisplayPostView.as_view(), name="post display"),
-    
+
     # REST API endpoints
     path('authors/', AuthorListView.as_view(), name='api_author_list'),
     path('authors/<str:author_id>/', AuthorDetailView.as_view(), name='api_author_details'),
