@@ -19,7 +19,7 @@ from uuid import uuid4
 import requests
 from django.http import Http404, HttpResponseBadRequest
 from django.template.response import TemplateResponse
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
@@ -52,7 +52,7 @@ class RegisterCreateView(CreateView):
         self.object = form.save()
         Inbox.objects.create(author=self.object)
         
-        return super().form_valid(form)
+        return redirect('accounts:login')
 
 class DisplayPostView(CreateView):
 
@@ -73,8 +73,9 @@ class CreatePost(CreateView):
 class HomeRedirectView(RedirectView):
     pattern_name = 'accounts:login'
 
-class LoggedInRedirectView(RedirectView):
-    pattern_name = 'inbox:home'
+class LoggedInRedirectView(CreateView):
+    def get(self, request, template_name="home/home.html"):
+        return TemplateResponse(request, template_name, {'uid':request.user.id})
 
 class AuthorListView(ListAPIView):
     """Retrieve all authors registered on the server."""
