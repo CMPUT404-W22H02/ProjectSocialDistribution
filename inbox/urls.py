@@ -18,8 +18,11 @@ from django.contrib.auth.decorators import login_required
 from django.urls import include, path
 from django.views.generic.base import TemplateView
 
+from inbox.views import InboxxView
+
 app_name = 'inbox'
 
 urlpatterns = [
+    path('authors/<str:author_id>/inbox', InboxxView.as_view(), name='api_inbox_get_all'),
     path('home/', login_required(TemplateView.as_view(template_name='base.html')), name='home')
 ]

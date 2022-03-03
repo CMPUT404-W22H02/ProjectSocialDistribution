@@ -19,7 +19,7 @@ from rest_framework.urlpatterns import format_suffix_patterns
 
 from .views import (AuthorDetailView, AuthorLikedView, AuthorListView,
                     CommentListView, FollowerExistsView, FollowerListView,
-                    HomeRedirectView, InboxView, InboxxView, LoggedInRedirectView,
+                    HomeRedirectView, InboxView, LoggedInRedirectView,
                     PostDetailView, PostLikesView, PostListView,
                     RegisterCreateView, ProfileView,
                     CreatePost, DisplayPostView)
@@ -34,7 +34,7 @@ urlpatterns = [
     path('register/', RegisterCreateView.as_view(), name='register'),
     path('logged-in/', LoggedInRedirectView.as_view(), name='logged_in'),
     path('post/<path:url>', DisplayPostView.as_view(), name="post display"),
-    path('site/authors/<str:author_id>/inbox', InboxxView.as_view(), name='api_inbox_get_all'),
+    
     # REST API endpoints
     path('authors/', AuthorListView.as_view(), name='api_author_list'),
     path('authors/<str:author_id>/', AuthorDetailView.as_view(), name='api_author_details'),
@@ -45,7 +45,7 @@ urlpatterns = [
     path('authors/<str:author_id>/posts/<str:post_id>/comments/', CommentListView.as_view(), name='api_comment_list'),
     path('authors/<str:author_id>/posts/<str:post_id>/likes', PostLikesView.as_view(), name='api_post_likes'),
     path('authors/<str:author_id>/liked', AuthorLikedView.as_view(), name='api_author_liked'),
-    #path('authors/<str:author_id>/inbox', InboxView.as_view(), name='api_inbox_get')
+    path('authors/<str:author_id>/inbox', InboxView.as_view(), name='api_inbox_get')
     
 ]
 
