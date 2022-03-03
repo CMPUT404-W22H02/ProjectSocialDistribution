@@ -10,14 +10,14 @@
 </head>
 
 <body>
-    
+    <h1 class="title">PROJECT SOCIAL DISTRIBUTION</h1>
 <form method="post" id="form">
-    <p class="sign">LogIn </p>
+    <p class="sign">Welcome! </p>
     {% csrf_token %}
-    <table>
+    <table class="tl">
         <tr>
           <td class="usn_tag">{{ form.username.label_tag }}</td>
-          <td calss="username">{{ form.username }}</td>
+          <td class="username">{{ form.username }}</td>
         </tr>
         <tr>
           <td class="pwd_tag">{{ form.password.label_tag }}</td>
@@ -30,7 +30,7 @@
         {% endif %}
     <button class="submit" type="submit">Log In</button>
     
-    <p classs="register">
+    <p class="register">
       <a  href="{% url 'accounts:register' %}">New User Registration</a>  
     </p>
     

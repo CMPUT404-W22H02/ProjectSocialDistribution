@@ -1,20 +1,35 @@
 
 body {
-background-color: #F3EBF6;
+background-color: rgb(68, 190, 238);
 font-family: 'Ubuntu', sans-serif;
 }
 form {
-background-color: #FFFFFF;
+background-color: yellow;
 width: 400px;
-height: 400px;
+height: 300px;
 margin: 15em auto;
 border-radius: 1.5em;
-box-shadow: 0px 11px 35px 2px rgba(0, 0, 0, 0.14);
+box-shadow: 0px 11px 55px 5px rgba(0, 0, 0, 0.5);
+}
+.title{
+    position: absolute;
+    top: 15%;
+    left: 30%;
+    color: white;
+    text-shadow: 3px 3px black;
+    padding-bottom: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    border-bottom: double 10px red;
+}
+.tl{
+    padding-left: 15%;
+    padding-top: 5%;
 }
 .sign{
 
 padding-top: 20px;
-padding-left: 40%;
+padding-left: 35%;
 color: #8C55AA;
 font-family: 'Ubuntu', sans-serif;
 font-weight: bold;
@@ -47,10 +62,11 @@ font-family: 'Ubuntu', sans-serif;
 margin-left: 35%;
 margin-top: 50px;
 font-size: 13px;
-box-shadow: 0 0 20px 1px rgba(0, 0, 0, 0.04);
+box-shadow: 5px 5px 20px 5px rgba(0, 0, 0, 0.1);
 }
 .register{
 text-shadow: 0px 0px 3px rgba(117, 117, 117, 0.12);
 color: #E1BEE7;
+padding-left: 25%;
 padding-top: 15px;}
 
