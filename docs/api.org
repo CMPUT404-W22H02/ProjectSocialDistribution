@@ -125,7 +125,7 @@ GET http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465
 
 **** Specific Follower
 
-Endpoint: http://socialdistodev.herokuapp.com/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
 
 Methods:
 - GET [local, remote]: check if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID.
@@ -134,3 +134,32 @@ Methods:
 
 GET return structure will be identical to the followers/ endpoint, except it will return only a single follower item
 corresponding to the author profile of FOREIGN_AUTHOR_ID.
+
+*** Friend Requests
+
+The object which is sent to the inbox of an author, requesting bi-directional friendship between two authors.
+#+BEGIN_SRC json
+{
+    "type": "follow",      
+    "summary": "John wants to follow Jane",
+    # Actor is the author sending the request
+    "actor": {
+        "type": "author",
+        "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+        "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+        "host": "socialdisto.herokuapp.com",
+        "display_name": "John Doe",
+        "github": "https://github.com/johndoe"
+    },
+    # Object is the request recipient
+    "object": {
+        "type": "author",
+        "id": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+        "url": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+        "host": "socialdisto.herokuapp.com",
+        "display_name": "Jane Doe",
+        "github": "https://github.com/janedoe"
+    }
+}
+    
+#+END_SRC
