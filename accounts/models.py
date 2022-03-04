@@ -67,7 +67,7 @@ class Post(Model):
             ('image/jpeg;base64', 'image/jpeg;base64')
         )
     content_type = CharField(choices=content_choices, max_length=255)
-    content = CharField(max_length=10000)
+    content = CharField(max_length=10000, blank=True)
 
     author = ForeignKey(NodeUser, on_delete=CASCADE)
 
