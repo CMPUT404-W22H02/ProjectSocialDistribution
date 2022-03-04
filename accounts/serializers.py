@@ -49,7 +49,7 @@ class LikeSerializer(ModelSerializer):
         fields = '__all__'
 
 class PostSerializer(ModelSerializer):
-    # type = ReadOnlyField(default=Post.type)
+    type = ReadOnlyField(default=str(Post.type))
     commentSrc = CommentSerializer(read_only=True)
 
     class Meta:
