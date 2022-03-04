@@ -112,7 +112,7 @@ function postPost(url){
     const csrftoken = getCookie('csrftoken');
     formdata = {}
     var myDiv = document.getElementById("newTitle");
-    formdata["title"] = myDiv.value
+    formdata["title"] = myDiv.value;
     var myDiv = document.getElementById("newSource");
     formdata["source"] = myDiv.value;
     var myDiv = document.getElementById("newOrigin");
@@ -203,6 +203,32 @@ function postCom(url, uid, author){
             var myDiv = document.getElementById("aBtn")
             myDiv.style.visibility = "initial";
             getPost(url, uid, author)
+        })
+        .catch(error => {
+            console.log("ERROR BOY")
+            console.log(error)
+        })  ;
+}
+
+function likes(author, uid, url){
+    author_object=fetch(author);
+    user_name=fetch(uid).json()["display_name"];
+    console.log(user_name);
+
+    to_send={}
+    to_send["summary"]=user_name+"likes your post.";
+    to_send["type"]="LIke";
+    to_send["author"]=author_object;
+    to_send["object"]=url;
+
+    fetch(
+        author+"/comments/", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(to_send)
         })
         .catch(error => {
             console.log("ERROR BOY")

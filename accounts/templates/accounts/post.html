@@ -32,6 +32,7 @@
     </form>
     <input type="button" class="sBtn" id="eBtn" value="Edit Post" onclick="editPost()" style="display: none;">
     <button value="Delete" class="dBtn" onclick="delPost('{{url}}')" id="dBtn" style="display: none;">Delete</button>
+    <button value="like" class="likeButton" onclick="likes('{{author}}', '{{uid}}', '{{url}}')" id="lBtn" style="display: none;">like</button>
 </div>
 <div class="data" style="margin-top:-20%">
     <h3>Comments</h3><button class="aBtn" onclick="addCom()" id="aBtn">Add Comment</button>  <br>
