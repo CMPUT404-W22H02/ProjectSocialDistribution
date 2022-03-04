@@ -14,7 +14,7 @@ For future releases, endpoints marked as *local* will only be accepted with the 
 Endpoint: http://socialdisto.herokuapp.com/authors/authors/{AUTHOR_ID}
 
 Methods:
-- GET [local, remote]: retrieve AUTHOR_ID's profile
+- GET [local, remote]: retrieve AUTHOR_ID's profile.
 - POST [local]: update AUTHOR_ID's profile.
 
 GET http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/
@@ -43,6 +43,8 @@ Endpoint: http://socialdisto.herokuapp.com/authors/
 
 Methods:
 - GET [local, remote]: retrieve all author profiles on the server, can be paginated with *page* and *size* query parameters.
+
+Individual author profile structures are consistent with a requests for a specific author profile.
 
 Unpaginated example: http://socialdisto.herokuapp.com/authors/authors/
 #+BEGIN_SRC json
@@ -92,3 +94,43 @@ Paginated example: http://socialdisto.herokuapp.com/authors/?page=1&size=1
     }
 }
 #+END_SRC
+
+*** Followers
+
+**** Followers of an Author
+
+Endpoint: http://socialdistodev.herokuapp.com/authors/{AUTHOR_ID}/followers/
+
+Methods:
+- GET [local, remote]: get a list of authors who are AUTHOR_ID's followers.
+
+Follower items are of type author, and are consistent with the author profile structure.
+
+GET http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/followers/
+#+BEGIN_SRC json
+{
+    "type": "followers",
+    "items": [
+        {
+            "type": "author",
+            "id": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+            "url": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+            "host": "socialdisto.herokuapp.com",
+            "display_name": "Jane Doe",
+            "github": "https://github.com/janedoe"
+        }
+    ]
+}
+#+END_SRC
+
+**** Specific Follower
+
+Endpoint: http://socialdistodev.herokuapp.com/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
+
+Methods:
+- GET [local, remote]: check if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID.
+- PUT [local]: Add FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID (authentication required).
+- DELETE [local]: remove FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID.
+
+GET return structure will be identical to the followers/ endpoint, except it will return only a single follower item
+corresponding to the author profile of FOREIGN_AUTHOR_ID.
