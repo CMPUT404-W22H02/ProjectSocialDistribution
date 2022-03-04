@@ -11,24 +11,24 @@ For future releases, endpoints marked as *local* will only be accepted with the 
 
 *** Single Author
 
-Endpoint: http://socialdistodev.herokuapp.com/authors/authors/{AUTHOR_ID}
+Endpoint: http://socialdisto.herokuapp.com/authors/authors/{AUTHOR_ID}
 
 Methods:
-- GET [local, remote]: retrieve all profiles on the server, can be paginated.
+- GET [local, remote]: retrieve AUTHOR_ID's profile
 - POST [local]: update AUTHOR_ID's profile.
 
-GET http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/
+GET http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/
 #+BEGIN_SRC json
 {
     # type cannot be edited with POST
     "type": "author",
     # id is returned fully qualified to the server
     # id cannot be edited with POST
-    "id": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+    "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
     # url cannot be edited with POST
-    "url": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+    "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
     # host cannot be edited with POST
-    "host": "socialdistodev.herokuapp.com",
+    "host": "socialdisto.herokuapp.com",
     "display_name": "John Doe",
     "github": "https://github.com/johndoe"
 }
@@ -39,28 +39,30 @@ updated, so fields not included in the POST content will be preserved on update.
 
 *** Authors on Server
 
-Endpoint: http://socialdistodev.herokuapp.com/authors/authors/
+Endpoint: http://socialdisto.herokuapp.com/authors/
 
-Results can be paginated with the page and size query parameters.
+Methods:
+- GET [local, remote]: retrieve all author profiles on the server, can be paginated with *page* and *size* query parameters.
 
-Unpaginated example: http://socialdistodev.herokuapp.com/authors/authors/
+Unpaginated example: http://socialdisto.herokuapp.com/authors/authors/
 #+BEGIN_SRC json
 {
+    # No pagination template returned for unpaginated requests
     "type": "authors",
     "items": [
         {
             "type": "author",
-            "id": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
-            "url": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
-            "host": "socialdistodev.herokuapp.com",
+            "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+            "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+            "host": "socialdisto.herokuapp.com",
             "display_name": "John Doe",
             "github": "https://github.com/johndoe"
         },
         {
             "type": "author",
-            "id": "http://socialdistodev.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
-            "url": "http://socialdistodev.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
-            "host": "socialdistodev.herokuapp.com",
+            "id": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+            "url": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+            "host": "socialdisto.herokuapp.com",
             "display_name": "Jane Doe",
             "github": "https://github.com/janedoe"
         }
@@ -68,20 +70,21 @@ Unpaginated example: http://socialdistodev.herokuapp.com/authors/authors/
 }
 #+END_SRC
 
-Paginated example: http://socialdistodev.herokuapp.com/authors/?page=1&size=1
+Paginated example: http://socialdisto.herokuapp.com/authors/?page=1&size=1
 #+BEGIN_SRC json
 {
+    # Pagination fields include page count, the next/previous page url, and the pagination results
     "count": 2,
-    "next": "http://socialdistodev.herokuapp.com/authors/?page=2&size=1",
+    "next": "http://socialdisto.herokuapp.com/authors/?page=2&size=1",
     "previous": null,
     "results": {
         "type": "authors",
         "items": [
             {
                 "type": "author",
-                "id": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
-                "url": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
-                "host": "socialdistodev.herokuapp.com",
+                "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                "host": "socialdisto.herokuapp.com",
                 "display_name": "John Doe",
                 "github": "https://github.com/johndoe"
             }
