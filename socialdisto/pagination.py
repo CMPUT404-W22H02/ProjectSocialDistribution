@@ -14,15 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from django.contrib.auth.decorators import login_required
-from django.urls import include, path
-from django.views.generic.base import TemplateView
+from rest_framework.pagination import PageNumberPagination
 
-from inbox.views import InboxxView
 
-app_name = 'inbox'
+class CustomPagination(PageNumberPagination):
+    """Project level pagination class for paginating rest api"""
+    page_size_query_param = 'size'
+    page_query_param = 'page'
 
-urlpatterns = [
-    path('authors/<str:author_id>/inbox', InboxxView.as_view(), name='api_inbox_get_all'),
-    path('home/', login_required(TemplateView.as_view(template_name='base.html')), name='home')
-]
+class CommentPagination(CustomPagination):
+    page_size = 5

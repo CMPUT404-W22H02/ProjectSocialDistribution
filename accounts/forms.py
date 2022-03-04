@@ -23,4 +23,4 @@ class RegistrationForm(UserCreationForm):
 
     class Meta:
         model = NodeUser
-        fields = ['username', 'password1', 'password2']
+        fields = ['username', 'display_name', 'password1', 'password2']

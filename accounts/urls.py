@@ -15,14 +15,38 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from django.urls import include, path
+from rest_framework.urlpatterns import format_suffix_patterns
 
-from .views import HomeRedirectView, LoggedInRedirectView, RegisterCreateView
+from .views import (AuthorDetailView, AuthorLikedView, AuthorListView,
+                    CommentListView, FollowerExistsView, FollowerListView,
+                    HomeRedirectView, InboxView, LoggedInRedirectView,
+                    PostDetailView, PostLikesView, PostListView,
+                    RegisterCreateView, ProfileView,
+                    CreatePost, DisplayPostView)
 
 app_name = 'accounts'
 
 urlpatterns = [
     path('', include('django.contrib.auth.urls')),
     path('', HomeRedirectView.as_view(), name='home'),
+    path('create/', CreatePost.as_view(), name="create_post_view"),
+    path('profile/', ProfileView.as_view(), name='profile_view'),
     path('register/', RegisterCreateView.as_view(), name='register'),
-    path('logged-in/', LoggedInRedirectView.as_view(), name='logged_in'),
+    path('home/', LoggedInRedirectView.as_view(), name='logged_in'),
+    path('post/<path:url>', DisplayPostView.as_view(), name="post display"),
+
+    # REST API endpoints
+    path('authors/', AuthorListView.as_view(), name='api_author_list'),
+    path('authors/<str:author_id>/', AuthorDetailView.as_view(), name='api_author_details'),
+    path('authors/<str:author_id>/followers/', FollowerListView.as_view(), name='api_followers'),
+    path('authors/<str:author_id>/followers/<path:follower_id>/', FollowerExistsView.as_view(), name='api_follower_action'),
+    path('authors/<str:author_id>/posts/', PostListView.as_view(), name='api_post_list'),
+    path('authors/<str:author_id>/posts/<str:post_id>', PostDetailView.as_view(), name='api_post_detail'),
+    path('authors/<str:author_id>/posts/<str:post_id>/comments/', CommentListView.as_view(), name='api_comment_list'),
+    path('authors/<str:author_id>/posts/<str:post_id>/likes', PostLikesView.as_view(), name='api_post_likes'),
+    path('authors/<str:author_id>/liked', AuthorLikedView.as_view(), name='api_author_liked'),
+    path('authors/<str:author_id>/inbox', InboxView.as_view(), name='api_inbox_get')
+    
 ]
+
+urlpatterns = format_suffix_patterns(urlpatterns)
