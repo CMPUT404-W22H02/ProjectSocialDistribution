@@ -268,7 +268,7 @@ Not currently supported.
 {
     # Like structure reference    
     "@context": "https://www.w3.org/ns/activitystreams",
-    "summary": "John Doe likes your post,         
+    "summary": "John Doe likes your post",         
     "type": "like",
     # Author sending the like
     "author":{
@@ -303,3 +303,45 @@ Methods:
 Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}/likes
 
 Not current supported.
+
+*** Liked
+
+Endpoint: http://socialdistodev.herokuapp.com/authors/{AUTHOR_ID}/liked
+
+Methods:
+- GET [local, remote]: retrieve a list of public objects AUTHOR_ID liked.
+
+#+BEGIN_SRC json
+{
+    "type": "liked",
+    "items": [
+        {
+            "@context": "https://www.w3.org/ns/activitystreams",
+            "summary": "John Doe likes your post",         
+            "type": "like",
+            "author":{
+                "type": "author",
+                "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                "host": "socialdisto.herokuapp.com",
+                "display_name": "John Doe",
+                "github": "https://github.com/johndoe"
+            },
+            "object": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed"
+        }  
+    ]
+}
+#+END_SRC
+
+*** Inbox
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/inbox
+
+Methods:
+- GET [local]: list of paginated Posts send to AUTHOR_ID's inbox, must be authenticated.
+- POST [local, remote]: send an object to AUTHOR_ID's inbox where:
+    - "type": "post", add the Post to AUTHOR_ID's inbox.
+    - "type": "follow", add the Follow to AUTHOR_ID's inbox to approve later.
+    - "type": "like", add the Like to AUTHOR_ID's inbox.
+    - "type": "comment", add the Comment to AUTHOR_ID's inbox.
+- DELETE [local]: clear the inbox (not currently supported).
