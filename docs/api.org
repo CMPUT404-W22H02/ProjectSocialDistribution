@@ -4,28 +4,38 @@
 This file specifies the expected payload fields for endpoints, as well as the return structure.
 
 As of the Project Part 1 release, authentication for remote requests has not been implemented, but
-future releases will expect HTTP Basic Auth, for which the username : password will be listed here.
+future releases will expect HTTP Basic Auth, for which the (username, password) will be listed here.
+
+For future releases, endpoints marked as *local* will only be accepted with the site's local token authorization.
+*Remote* methods will be accessible via HTTP Basic Auth.
 
 *** Single Author
 
 Endpoint: http://socialdistodev.herokuapp.com/authors/authors/{AUTHOR_ID}
 
-AUTHOR_ID is the UUID of the author on the server.
+Methods:
+- GET [local, remote]: retrieve all profiles on the server, can be paginated.
+- POST [local]: update AUTHOR_ID's profile.
 
 GET http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/
 #+BEGIN_SRC json
 {
+    # type cannot be edited with POST
     "type": "author",
     # id is returned fully qualified to the server
+    # id cannot be edited with POST
     "id": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+    # url cannot be edited with POST
     "url": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+    # host cannot be edited with POST
     "host": "socialdistodev.herokuapp.com",
     "display_name": "John Doe",
     "github": "https://github.com/johndoe"
 }
 #+END_SRC
 
-POST http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/ to update AUTHOR_ID's profile
+POST payload structure will include fields from the author model which should be updated. Content is partially
+updated, so fields not included in the POST content will be preserved on update.
 
 *** Authors on Server
 
