@@ -223,5 +223,35 @@ Not currently supported.
 Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/
 
 Methods:
-- GET [local, remote]: get the list of comments of the post with id POST_ID, can be paginated.
+- GET [local, remote]: get the list of comments of the post with id POST_ID, automatically paginated to page=1, size=5.
 - POST [local] add a comment object to the Post with id POST_ID.
+
+GET http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed/comments/
+#+BEGIN_SRC json
+{
+    # Pagination fields
+    "count": 1,
+    "next": null,
+    "previous": null,
+    # Results contain the list of comments associated with POST_ID sorted by newest first.
+    "results": {
+        "type": "comments",
+        "items": [
+            {
+                "type": "comment",
+                "author": {
+                    "type": "author",
+                    "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                    "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                    "host": "socialdisto.herokuapp.com",
+                    "display_name": "John Doe",
+                    "github": "https://github.com/johndoe"
+                },
+                "comment": "A very interesting read!",
+                "published": "2022-03-04T17:50:14Z",
+                "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed/comments/e4991956-7b9f-4324-b8ff-4febde1dd91f"
+            }
+        ]
+    }
+}
+#+END_SRC
