@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from rest_framework.serializers import ModelSerializer
+from email.policy import default
+from rest_framework.serializers import ModelSerializer, ReadOnlyField
 
 from .models import Comment, FollowRequest, Inbox, Like, NodeUser, Post
 
@@ -48,6 +49,7 @@ class LikeSerializer(ModelSerializer):
         fields = '__all__'
 
 class PostSerializer(ModelSerializer):
+    type = ReadOnlyField(default=Post.type)
     commentSrc = CommentSerializer(read_only=True)
 
     class Meta:
