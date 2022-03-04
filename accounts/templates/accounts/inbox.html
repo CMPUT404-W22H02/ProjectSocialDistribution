@@ -11,19 +11,12 @@
         <p>Current inbox: '{{template}}'</p>
         <p>---</p>
         {% if template %}
-            <ul id="template">
+            <ul id="template_">
             <script>
                 var template=[];
             </script>
             {% for each_post in template %}
                 {% if each_post %}
-                    <script>
-                        console.log(typeof template)
-                        console.log(typeof each_post)
-                        template.push(template);
-                        console.log(template)
-
-                    </script>
                 {% else %}
                     <p>Empty Inbox</p>
                 {% endif %}
@@ -38,12 +31,6 @@
         <p>'{{each_post}}'</p>
         <script>
             console.log("---", template)
-
-
-
-
-
-
 
 
         </script>
