@@ -29,6 +29,7 @@ from accounts.serializers import (
                           LikeSerializer,PostSerializer)
     
 class InboxxView(ListCreateAPIView, DestroyModelMixin):
+    
     queryset = Post.objects.all()
     pagination_class = CustomPagination
 
@@ -54,7 +55,6 @@ class InboxxView(ListCreateAPIView, DestroyModelMixin):
         template[self._items] = serializer.data
         author=self.author_id()
         new_list = template[self._items]
-        print(new_list)
         context={'author': author,
                 'template': new_list, 'uid':request.user.id, 'author_id': self.kwargs['author_id']}
 

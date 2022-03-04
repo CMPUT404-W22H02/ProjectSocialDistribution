@@ -5,9 +5,12 @@
 <script src="{% static 'accounts/js/author/inbox.js' %}"></script>
 <script src="{% static 'accounts/js/author/profile.js' %}"></script>
 <html>
-    <h1> <span id="dname"></span>'s Inbox</h1>
+    
+    <form method="post" >
+        <h1>Inbox</h1>
+    </form>
     {% csrf_token %}
-    <body onload="getInbox('{{uid}}','{{author_id}}', '{{template}}' , '{{author}}')">
+    <body>
         
         <p>Current inbox: {{template}}</p>
         <p>---</p>
