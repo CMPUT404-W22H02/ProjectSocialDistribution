@@ -1,15 +1,15 @@
 function getInbox(uid){
-    let fetchRes = fetch(
-        uid);
-        console.log(uid)
-                fetchRes.then(res =>
-                    res.json()).then(response => {
-                        console.log("oo")
-                        console.log(response)
-                        var myDiv = document.getElementById("dname");
-                        myDiv.innerHTML = response['display_name']                  
-                    })
-}
+    fetch(
+        uid+"inbox"
+    )
+        .then(res => res.json())
+        .then(data => {
+            for(i in data["items"]){
+                item = data["items"][i]
+                document.getElementById("inboxList").innerHTML += '<li>' + "<a href=/post/" + item["id"] + ">" + "Title - " + item["title"] + "</a> <br> Description - "+item["description"]+"<br>Author - "+item["author"]+"<br><br>"//Post - " + newCom["comment"] + '<br>' + "Author - " + newCom["author"]["display_name"] + '</li>';
+            }
+        }
+    )}
 
 function delete_all(template_items){
     const csrftoken = getCookie('csrftoken');
