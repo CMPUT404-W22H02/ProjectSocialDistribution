@@ -220,6 +220,8 @@ Not currently supported.
 
 *** Comments
 
+**** Posts
+
 Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/
 
 Methods:
@@ -255,3 +257,49 @@ GET http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a
     }
 }
 #+END_SRC
+
+**** Specific Comment
+
+Not currently supported.
+
+*** Likes
+
+#+BEGIN_SRC json
+{
+    # Like structure reference    
+    "@context": "https://www.w3.org/ns/activitystreams",
+    "summary": "John Doe likes your post,         
+    "type": "like",
+    # Author sending the like
+    "author":{
+        "type": "author",
+        "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+        "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+        "host": "socialdisto.herokuapp.com",
+        "display_name": "John Doe",
+        "github": "https://github.com/johndoe"
+        },
+    # Object the like is referencing
+    "object": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed"
+}
+#+END_SRC
+
+**** Inbox
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/inbox
+
+Methods:
+- POST [local, remote]: send a Like object to AUTHOR_ID's inbox.
+
+**** Posts
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/{POST_ID}/likes
+
+Methods:
+- GET [local, remote]: retrieve a list of likes from AUTHOR_ID's post POST_ID
+
+**** Comments
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}/likes
+
+Not current supported.
