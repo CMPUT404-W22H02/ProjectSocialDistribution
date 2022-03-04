@@ -445,7 +445,7 @@ class InboxView(ListCreateAPIView, DestroyModelMixin):
     def create(self, request, *args, **kwargs):
         if self._type not in request.data.keys():
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        elif request.data[self._type] == 'Post':
+        elif request.data[self._type] == 'Post'or request.data[self._type] == 'post':
             return self.create_post(request, *args, **kwargs)
         elif request.data[self._type] == 'Follow':
             return self.create_follow(request, *args, **kwargs)
