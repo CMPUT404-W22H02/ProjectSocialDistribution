@@ -1,0 +1,81 @@
+* Project Social Distribution API Documentation
+** Description
+
+This file specifies the expected payload fields for endpoints, as well as the return structure.
+
+As of the Project Part 1 release, authentication for remote requests has not been implemented, but
+future releases will expect HTTP Basic Auth, for which the username : password will be listed here.
+
+*** Single Author
+
+Endpoint: http://socialdistodev.herokuapp.com/authors/authors/{AUTHOR_ID}
+
+AUTHOR_ID is the UUID of the author on the server.
+
+GET http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/
+#+BEGIN_SRC json
+{
+    "type": "author",
+    # id is returned fully qualified to the server
+    "id": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+    "url": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+    "host": "socialdistodev.herokuapp.com",
+    "display_name": "John Doe",
+    "github": "https://github.com/johndoe"
+}
+#+END_SRC
+
+POST http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/ to update AUTHOR_ID's profile
+
+*** Authors on Server
+
+Endpoint: http://socialdistodev.herokuapp.com/authors/authors/
+
+Results can be paginated with the page and size query parameters.
+
+Unpaginated example: http://socialdistodev.herokuapp.com/authors/authors/
+#+BEGIN_SRC json
+{
+    "type": "authors",
+    "items": [
+        {
+            "type": "author",
+            "id": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+            "url": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+            "host": "socialdistodev.herokuapp.com",
+            "display_name": "John Doe",
+            "github": "https://github.com/johndoe"
+        },
+        {
+            "type": "author",
+            "id": "http://socialdistodev.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+            "url": "http://socialdistodev.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+            "host": "socialdistodev.herokuapp.com",
+            "display_name": "Jane Doe",
+            "github": "https://github.com/janedoe"
+        }
+    ]
+}
+#+END_SRC
+
+Paginated example: http://socialdistodev.herokuapp.com/authors/?page=1&size=1
+#+BEGIN_SRC json
+{
+    "count": 2,
+    "next": "http://socialdistodev.herokuapp.com/authors/?page=2&size=1",
+    "previous": null,
+    "results": {
+        "type": "authors",
+        "items": [
+            {
+                "type": "author",
+                "id": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                "url": "http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                "host": "socialdistodev.herokuapp.com",
+                "display_name": "John Doe",
+                "github": "https://github.com/johndoe"
+            }
+        ]
+    }
+}
+#+END_SRC
