@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from datetime import datetime
+from distutils.text_file import TextFile
 from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
@@ -66,6 +67,7 @@ class Post(Model):
             ('image/jpeg;base64', 'image/jpeg;base64')
         )
     content_type = CharField(choices=content_choices, max_length=255)
+    content = CharField(max_length=10000)
 
     author = ForeignKey(NodeUser, on_delete=CASCADE)
 
