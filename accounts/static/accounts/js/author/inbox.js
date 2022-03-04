@@ -6,10 +6,12 @@ function getInbox(uid){
         .then(data => {
             for(i in data["items"]){
                 item = data["items"][i]
+                if(item["unlisted"]==false){
                 document.getElementById("inboxList").innerHTML += '<li>' + "<a href=/post/" + item["id"] + ">" + "Title - " + item["title"] + "</a> <br> Description - "+item["description"]+"<br>Author - "+item["author"]+"<br><br>"//Post - " + newCom["comment"] + '<br>' + "Author - " + newCom["author"]["display_name"] + '</li>';
             }
         }
-    )}
+    }
+)}
 
 function delete_all(template_items){
     const csrftoken = getCookie('csrftoken');
