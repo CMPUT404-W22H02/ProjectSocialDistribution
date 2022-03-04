@@ -99,7 +99,7 @@ Paginated example: http://socialdisto.herokuapp.com/authors/?page=1&size=1
 
 **** Followers of an Author
 
-Endpoint: http://socialdistodev.herokuapp.com/authors/{AUTHOR_ID}/followers/
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/followers/
 
 Methods:
 - GET [local, remote]: get a list of authors who are AUTHOR_ID's followers.
@@ -163,3 +163,65 @@ The object which is sent to the inbox of an author, requesting bi-directional fr
 }
     
 #+END_SRC
+
+*** Posts
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/{POST_ID}
+
+Methods:
+- GET [local, remote]: get the public post with id POST_ID.
+- POST [local]: update the post with id POST_ID (authentication required).
+- DELETE [local]: remove the post with id POST_ID.
+- PUT [local]: create a post with id POST_ID.
+
+GET http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed
+#+BEGIN_SRC json
+{
+    "type": "post",
+    # Fully qualified id of the post
+    # POST_ID must be unique to the server for creation to succeed
+    "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed", 
+    # Post title is required for creation
+    "title": "My Very First Post!",
+    # Post source and origin are optional fields for creation
+    "source": "https://en.wikipedia.org/wiki/Lorem_ipsum",
+    "origin": "https://en.wikipedia.org/wiki/Lorem_ipsum",
+    # Post description is required for creation
+    "description": "A rather meaningless post wouldn't you agree?",
+    # Only text/plain currently supported
+    "content_type": "text/plain",
+    # Post content is required for creation
+    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    # Total number of comments for the post
+    "count": 0,
+    # The first page of comments for the post
+    # commentSrc field to be implemented for GET
+    "comments": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed/comments/",
+    # ISO 8601 TIMESTAMP
+    "published": "2022-03-04T17:50:14Z",
+    # Visibility can be PUBLIC or FRIENDS, but only PUBLIC functionality currently implemented
+    "visibility": "PUBLIC",
+    "unlisted": false,
+    "author": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/"
+}
+#+END_SRC
+
+*** Posts Creation URL
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/
+
+Methods:
+- GET [local, remote]: get the recent posts from author AUTHOR_ID, can be paginated.
+- POST [local]: create a new post with a newly generated id.
+
+*** Image Posts
+
+Not currently supported.
+
+*** Comments
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/
+
+Methods:
+- GET [local, remote]: get the list of comments of the post with id POST_ID, can be paginated.
+- POST [local] add a comment object to the Post with id POST_ID.
