@@ -65,6 +65,11 @@ class ProfileView(CreateView):
     def get(self, request, template_name="accounts/profile.html"):
         return TemplateResponse(request, template_name, {'uid':request.user.id})
 
+class UserInboxView(CreateView):
+
+    def get(self, request, template_name="accounts/inbox.html"):
+        return TemplateResponse(request, template_name, {"uid":request.user.id})
+
 class CreatePost(CreateView):
 
     def get(self, request, template_name="accounts/create.html"):

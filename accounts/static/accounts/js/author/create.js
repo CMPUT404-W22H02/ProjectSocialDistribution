@@ -13,6 +13,7 @@ function getCookie(name) {
     return cookieValue;
 }
 
+
 function newPost(uid){
     const csrftoken = getCookie('csrftoken');
     console.log(csrftoken)
@@ -35,46 +36,6 @@ function newPost(uid){
     host=uid.split("authors")[0]
     console.log(host)
 
-    const all_node = []
-    let fetchCom = fetch(host+"authors/");
-    fetchCom.then(res =>
-        res.json()).then(response => {
-        for(let i=0; i< response.items.length; i++){
-            node=response.items[i]['id']
-            all_node.push(node)
-            
-        }                  
-    })
-    .then(function(){
-        console.log("all authors",all_node)
-        if (formdata.unlisted===false){
-            if(formdata.visibility === "PUBLIC"){
-                for(let node of all_node){
-                    authorID = node.split("/authors/")[1].slice(0,-1)
-                    var urlToPostInboxItem = host +"authors/" + authorID +'/inbox';
-                    console.log("url", urlToPostInboxItem)
-                    fetch(urlToPostInboxItem,{
-                        method: 'POST',
-                        headers: {
-                        'Content-Type' : 'application/json',
-                        'X-CSRFToken' : "{{ csrf_token }}"
-                        },
-                        body: formdata 
-                    })
-                    console.log(formdata)
-                
-                    
-                    }
-
-                }
-
-            }else{
-                //do it when post is priavte
-                console.log("private")
-            }
-
-        
-    })
     fetch(
         uid+'posts/', {
             method: 'POST',
@@ -88,14 +49,38 @@ function newPost(uid){
         .then(data => {
             console.log("data")
             console.log(data);
-
             postID = data["id"]
             authorID = data["author"]
+            formdata["type"] = "post"
+            formdata["id"] = data["id"]
             postID = postID.split(authorID)[1]
             postID = postID.split("posts/")[1]
             host = authorID.split("authors")[0]
             service = host.split("://")[1]
             authorID = authorID.split("/authors/")[1].slice(0,-1)
+            host = uid.split("authors")[0]
+            let fetchRes = fetch(
+                host+"authors");
+                    fetchRes.then(res =>
+                        res.json()).then(response => {
+                            let authors = []
+                            for(i in response["items"]){
+                                fetch(
+                                    response["items"][i]["id"]+"inbox",
+                                    {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRFToken': csrftoken
+                                        },
+                                        body: JSON.stringify(formdata)
+                                    })
+                                    .then(res => res.json())
+                                    .then(data => {
+                                        console.log(data)
+                                    })                                    
+                            }     
+                        })
             window.location = host+"post/"+data["id"] 
 
         })

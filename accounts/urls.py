@@ -22,7 +22,7 @@ from .views import (AuthorDetailView, AuthorLikedView, AuthorListView,
                     HomeRedirectView, InboxView, LoggedInRedirectView,
                     PostDetailView, PostLikesView, PostListView,
                     RegisterCreateView, ProfileView,
-                    CreatePost, DisplayPostView)
+                    CreatePost, DisplayPostView, UserInboxView)
 
 app_name = 'accounts'
 
@@ -33,7 +33,8 @@ urlpatterns = [
     path('profile/', ProfileView.as_view(), name='profile_view'),
     path('register/', RegisterCreateView.as_view(), name='register'),
     path('home/', LoggedInRedirectView.as_view(), name='logged_in'),
-    path('post/<path:url>', DisplayPostView.as_view(), name="post display"),
+    path('post/<path:url>', DisplayPostView.as_view(), name="post_display"),
+    path('inbox', UserInboxView.as_view(), name="user_inbox"),
 
     # REST API endpoints
     path('authors/', AuthorListView.as_view(), name='api_author_list'),
