@@ -14,13 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from django.contrib.auth.forms import UserCreationForm
-
-from .models import NodeUser
+from rest_framework.pagination import PageNumberPagination
 
 
-class RegistrationForm(UserCreationForm):
+class CustomPagination(PageNumberPagination):
+    """Project level pagination class for paginating rest api"""
+    page_size_query_param = 'size'
+    page_query_param = 'page'
 
-    class Meta:
-        model = NodeUser
-        fields = ['username', 'display_name', 'password1', 'password2']
+class CommentPagination(CustomPagination):
+    page_size = 5
