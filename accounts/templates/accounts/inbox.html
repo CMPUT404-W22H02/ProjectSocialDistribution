@@ -5,10 +5,11 @@
 <script src="{% static 'accounts/js/author/inbox.js' %}"></script>
 <script src="{% static 'accounts/js/author/profile.js' %}"></script>
 <html>
-    <h1>Inbox</h1>
+    <h1> <span id="dname"></span>'s Inbox</h1>
     {% csrf_token %}
     <body onload="getInbox('{{uid}}','{{author_id}}', '{{template}}' , '{{author}}')">
-        <p>Current inbox: '{{template}}'</p>
+        
+        <p>Current inbox: {{template}}</p>
         <p>---</p>
         {% if template %}
             <ul id="template_">
@@ -28,7 +29,7 @@
         {% endif %}
         
         {% for each_post in template%}
-        <p>'{{each_post}}'</p>
+        <p>{{each_post}}</p>
         <script>
             console.log("---", template)
 
