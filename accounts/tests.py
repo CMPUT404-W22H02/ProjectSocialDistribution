@@ -16,9 +16,10 @@
 
 from uuid import uuid4
 
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.urls import reverse
 from rest_framework import status
+import requests
 
 from .models import NodeUser
 
@@ -30,6 +31,61 @@ class PermissionTests(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+
+# TEST HAVE BEEN MOVED TO API_TESTS.PY BECAUSE DJANGO IS A JOKE
+# @tag('heroku')
+# class RESTAPITests(TestCase):
+#     """Tests REST API endpoints on Heroku deployment."""
+#     def setUp(self):
+#         # Heroku deployment to test against
+#         self.service = 'http://socialdistodev.herokuapp.com/'
+
+#         # Users registered to the deployment
+#         self._uuid = 'uuid'
+#         self._id = 'id'
+#         self._display_name = 'display_name'
+#         self.author_1 = {
+#             self._uuid: '092cd520-d548-44e8-a2fa-eb1bf9b9c66f',
+#             self._id: 'http://socialdistodev.herokuapp.com/authors/092cd520-d548-44e8-a2fa-eb1bf9b9c66f/',
+#             self._display_name: 'Tester A'
+#         }
+#         self.author_id_2 = {
+#             self._uuid: '00d4d649-34ae-42d8-acc9-cddd24da0d9b',
+#             self._id: 'http://socialdistodev.herokuapp.com/authors/00d4d649-34ae-42d8-acc9-cddd24da0d9b/',
+#             self._display_name: 'Tester B'
+#         }
+    
+#     def test_authors(self):
+#         """GET service/authors/"""
+#         url = self.service + 'authors/'
+#         r = self.client.get('http://socialdistodev.herokuapp.com/authors/')
+#         assert r.status_code == status.HTTP_200_OK
+#         breakpoint()
+#         assert self.author_1[self._display_name] in r.json()
+#         assert self.author_2[self._display_name] in r.json()
+
+#         # Pagination
+#         url = self.service + 'authors/?size=1&page=1'
+#         r = self.client.get(url)
+#         assert r.status_code == status.HTTP_200_OK
+#         assert 'count' in r.json()
+#         assert 'next' in r.json()
+#         assert 'previous' in r.json()
+#         assert 'results' in r.json()
+    
+    # def test_author_detail(self):
+    #     """GET service/authors/AUTHOR_ID"""
+    #     url = self.author_1[self._id]
+    #     breakpoint()
+    #     r = self.client.get('http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/')
+    #     self.assertEqual(r.status_code, status.HTTP_200_OK)
+    #     self.assertContains(r, self.author_1[self._display_name])
+    
+    # def test_followers(self):
+    #     """GET service/followers/"""
+    #     url = self.service + 'followers/'
+    #     r = self.client.get(url)
+    #     self.assertEqual(r.status_code, status.HTTP_200_OK)
 
 # TODO: Reconfig Heroku deployments for Postgres, make a TEST heroku deployment and call directly against the deployed
 # application for testing. Testing without a hostname when so many resource id's are structured around the service name

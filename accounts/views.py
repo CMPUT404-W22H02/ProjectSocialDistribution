@@ -452,8 +452,11 @@ class InboxView(ListCreateAPIView, DestroyModelMixin):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         elif request.data[self._type] == 'Post'or request.data[self._type] == 'post':
             return self.create_post(request, *args, **kwargs)
-        elif request.data[self._type] == 'Follow':
+        elif request.data[self._type] == 'follow':
             return self.create_follow(request, *args, **kwargs)
+        elif request.data[self._type] == 'comment':
+            return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def create_post(self, request, *args, **kwargs):
         # Check if post already exists on the server
@@ -497,6 +500,17 @@ class InboxView(ListCreateAPIView, DestroyModelMixin):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_OK, headers=headers)
     
+    # TODO: Need to appropriately link a comment to the Post object without it showing up in the Post
+    # as comments sent to the inbox are private
+    def create_comment(self, request, *args, **kwargs):
+        kwargs['context'] = self.get_serializer_context()
+        serializer = CommentSerializer(*args, **kwargs)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def create_like(self, request, *args, **kwargs):
         # TODO: add protection against multiple likes, albeit unlikely to occur
         kwargs['context'] = self.get_serializer_context()
