@@ -1,10 +1,17 @@
-{% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
 
-{% block body %}
-<form action="." method="post">
+    <link rel="stylesheet"  href="{%  static  'accounts/register.css'  %}">   
+</head>
+<body>
+<h1 class="title">PROJECT SOCIAL DISTRIBUTION</h1>
+<form action="." method="post" id="form">
+    <h3 class="signup">Sign Up!</h3>
     {% csrf_token %}
     {{ form.as_p }}
-    <button type="submit">Register</button>
+    <button class="submit" type="submit">Register</button>
 </form>
-{% endblock %}
+</body>

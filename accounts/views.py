@@ -18,7 +18,8 @@ from uuid import uuid4
 
 import requests
 from django.http import Http404, HttpResponseBadRequest
-from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
@@ -51,13 +52,35 @@ class RegisterCreateView(CreateView):
         self.object = form.save()
         Inbox.objects.create(author=self.object)
         
-        return super().form_valid(form)
+        return redirect('accounts:login')
+
+class DisplayPostView(CreateView):
+
+    def get(self, request, template_name="accounts/post.html", *args, **kwargs):
+        author = self.kwargs['url'].split("posts/")[0]
+        return TemplateResponse(request, template_name, {'uid':request.user.id, 'url':self.kwargs['url'], 'author':author})
+
+class ProfileView(CreateView):
+
+    def get(self, request, template_name="accounts/profile.html"):
+        return TemplateResponse(request, template_name, {'uid':request.user.id})
+
+class UserInboxView(CreateView):
+
+    def get(self, request, template_name="accounts/inbox.html"):
+        return TemplateResponse(request, template_name, {"uid":request.user.id})
+
+class CreatePost(CreateView):
+
+    def get(self, request, template_name="accounts/create.html"):
+        return TemplateResponse(request, template_name, {'uid':request.user.id})
 
 class HomeRedirectView(RedirectView):
     pattern_name = 'accounts:login'
 
-class LoggedInRedirectView(RedirectView):
-    pattern_name = 'inbox:home'
+class LoggedInRedirectView(CreateView):
+    def get(self, request, template_name="home/home.html"):
+        return TemplateResponse(request, template_name, {'uid':request.user.id})
 
 class AuthorListView(ListAPIView):
     """Retrieve all authors registered on the server."""
@@ -427,7 +450,7 @@ class InboxView(ListCreateAPIView, DestroyModelMixin):
     def create(self, request, *args, **kwargs):
         if self._type not in request.data.keys():
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        elif request.data[self._type] == 'post':
+        elif request.data[self._type] == 'Post'or request.data[self._type] == 'post':
             return self.create_post(request, *args, **kwargs)
         elif request.data[self._type] == 'follow':
             return self.create_follow(request, *args, **kwargs)
@@ -501,6 +524,7 @@ class InboxView(ListCreateAPIView, DestroyModelMixin):
         
     def get_serializer_class(self):
         if self.request.method == 'GET':
+
             return PostSerializer
 
         elif self.request.method == 'POST':
@@ -521,3 +545,4 @@ class InboxView(ListCreateAPIView, DestroyModelMixin):
         view_name = 'accounts:api_author_details'
         kwargs = {key: self.kwargs[key]}
         return self.request.get_host() + reverse(view_name, kwargs=kwargs)
+

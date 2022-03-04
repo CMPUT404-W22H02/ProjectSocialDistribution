@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block body %}
+<script src="{% static 'accounts/js/author/create.js' %}"></script>
+<html>
+    <head>
+        <link rel="stylesheet"  href="{%  static  'accounts/create.css'  %}">  
+    </head>
+    <div class="nav" style="background-color: yellowgreen; padding-top: 10px;padding-bottom: 10px;">
+        <a href="/home"><span style="padding-left: 15%">Home</span></a>
+        <a href="/inbox"><span style="padding-left: 15%">Inbox</span></a>
+        <span style="padding-left: 15%; color: white;">Create</span>
+        <a href="/profile"><span style="padding-left: 15%;">Profile</span></a>
+    </div>
+    <h1 class="title">PROJECT SOCIAL DISTRIBUTION</h1>
+    <body>
+        <form method="post">
+            {% csrf_token %}
+    <div class="data">
+        <p>Title - <input type="text" id="postTitle"></p> 
+        <p>Source - <input type="text" id="postSource"></p> 
+        <p>Origin - <input type="text" id="postOrigin"></p> 
+        <p>Description - <input type="text" id="postDesc"></p> 
+        <label for="visibility">Visibility - </label>
+        <select name="visibility" id="visibility">
+        <option value="PUBLIC">PUBLIC</option>
+        <option value="PRIVATE">PRIVATE</option>
+        </select>
+        <p>Unlisted - <input type="checkbox" id="unlisted"></p> 
+    <input type="button" id="sBtn" class="sBtn" value="Create Post" onclick="newPost('{{uid}}')">
+</div>    
+</form>
+    </body>
+</html>
+{% endblock %}

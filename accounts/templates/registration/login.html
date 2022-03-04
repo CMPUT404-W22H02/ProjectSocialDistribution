@@ -1,15 +1,40 @@
-{% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="{% static 'accounts/style.css' %}">
 
-<link rel="stylesheet" type="text/css" href="{% static 'accounts/style.css' %}">
+    <link rel="stylesheet"  href="{%  static  'accounts/login.css'  %}">   
+</head>
 
-{% block body %}
-<form method="post">
+<body>
+    <h1 class="title">PROJECT SOCIAL DISTRIBUTION</h1>
+<form method="post" id="form">
+    <p class="sign">Welcome! </p>
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Log In</button>
+    <table class="tl">
+        <tr>
+          <td class="usn_tag">{{ form.username.label_tag }}</td>
+          <td class="username">{{ form.username }}</td>
+        </tr>
+        <tr>
+          <td class="pwd_tag">{{ form.password.label_tag }}</td>
+          <td class="password">{{ form.password }}</td>
+        </tr>
+        
+      </table>
+       {% if form.errors %}
+            <p>Your username and password didn't match. Please try again.</p>
+        {% endif %}
+    <button class="submit" type="submit">Log In</button>
+    
+    <p class="register">
+      <a  href="{% url 'accounts:register' %}">New User Registration</a>  
+    </p>
+    
 </form>
-<br>
-<a href="{% url 'accounts:register' %}">New User Registration</a>
-{% endblock %}
+</body>
+
+</html>
 

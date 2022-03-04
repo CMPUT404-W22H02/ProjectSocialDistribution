@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 {% load static %}
 
-<html lang="en">
+<html lang="en" style="margin: 0px;
+   height: 100%;
+   width: 100%;">
     <head>
         <meta charset="utf-8">
+        <link rel="stylesheet" href="base.css">
         {% block page_meta %}
         {% endblock %}
 
         <title>{% block title %}Project Social Distribution{% endblock %}</title>       
     </head>
-
-    <body>
-        {% block body %}
-        {% endblock %}
-    </body>
+    <body style="background-color: rgb(68, 190, 238);"></body>
+    {% block body %}
+    {% endblock %}
 </html>
