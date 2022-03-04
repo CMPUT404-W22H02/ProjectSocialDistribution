@@ -6,23 +6,26 @@
 <script src="{% static 'accounts/js/author/profile.js' %}"></script>
 <html>
     <h1>Inbox</h1>
-
+    {% csrf_token %}
     <body onload="getInbox('{{uid}}','{{author_id}}', '{{template}}' , '{{author}}')">
-        <p>Current inbox: '{{template.items}}'</p>
+        <p>Current inbox: '{{template}}'</p>
+        <p>---</p>
         {% if template %}
             <ul id="template">
             <script>
                 var template=[];
             </script>
-            {% for e_template in template.items %}
-                {% if e_template %}
+            {% for each_post in template %}
+                {% if each_post %}
                     <script>
-                        template.push(JSON.parse('{{e_template}}'));
+                        console.log(typeof template)
+                        console.log(typeof each_post)
+                        template.push(template);
+                        console.log(template)
+
                     </script>
-                    <p>'{{e_template}}' - send a node.</p>
-
                 {% else %}
-
+                    <p>Empty Inbox</p>
                 {% endif %}
             {% endfor %} 
             </ul>
@@ -30,16 +33,24 @@
         {% else %}
             <p>Empty Inbox</p>
         {% endif %}
+        
+        {% for each_post in template%}
+        <p>'{{each_post}}'</p>
+        <script>
+            console.log("---", template)
 
-        
-        <p>-------</p>
-        <form method="post">
-            {% csrf_token %}
-            <div>
-                <p>Display Name - <input type="text" id="newname" style="display: none;"><span id="dname"></span></p> 
-            </div>
-        
-        </form>
+
+
+
+
+
+
+
+        </script>
+        {% endfor %}
+
+
+
     <input type="button" id="eBtn" value="delete" onclick="delete_all('{{template.items}}')">
     </body>
 </html>

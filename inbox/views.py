@@ -53,10 +53,13 @@ class InboxxView(ListCreateAPIView, DestroyModelMixin):
         serializer = self.get_serializer(queryset, many=True)
         template[self._items] = serializer.data
         author=self.author_id()
+        new_list = template[self._items]
+        print(new_list)
         context={'author': author,
-                'template': template, 'uid':request.user.id, 'author_id': self.kwargs['author_id']}
+                'template': new_list, 'uid':request.user.id, 'author_id': self.kwargs['author_id']}
 
         return TemplateResponse(request, template_name, context)
+
     def delete(self, request, template_name='accounts/inbox.html',*args, **kwargs):
         if (not request.user or request.user.is_anonymous):
             return HttpResponse('Unauthorized', status=401)
