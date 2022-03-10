@@ -11,7 +11,7 @@ For future releases, endpoints marked as *local* will only be accepted with the 
 
 *** Single Author
 
-Endpoint: http://socialdisto.herokuapp.com/authors/authors/{AUTHOR_ID}
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}
 
 Methods:
 - GET [local, remote]: retrieve AUTHOR_ID's profile.
