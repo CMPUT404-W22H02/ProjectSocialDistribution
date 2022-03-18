@@ -23,22 +23,81 @@ from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.generics import (CreateAPIView, ListAPIView,
                                      ListCreateAPIView, RetrieveUpdateAPIView,
-                                     RetrieveUpdateDestroyAPIView)
+                                     RetrieveUpdateDestroyAPIView, GenericAPIView)
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.response import Response
 
-from socialdisto.pagination import CommentPagination, CustomPagination
-
+from socialdisto.pagination import *
+from rest_framework.authtoken.models import Token
 from .forms import RegistrationForm
-from .models import Comment, FollowRequest, Inbox, Like, NodeUser, Post
+from .models import *
 from .serializers import (CommentCreationSerializer, CommentSerializer,
                           FollowRequestSerializer, InboxSerializer,
-                          LikeSerializer, NodeUserSerializer, PostSerializer)
+                          LikeSerializer, NodeUserSerializer, PostSerializer, LoginSerializer, AuthorSerializer)
+from django.contrib.auth import authenticate, login
 
 
+
+class LoginAPI(GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = LoginSerializer
+    def post(self, request):
+        username = request.data["username"]
+        password = request.data["password"]
+        user = authenticate(username=username, password=password)
+        print(user)
+        if user is not None:
+            login(request,user)
+            response = {
+                'detail': 'User logs in successfully!',
+                'id': user.author_id,
+                'token': Token.objects.get_or_create(user=user)[0].key
+            }
+            return Response(response, status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': 'Incorrect Credentials'},status=status.HTTP_400_BAD_REQUEST)
+
+class SignupAPI(CreateAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = AuthorSerializer
+    def post(self, request, *args, **kwargs):
+        try:
+            author = {}
+            author['username'] = request.data['username']
+            author['display_name'] = request.data['display_name']
+            author['password'] = request.data['password']
+            author["type"] = 'author'
+            author['host'] = 'http://'+request.get_host()+'/'
+            author['url'] = request.build_absolute_uri()
+            author['github'] = "http://github.com/"+request.data['github']
+        except:
+            return Response({'detail': 'Bad Input!'}, status=status.HTTP_400_BAD_REQUEST)
+        author_serializer = AuthorSerializer(data=author)
+        if author_serializer.is_valid():
+            author_serializer.save()
+            new_author = NodeUser.objects.get(username=author['username'])
+            new_author.set_password(author['password'])
+            new_author.save()
+            new_author = NodeUser.objects.filter(username=author['username'])
+            id = author_serializer.data['author_id']
+            new_author.update(url=author['url']+id)
+            new_author = NodeUser.objects.get(username=author['username'])
+            response = {
+                'detail': 'User creates succeed!',
+                'id': new_author.author_id,
+                'token': Token.objects.get_or_create(user=new_author)[0].key
+            }
+            return Response(response, status=status.HTTP_201_CREATED)
+
+        else :
+            print(author_serializer.errors)
+            response = {
+                'detail':'User created failed!'
+            }
+            return Response(response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class RegisterCreateView(CreateView):
     template_name = 'accounts/register.html'
     form_class = RegistrationForm
@@ -545,4 +604,5 @@ class InboxView(ListCreateAPIView, DestroyModelMixin):
         view_name = 'accounts:api_author_details'
         kwargs = {key: self.kwargs[key]}
         return self.request.get_host() + reverse(view_name, kwargs=kwargs)
+
 

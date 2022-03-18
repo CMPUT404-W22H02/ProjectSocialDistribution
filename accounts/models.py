@@ -23,11 +23,12 @@ from django.db.models import (CASCADE, BooleanField, CharField, DateTimeField,
                               ForeignKey, IntegerField, ManyToManyField, Model,
                               OneToOneField, URLField, UUIDField)
 from django.utils.timezone import now
-
+from rest_framework.authtoken.models import Token
 
 class NodeUser(AbstractUser):
     # API fields
-    id = URLField(primary_key=True, max_length=255)
+    id = URLField(max_length=255,default=uuid4,blank=True,unique=True,verbose_name='url_id',editable=True)
+    author_id = UUIDField(primary_key=True, auto_created = True , default = uuid4)
     url = URLField()
     host = CharField(max_length=255)
     display_name = CharField(max_length=20, blank=False)
