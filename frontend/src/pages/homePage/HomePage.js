@@ -14,6 +14,9 @@ function HomePage() {
         <VStack spacing="4">
           <Post/>
           <Post/>
+          <Post/>
+          <Post/>
+          <Post/>
         </VStack>
       </Flex>
     </Box>

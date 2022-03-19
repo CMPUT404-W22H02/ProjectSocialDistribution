@@ -90,7 +90,7 @@ function Login() {
                   </InputRightElement>
                 </InputGroup>
               </FormControl>
-              <Button type="submit" variant="solid" colorScheme="teal" width="full" onClick={handleLoginClick}>
+              <Button variant="solid" colorScheme="teal" width="full" onClick={handleLoginClick}>
                 Login
               </Button>
             </Stack>
@@ -98,7 +98,7 @@ function Login() {
         </Box>
       </Stack>
       <Box>
-        <Link color="teal.500" href="#">
+        <Link color="teal.500" href="/register">
           Register Here
         </Link>
       </Box>
