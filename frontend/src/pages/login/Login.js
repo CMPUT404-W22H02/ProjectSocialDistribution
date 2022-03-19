@@ -98,7 +98,7 @@ function Login() {
         </Box>
       </Stack>
       <Box>
-        <Link color="teal.500" href="#">
+        <Link color="teal.500" href="/register">
           Register Here
         </Link>
       </Box>

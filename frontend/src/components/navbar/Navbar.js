@@ -34,7 +34,7 @@ function Navbar() {
             </Center>
             <MenuDivider />
             <MenuItem>Your Servers</MenuItem>
-            <MenuItem>Account Settings</MenuItem>
+            <MenuItem><a href="/profile">Profile Settings</a></MenuItem>
             <MenuItem>Logout</MenuItem>
           </MenuList>
         </Menu>
