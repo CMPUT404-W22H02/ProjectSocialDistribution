@@ -58,8 +58,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
-    'inbox',
     'rest_framework',
     'rest_framework.authtoken',
 ]
@@ -154,8 +152,3 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 django_on_heroku.settings(locals(), test_runner=False)
-
-# Account authentication
-AUTH_USER_MODEL = "accounts.NodeUser"
-LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = 'accounts:logged_in'
