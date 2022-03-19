@@ -14,26 +14,36 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from uuid import uuid4
+
 from django.shortcuts import get_object_or_404
-from rest_framework.generics import ListAPIView, RetrieveUpdateAPIView, RetrieveUpdateDestroyAPIView
-from rest_framework.authentication import BasicAuthentication
-from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 from rest_framework import status
+from rest_framework.authentication import BasicAuthentication
+from rest_framework.generics import (ListAPIView, ListCreateAPIView,
+                                     RetrieveUpdateAPIView,
+                                     RetrieveUpdateDestroyAPIView)
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
+from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 
 from socialdisto.pagination import CustomPagination
-from .serializers import AuthorSerializer
-from .models import Author, NodeUser
+
+from .models import Author, NodeUser, Post
+from .serializers import (AuthorSerializer, PostCreationSerializer,
+                          PostDetailsSerializer)
+
 
 class UtilityAPI():
     _author_id = 'author_id'
     _follower_id = 'follower_id'
 
+    _id = 'id'
     _type = 'type'
     _items = 'items'
     _authors = 'authors'
     _followers = 'followers'
+    _posts = 'posts'
 
     def get_author_id(self, request, author_id):
         """Return fully qualified id from author_id."""
@@ -207,3 +217,50 @@ class FollowerDetailAPIView(RetrieveUpdateDestroyAPIView, UtilityAPI):
         author.followers.remove(follower)
 
         return Response(status.HTTP_200_OK)
+
+class PostsAPIView(ListCreateAPIView, UtilityAPI):
+    """Get recent posts from an author, and create a new post with a newly generated id."""
+    queryset = Post.objects.all()
+
+    pagination_class = CustomPagination
+
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(author__id=self.get_author_id(self.request, self.kwargs[self._author_id]))
+    
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return PostDetailsSerializer
+        return PostCreationSerializer
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        author_id = self.get_author_id(self.request, self.kwargs[self._author_id])
+        author = get_object_or_404(Author.objects.all(), id=author_id)
+        # TODO: assumes no POST ID collisions with the author
+        post_id = str(uuid4())
+        context[self._id] = author_id + 'posts/' + post_id
+        context['author'] = author
+        return context
+    
+    def get_authenticators(self):
+        if self.request.method == 'POST':
+            self.authentication_classes = [JWTTokenUserAuthentication]
+        return super().get_authenticators()
+
+    def list(self, request, *args, **kwargs):
+        response = {self._type: self._posts, self.items: None}
+        queryset = self.get_queryset()
+
+        page = self.paginate_queryset(page, many=True)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response[self._items] = serializer.data
+            return self.get_paginated_response(response)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        response[self._items] = serializer.data
+        return Response(response)

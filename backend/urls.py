@@ -17,8 +17,9 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
+from .views import (AuthorDetailAPIView, AuthorsAPIView, FollowerDetailAPIView,
+                    FollowersAPIView)
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
-from .views import AuthorDetailAPIView, AuthorsAPIView, FollowerDetailAPIView, FollowersAPIView
 
 router = DefaultRouter()
 router.register(r'register', RegistrationViewSet, basename='auth_register')

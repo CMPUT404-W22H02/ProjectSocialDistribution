@@ -17,7 +17,7 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin
 from django.db.models import (CASCADE, BooleanField, CharField, ForeignKey,
-                              Model, URLField, ManyToManyField)
+                              ManyToManyField, Model, OneToOneField, URLField)
 
 URL_MAX = 255
 CHAR_MAX = 255
@@ -78,3 +78,26 @@ class Author(Model):
     
     def get_absolute_url(self):
         return self.id
+
+class Post(Model):
+    id = URLField(primary_key=True)
+
+    author = ForeignKey(Author, on_delete=CASCADE)
+
+    class Meta:
+        pass
+    
+    def get_absolute_url(self):
+        return self.id
+    
+    @property
+    def type(self):
+        return 'post'
+
+class Inbox(Model):
+    author  = OneToOneField(Author, on_delete=CASCADE)
+    posts = ManyToManyField(Post)
+
+    @property
+    def type(self):
+        return 'inbox'

@@ -14,13 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from wsgiref import validate
+
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import update_last_login
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, ReadOnlyField
 from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
                                                   api_settings)
 
-from .models import Author, NodeUser
+from .models import Author, NodeUser, Post
 
 
 class NodeUserSerializer(ModelSerializer):
@@ -65,3 +67,23 @@ class AuthorCreationSerializer(ModelSerializer):
     class Meta:
         model = Author
         fields = '__all__'
+
+class PostDetailsSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Post.type))
+    author = AuthorSerializer(read_only=True)
+    
+    class Meta:
+        model = Post
+        fields = '__all__'
+    
+class PostCreationSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Post.type))
+
+    class Meta:
+        model = Post
+        fields = '__all__'
+    
+    def create(self, validated_data):
+        validated_data['id'] = self.context['id']
+        validated_data['author'] = self.context['author']
+        return super().create(validated_data)
