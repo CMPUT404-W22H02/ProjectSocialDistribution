@@ -14,6 +14,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from django.db import models
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-# Create your models here.
+from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
+from .views import AuthorDetailAPIView, AuthorsAPIView
+
+router = DefaultRouter()
+router.register(r'register', RegistrationViewSet, basename='auth_register')
+router.register(r'login', LoginViewSet, basename='auth_login')
+router.register(r'refresh', RefreshViewSet, basename='auth_refresh')
+
+urlpatterns = [
+    path('authors/', AuthorsAPIView.as_view(), name='api_authors'),
+    path('authors/<str:author_id>', AuthorDetailAPIView.as_view(), name='api_author_details'),
+    *router.urls
+]

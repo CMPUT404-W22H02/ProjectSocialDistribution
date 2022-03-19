@@ -18,11 +18,11 @@ from django.urls import include, path
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from .views import (AuthorDetailView, AuthorLikedView, AuthorListView,
-                    CommentListView, FollowerExistsView, FollowerListView,
-                    HomeRedirectView, InboxView, LoggedInRedirectView, LoginAPI,
-                    PostDetailView, PostLikesView, PostListView,
-                    RegisterCreateView, ProfileView,
-                    CreatePost, DisplayPostView, SignupAPI, UserInboxView)
+                    CommentListView, CreatePost, DisplayPostView,
+                    FollowerExistsView, FollowerListView, HomeRedirectView,
+                    InboxView, LoggedInRedirectView, LoginAPI, PostDetailView,
+                    PostLikesView, PostListView, ProfileView,
+                    RegisterCreateView, SignupAPI, UserInboxView)
 
 app_name = 'accounts'
 

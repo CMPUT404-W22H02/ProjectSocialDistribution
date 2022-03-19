@@ -25,6 +25,7 @@ from django.db.models import (CASCADE, BooleanField, CharField, DateTimeField,
 from django.utils.timezone import now
 from rest_framework.authtoken.models import Token
 
+
 class NodeUser(AbstractUser):
     # API fields
     id = URLField(max_length=255,default=uuid4,blank=True,unique=True,verbose_name='url_id',editable=True)

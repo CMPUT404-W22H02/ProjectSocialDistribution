@@ -58,11 +58,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'accounts',
-    'inbox',
+
     'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders'
+    'corsheaders',
+    'backend',
 ]
 
 MIDDLEWARE = [
@@ -74,6 +74,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'socialdisto.urls'
@@ -131,9 +132,16 @@ AUTH_PASSWORD_VALIDATORS = [
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny'
-    ]
+    ],
+    # 'DEFAULT_RENDERER_CLASSES': [
+    #     'rest_framework.renderers.JSONRenderer',
+    # ]
 }
 
 CORS_ALLOWED_ORIGINS = [
@@ -161,7 +169,8 @@ STATIC_URL = '/static/'
 
 django_on_heroku.settings(locals(), test_runner=False)
 
-# Account authentication
-AUTH_USER_MODEL = "accounts.NodeUser"
-LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = 'accounts:logged_in'
+AUTH_USER_MODEL = 'backend.NodeUser'
+
+CORS_ALLOWED_ORIGINS = [    
+    'http://localhost:3000'
+]

@@ -1,5 +1,6 @@
-from rest_framework import status
 import requests
+from rest_framework import status
+
 
 class RESTAPITests():
     """Tests REST API endpoints against a live Heroku test deployment."""
