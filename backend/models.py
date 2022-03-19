@@ -66,6 +66,8 @@ class Author(Model):
     display_name = CharField(max_length=CHAR_MAX, blank=False)
     github = URLField(blank=True)
 
+    # TODO: profile image
+
     user = ForeignKey(NodeUser, on_delete=CASCADE)
 
     @property

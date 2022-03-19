@@ -20,7 +20,7 @@ from rest_framework.serializers import ModelSerializer
 from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
                                                   api_settings)
 
-from .models import NodeUser
+from .models import Author, NodeUser
 
 
 class NodeUserSerializer(ModelSerializer):
@@ -53,3 +53,9 @@ class RegistrationSerializer(ModelSerializer):
     
     def validate_password(self, value):
         return make_password(value)
+
+class AuthorCreationSerializer(ModelSerializer):
+
+    class Meta:
+        model = Author
+        fields = '__all__'

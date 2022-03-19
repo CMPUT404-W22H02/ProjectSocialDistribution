@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from uuid import uuid4
+
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
@@ -25,6 +27,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 
 from .serializers import LoginSerializer, RegistrationSerializer
+from .models import Author
 
 
 # Token Authentication workflow provided by https://dev.to/koladev/django-rest-authentication-cmh
@@ -40,7 +43,7 @@ class LoginViewSet(ModelViewSet, TokenObtainPairSerializer):
             serializer.is_valid(raise_exception=True)
         except TokenError as e:
             raise InvalidToken(e.args[0])
-        
+
         return Response(serializer.validated_data, status=HTTP_200_OK)
 
 class RegistrationViewSet(ModelViewSet, TokenObtainPairSerializer):
@@ -53,6 +56,22 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairSerializer):
 
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        breakpoint()
+
+        # Link the newly registered user to an Author object
+        host = request.get_host() + '/'
+        id = 'http://' + host + str(uuid4())
+        author = Author.objects.create(
+            id=id,
+            url=id,
+            host=host,
+            display_name=request.data['display_name'],
+            github='',
+            user=user
+        )
+        author.save()
+
+
         refresh = RefreshToken.for_user(user)
         res = {
             'refresh': str(refresh),
