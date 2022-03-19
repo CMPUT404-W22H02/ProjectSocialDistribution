@@ -26,8 +26,8 @@ from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .serializers import LoginSerializer, RegistrationSerializer
 from .models import Author
+from .serializers import LoginSerializer, RegistrationSerializer
 
 
 # Token Authentication workflow provided by https://dev.to/koladev/django-rest-authentication-cmh
@@ -56,17 +56,16 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairSerializer):
 
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        breakpoint()
 
         # Link the newly registered user to an Author object
-        host = request.get_host() + '/'
-        id = 'http://' + host + str(uuid4())
+        scheme = request.scheme + '://'
+        host = scheme + request.get_host() + '/authors/'
+        id = host + str(uuid4())
         author = Author.objects.create(
             id=id,
             url=id,
             host=host,
             display_name=request.data['display_name'],
-            github='',
             user=user
         )
         author.save()
@@ -97,3 +96,5 @@ class RefreshViewSet(ViewSet, TokenRefreshView):
             raise InvalidToken(e.args[0])
         
         return Response(serializer.validated_data, status=HTTP_200_OK)
+
+

@@ -29,6 +29,12 @@ class NodeUserSerializer(ModelSerializer):
         model = NodeUser
         fields = ['username']
 
+class AuthorSerializer(ModelSerializer):
+
+    class Meta:
+        model = Author
+        fields = ['type', 'id', 'url', 'host', 'display_name', 'github']
+
 class LoginSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):

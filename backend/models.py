@@ -72,4 +72,7 @@ class Author(Model):
 
     @property
     def type(self):
-        return 'property'
+        return 'author'
+    
+    def get_absolute_url(self):
+        return self.id
