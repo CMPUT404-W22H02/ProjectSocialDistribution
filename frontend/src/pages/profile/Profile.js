@@ -13,7 +13,10 @@ import {
     IconButton,
     Center,
     CloseButton,
-    useToast
+    useToast,
+    GridItem,
+    Grid,
+    ButtonGroup,
   } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
@@ -83,28 +86,24 @@ return (
         User Profile Edit
         </Heading>
         <FormControl id="userName">
-                <Center>
-                  
-                  <Avatar size="xl" src={picture}>
-                    <AvatarBadge
-                      as={IconButton}
-                      size="sm"
-                      rounded="full"
-                      top="-10px"
-                      colorScheme="red"
-                      aria-label="remove Image"
-                      icon={<CloseButton />}
-                      onClick={()=>(setPicture(""))}
-                    />
-                  </Avatar>
-                  
-                </Center>
-            </FormControl>
+            <Center>
+                <Avatar size="xl" src={picture}>
+                </Avatar>
+            </Center>
+             
+        </FormControl>
+        <ButtonGroup size='sm' isAttached variant='outline'>
             <input
               type="file"
               name="myImage"
               onChange={onChangePicture}
             />
+            <IconButton aria-label='Add to friends' icon={<Button variant='outline' onClick={()=>(setPicture(""))}>Remove</Button>} />
+        </ButtonGroup>
+        
+
+            
+            
         <FormControl id="userName" isRequired>
         <FormLabel>username</FormLabel>
         <Input
