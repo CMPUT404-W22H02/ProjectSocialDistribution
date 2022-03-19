@@ -16,7 +16,17 @@ import {
 function Navbar() {
 
   return (
-    <Flex bg="teal.400" px="10" minH="5vh" alignItems="center" justifyContent="space-between">
+    <Flex 
+      bg="teal.400"
+      px="10" 
+      minH="5vh" 
+      width="100%"
+      alignItems="center" 
+      justifyContent="space-between" 
+      position="sticky"
+      top="0"
+      zIndex="200"
+    >
       <Box>
         <Heading>Social Distribution</Heading>
       </Box>
