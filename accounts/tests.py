@@ -16,10 +16,10 @@
 
 from uuid import uuid4
 
+import requests
 from django.test import TestCase, tag
 from django.urls import reverse
 from rest_framework import status
-import requests
 
 from .models import NodeUser
 

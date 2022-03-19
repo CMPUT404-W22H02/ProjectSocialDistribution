@@ -17,28 +17,30 @@
 from uuid import uuid4
 
 import requests
+from django.contrib.auth import authenticate, login
 from django.http import Http404, HttpResponseBadRequest
-from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
-from rest_framework import status, permissions
-from rest_framework.generics import (CreateAPIView, ListAPIView,
-                                     ListCreateAPIView, RetrieveUpdateAPIView,
-                                     RetrieveUpdateDestroyAPIView, GenericAPIView)
+from rest_framework import permissions, status
+from rest_framework.authtoken.models import Token
+from rest_framework.generics import (CreateAPIView, GenericAPIView,
+                                     ListAPIView, ListCreateAPIView,
+                                     RetrieveUpdateAPIView,
+                                     RetrieveUpdateDestroyAPIView)
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.response import Response
 
 from socialdisto.pagination import *
-from rest_framework.authtoken.models import Token
+
 from .forms import RegistrationForm
 from .models import *
-from .serializers import (CommentCreationSerializer, CommentSerializer,
-                          FollowRequestSerializer, InboxSerializer,
-                          LikeSerializer, NodeUserSerializer, PostSerializer, LoginSerializer, AuthorSerializer)
-from django.contrib.auth import authenticate, login
-
+from .serializers import (AuthorSerializer, CommentCreationSerializer,
+                          CommentSerializer, FollowRequestSerializer,
+                          InboxSerializer, LikeSerializer, LoginSerializer,
+                          NodeUserSerializer, PostSerializer)
 
 
 class LoginAPI(GenericAPIView):
