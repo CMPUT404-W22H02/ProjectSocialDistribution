@@ -31,12 +31,12 @@ export default function JoinOurTeam() {
   });
   const [picture, setPicture] = useState('');
   const [userName, setUserName] = useState("");
+  const [display_name, setDisplay_name] = useState("");
   const [github, setGithub] = useState("");
   const [emailAddress, setEmailAddress] = useState("");
   const [password1, setPassword1] = useState("");
   const [password2, setPassword2] = useState("");
   const [validated, setValidated] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
   const toast = useToast()
   const toastIdRef = useRef()
   const statuses = ['success', 'error', 'warning', 'info']
@@ -57,7 +57,8 @@ function signUp() {
       addToast({description: "The 2 passwords your provided does not match",
                 status: 'error', isClosable: true, duration: 1000,})
   }else{
-    uploadImage()
+    //uploadImage()
+    submit()
 
   }
 
@@ -66,17 +67,57 @@ function signUp() {
       "usernName": userName,
       "github":github,
       "password": password1,
-      "images": selectedImage
+      "images": picture,
+      "display_name":display_name
   }
   console.log(data)
 
 
 }
+  const submit = ()=>{
+    const target = new FormData()
+    target.append("username",userName)
+    target.append("password",password1)
+    target.append("display_name",display_name)
+    axios
+      .post(`${base_url}register/`, target,{
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response)=>{
+        //toast
+        setUserName("");
+        setPassword2("");
+        setPassword1("");
+        setEmailAddress("");
+        setDisplay_name("");
+        setValidated(false);
+        addToast({description: "Success send information to admin",
+        status: 'success', isClosable: true,duration: 1000,})
+
+
+      })
+      .catch(e =>{
+        console.log(e)
+        //toast
+        addToast({description: "Not success send information to admin",
+        status: 'error',isClosable: true,duration: 1000,})
+      })
+
+
+  }
+
+
+
+
+
   const uploadImage = async file => {
     const target = new FormData()
-    target.append("userName",userName)
+    target.append("username",userName)
     target.append("password",password1)
     target.append("github",github)
+    target.append("display_name",display_name)
     target.append("profileImage",file)
     axios
       .post(`${base_url}/author/`, target,{
@@ -90,6 +131,7 @@ function signUp() {
         setPassword2("");
         setPassword1("");
         setEmailAddress("");
+        setDisplay_name("");
         setValidated(false);
         addToast({description: "Success send information to admin",
         status: 'success', isClosable: true,duration: 1000,})
@@ -176,6 +218,18 @@ function signUp() {
                 value={userName}
                 onChange={(e) => setUserName(e.target.value)}
                 placeholder="Username"
+                bg={'gray.100'}
+                border={0}
+                color={'gray.500'}
+                _placeholder={{
+                  color: 'gray.500',
+                }}
+              />
+              <Input
+                isRequired
+                value={display_name}
+                onChange={(e) => setDisplay_name(e.target.value)}
+                placeholder="Display name"
                 bg={'gray.100'}
                 border={0}
                 color={'gray.500'}
