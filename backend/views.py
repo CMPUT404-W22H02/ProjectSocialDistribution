@@ -86,10 +86,10 @@ class AuthorDetailAPIView(RetrieveUpdateAPIView, UtilityAPI):
 
         return obj
     
-    def check_permissions(self, request):
-        if request.method == 'GET':
+    def get_authenticators(self):
+        if self.request.method == 'POST':
             self.authentication_classes = [JWTTokenUserAuthentication]
-        return super().check_permissions(request)
+        return super().get_authenticators()
     
     def post(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
@@ -114,6 +114,11 @@ class FollowersAPIView(ListAPIView, UtilityAPI):
             return Author.objects.none()
         
         return queryset
+    
+    def get_authenticators(self):
+        if self.request.method == 'PUT' or self.request.method == 'DELETE':
+            self.authentication_classes = [JWTTokenUserAuthentication]
+        return super().get_authenticators()
     
     def list(self, request, *args, **kwargs):
         response = {self._type: self._followers, self._items: None}
@@ -161,11 +166,10 @@ class FollowerDetailAPIView(RetrieveUpdateDestroyAPIView, UtilityAPI):
         
         return author, follower
     
-    def check_permissions(self, request):
-        if request.method == 'PUT' or request.method == 'DELETE':
+    def get_authenticators(self):
+        if self.request.method == 'PUT' or self.request.method == 'DELETE':
             self.authentication_classes = [JWTTokenUserAuthentication]
-        breakpoint()
-        return super().check_permissions(request)
+        return super().get_authenticators()
     
     def retrieve(self, request, *args, **kwargs):
         """Check if the follower followers the author."""
