@@ -30,9 +30,14 @@ export default function Profile(props) {
 //const cookies = new Cookies();
 const [ value, setValue] = useState({});
 const [picture, setPicture] = useState('');
+const [userName, setUserName] = useState("");
+const [display_name, setDisplay_name] = useState("");
+const [github, setGithub] = useState("");
+const [emailAddress, setEmailAddress] = useState("");
+const [password1, setPassword1] = useState("");
 const toast = useToast()
 const toastIdRef = useRef()
-const  author_id = props?.location?.state?.author_id
+//const  author_id = props?.location?.state?.author_id
 function addToast(toast_data) {
     toastIdRef.current = toast(toast_data)
   }
@@ -40,9 +45,9 @@ function addToast(toast_data) {
     setPicture(URL.createObjectURL(e.target.files[0]));
   };
 
-
+const author_id =  "http://localhost:8000/authors/f9d97e2c-b2ee-455b-ac4b-0eabc766a804";
 useEffect(()=>{
-    axios.get(`${author_id}/`,
+    axios.get(`${author_id}`,
     {
         headers: {
         "Content-Type": "application/json",
@@ -50,15 +55,18 @@ useEffect(()=>{
 
         },
     })
-        .then(res => {
-        const info = res.data;
-        if(info.id){
-            setValue( info );
+    .then(res => {
+    const info = res.data;
+    if(info.id){
+        setValue( info );
 
-        }
-        else{
-            setValue(info.data[0])
-        }
+    }
+    else{
+        setValue(info.data[0])
+    }
+    console.log(res)
+    setUserName(info.username)
+    setDisplay_name(info.display_name)
         
     }).catch(e => {
         console.log(e)
@@ -98,7 +106,7 @@ return (
               name="myImage"
               onChange={onChangePicture}
             />
-            <IconButton aria-label='Add to friends' icon={<Button variant='outline' onClick={()=>(setPicture(""))}>Remove</Button>} />
+            <Button variant='outline' onClick={()=>(setPicture(""))}>Remove</Button>
         </ButtonGroup>
         
 
@@ -108,6 +116,16 @@ return (
         <FormLabel>username</FormLabel>
         <Input
             placeholder="UserName"
+            _placeholder={{ color: 'gray.500' }}
+            type="text"
+        />
+        </FormControl>
+        <FormControl id="Display_name" isRequired>
+        <FormLabel>Display name</FormLabel>
+        <p>{display_name}</p>
+
+        <Input
+            placeholder="Display name"
             _placeholder={{ color: 'gray.500' }}
             type="text"
         />
