@@ -26,9 +26,9 @@ import axios from "axios";
 
 export default function JoinOurTeam() {
   const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
-  const [state,setState] = useState({
-    file: null
-  });
+  
+  const [token, setToken]=useState("");
+  const [refrensh, setRefrensh]=useState("");
   const [picture, setPicture] = useState('');
   const [userName, setUserName] = useState("");
   const [display_name, setDisplay_name] = useState("");
@@ -71,6 +71,7 @@ function signUp() {
       "display_name":display_name
   }
   console.log(data)
+  
 
 
 }
@@ -95,6 +96,11 @@ function signUp() {
         setValidated(false);
         addToast({description: "Success send information to admin",
         status: 'success', isClosable: true,duration: 1000,})
+        console.log(response)
+        setToken(response.data.token)
+        setRefrensh(response.data.refresh)
+        console.log(response.data.refresh)
+        console.log(response.data.token)
 
 
       })
