@@ -148,6 +148,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000"
 ]
 
+CORS_ORIGIN_WHITELIST= [
+    CORS_ALLOWED_ORIGINS
+]
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
 
