@@ -17,7 +17,7 @@
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin
 from django.db.models import (CASCADE, BooleanField, CharField, ForeignKey,
-                              Model, URLField)
+                              Model, URLField, ManyToManyField)
 
 URL_MAX = 255
 CHAR_MAX = 255
@@ -69,6 +69,8 @@ class Author(Model):
     # TODO: profile image
 
     user = ForeignKey(NodeUser, on_delete=CASCADE)
+
+    followers = ManyToManyField('self', symmetrical=False)
 
     @property
     def type(self):
