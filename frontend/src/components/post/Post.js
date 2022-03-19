@@ -4,11 +4,15 @@ import {
     Button,
     Stack,
     Avatar,
-    HStack
+    HStack,
+    useDisclosure,
 } from "@chakra-ui/react";
-import { FaCommentAlt, FaThumbsUp } from "react-icons/fa"
+import { FaCommentAlt, FaThumbsUp } from "react-icons/fa";
+import EditDialog from "../editDialog";
 
 function Post() {
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
   return (
     <Flex width="50rem" height="25rem" boxShadow="lg" py="2" alignContent="center">
       <Stack direction="column" spacing="4" px="4" justify="space-between">
@@ -28,7 +32,8 @@ function Post() {
               <FaCommentAlt/>
             </Button>
           </Flex>
-          <Button variant="solid">Edit</Button>
+          <Button variant="solid" onClick={onOpen}>Edit</Button>
+          <EditDialog isOpen={isOpen} onClose={onClose}/>
         </HStack>
       </Stack>
     </Flex>
