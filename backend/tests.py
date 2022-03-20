@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED
+from uuid import uuid4
+
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_404_NOT_FOUND
 from rest_framework.test import (APIRequestFactory, APITestCase,
                                  force_authenticate)
 
-from .models import Author, NodeUser
+from .models import Author, NodeUser, Post
 from .views import AuthorsAPIView
 from .viewsets import RegistrationViewSet
 
@@ -37,6 +39,10 @@ class GenericTestCase(APITestCase):
             {self._username: 'tuser1', 'password': 'tpass1', self._display_name: 'Test User1'},
             {self._username: 'tuser2', 'password': 'tpass2', self._display_name: 'Test User2'}
         ]
+
+        self.mock_text_post = {
+            'title': 'Hello, World!',
+        }
     
     def register_mock_users(self):
         for user in self.mock_users:
@@ -153,3 +159,52 @@ class FollowersAPITestCase(GenericTestCase):
         # Delete and verify the relationship is gone
         response = self.client.delete(url)
         self.assertNotContains(response, self.author2.id)
+
+class PostsAPITestCase(GenericTestCase):
+    def setUp(self):
+        super().setUp()
+        self.register_mock_users()
+
+        self.author1 = Author.objects.get(display_name=self.mock_users[0][self._display_name])
+    
+    def test_recent_posts(self):
+        url = self.author1.id + '/posts/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+    
+    def test_post_creation_url(self):
+        url = self.author1.id + '/posts/'
+        response = self.client.post(url, data=self.mock_text_post)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Post should now exist
+        url = response.data['id']
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+    
+        # Verify post contents
+        contents = ['type', 'post', 'id', response.data['id'], 'title', response.data['title']]
+        for item in contents:
+            self.assertContains(response, item)
+    
+    def test_post_create_update_delete(self):
+        url = self.author1.id + '/posts/' + str(uuid4())
+        response = self.client.put(url, data=self.mock_text_post)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Edit the title
+        update = 'Goodbye, World!'
+        response = self.client.post(url, data={'title': update})
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+        # Verify update
+        response = self.client.get(url)
+        self.assertContains(response, update)
+
+        # Delete the post
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, HTTP_204_NO_CONTENT)
+
+        # Verify deletion
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)

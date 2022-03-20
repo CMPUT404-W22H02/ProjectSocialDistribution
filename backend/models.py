@@ -14,10 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from datetime import datetime
+
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin
 from django.db.models import (CASCADE, BooleanField, CharField, ForeignKey,
-                              ManyToManyField, Model, OneToOneField, URLField)
+                              ManyToManyField, Model, OneToOneField, URLField, IntegerField, DateTimeField)
+from django.utils.timezone import now
 
 URL_MAX = 255
 CHAR_MAX = 255
@@ -80,9 +83,26 @@ class Author(Model):
         return self.id
 
 class Post(Model):
-    id = URLField(primary_key=True)
+    id = URLField(primary_key=True, blank=True)
+    title = CharField(max_length=50, blank=True)
+    source = URLField(blank=True)
+    origin = URLField(blank=True)
+    description = CharField(max_length=50, blank=True)
 
-    author = ForeignKey(Author, on_delete=CASCADE)
+    author = ForeignKey(Author, on_delete=CASCADE, blank=True, null=True)
+
+    # Comment data
+    count = IntegerField(default=0)
+    comments = URLField(blank=True)
+
+    # Post meta-data
+    published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'))
+    visibility_choices = (
+        ('PUBLIC', 'PUBLIC'),
+        ('FRIENDS', 'FRIENDS')
+    )
+    visibility = CharField(default='PUBLIC', choices=visibility_choices, max_length=255)
+    unlisted = BooleanField(default=False)
 
     class Meta:
         pass
