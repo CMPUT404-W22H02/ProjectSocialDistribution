@@ -13,37 +13,40 @@ import {
   FormControl,
   InputRightElement
 } from "@chakra-ui/react";
+import PropTypes from 'prop-types';
+async function loginUser(credentials) {
+  return axios.post(`${process.env.REACT_APP_API_URL}login/`,
+  credentials, {
+    headers: {
+      'Content-Type': 'application/json'
+     
+    }})
+  .then((data) => data,
+  )
+ }
 
-
-function Login() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+function Login({ setToken }) {
+  const [username, setUserName] = useState();
+  const [password, setPassword] = useState();
+  
   const [showPassword, setShowPassword] = useState(false);
-
-  function handleUsernameOnChange(event) {
-    setUsername(event.target.value);
-  }
-
-  function handlePasswordOnChange(event) {
-    setPassword(event.target.value);
-  }
 
   function handleShowClick() {
     setShowPassword(!showPassword);
   }
 
-  function handleLoginClick() {
-    axios.post(`${process.env.REACT_APP_API_URL}/login`,
-    {
-      username: username,
-      password: password
-    })
-    .then((response) => {
-      console.log(response.data);
-    })
-    .catch((error) => {
-      console.log(error);
+  const handleLoginClick= async e=> {
+    e.preventDefault();
+    const data = await loginUser({
+      username,
+      password
     });
+    console.log("---",data);
+    //console.log("---",data.data.access)
+    const token = data.data
+    console.log(token)
+    setToken(token);
+    //window.location.assign("/dashboard")
   }
 
   function onSubmit(values) {
@@ -73,7 +76,7 @@ function Login() {
                 <Input 
                   type="text"
                   placeholder="Username"
-                  onChange={handleUsernameOnChange}
+                  onChange={e => setUserName(e.target.value)}
                 />
               </FormControl>
               <FormControl>
@@ -81,7 +84,7 @@ function Login() {
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
-                    onChange={handlePasswordOnChange}
+                    onChange={e => setPassword(e.target.value)} 
                   />
                   <InputRightElement width="4.5rem">
                     <Button h="1.75rem" size="sm" onClick={handleShowClick}>
@@ -107,3 +110,7 @@ function Login() {
 };
 
 export default Login;
+
+Login.propTypes = {
+  setToken: PropTypes.func.isRequired
+}
