@@ -1,7 +1,9 @@
 {
   "name": "frontend",
+  "homepage": ".",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8000",
   "dependencies": {
     "@chakra-ui/react": "^1.8.6",
     "@emotion/react": "^11.8.2",
@@ -24,6 +26,10 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
+  },
+  "engines": {
+    "node": "16.14.2",
+    "npm:": "8.5.4"
   },
   "eslintConfig": {
     "extends": [
