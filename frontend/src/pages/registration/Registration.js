@@ -51,14 +51,14 @@ export default function JoinOurTeam() {
     signUp();
     
     setValidated(true);
-};
-function signUp() {
-  if (password1 !== password2) {
-      addToast({description: "The 2 passwords your provided does not match",
-                status: 'error', isClosable: true, duration: 1000,})
-  }else{
-    //uploadImage()
-    submit()
+  };
+  function signUp() {
+    if (password1 !== password2) {
+        addToast({description: "The 2 passwords your provided does not match",
+                  status: 'error', isClosable: true, duration: 1000,})
+    }else{
+      //uploadImage()
+      submit()
 
   }
 
@@ -74,7 +74,8 @@ function signUp() {
   
 
 
-}
+  }
+  //"Authorization": `Bearer ${token}`
   const submit = ()=>{
     const target = new FormData()
     target.append("username",userName)
@@ -84,6 +85,7 @@ function signUp() {
       .post(`${base_url}register/`, target,{
         headers: {
           "Content-Type": "multipart/form-data",
+         
         },
       })
       .then((response)=>{
