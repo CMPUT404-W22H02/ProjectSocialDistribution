@@ -8,15 +8,7 @@ import Registration from './pages/registration';
 import Dashboard from './components/Dashboard';
 import NotFound404 from "./pages/NotFound";
 import useToken from "./components/App/useToken"
-function setToken(userToken) {
-  sessionStorage.setItem('token', JSON.stringify(userToken));
-}
 
-function getToken() {
-  const tokenString = sessionStorage.getItem('token');
-  const userToken = JSON.parse(tokenString);
-  return userToken?.token
-}
 function App() {
   //const token = getToken();
   const { token, setToken } = useToken();
