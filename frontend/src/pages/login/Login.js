@@ -26,7 +26,7 @@ async function loginUser(credentials) {
   .then((data) => data,
   
   )
- }
+}
 
 function Login({ setToken }) {
   const [username, setUserName] = useState();
@@ -51,6 +51,7 @@ function Login({ setToken }) {
       password
     });
     console.log("---",data);
+    
     //console.log("---",data.data.access)
     const token = data.data.access
     console.log({'token':token})

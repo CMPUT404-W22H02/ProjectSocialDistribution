@@ -22,7 +22,7 @@ import {
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Navbar from "../../components/navbar";
-
+import useToken from "../../components/App/useToken"
 const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 //import Cookies from "universal-cookie";
 
@@ -30,6 +30,7 @@ const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
   
 export default function Profile(props) {
 //const cookies = new Cookies();
+const { token, setToken } = useToken();
 const [ value, setValue] = useState({});
 const [picture, setPicture] = useState('');
 const [userName, setUserName] = useState("");
@@ -46,14 +47,14 @@ function addToast(toast_data) {
   const onChangePicture = e => {
     setPicture(URL.createObjectURL(e.target.files[0]));
   };
-
+console.log(token,"---")
 const author_id =  "http://localhost:8000/authors/f9d97e2c-b2ee-455b-ac4b-0eabc766a804";
 useEffect(()=>{
     axios.get(`${author_id}`,
     {
         headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": "xx"//cookies.get("csrftoken"),
+        //"Authorization" : `Bearer ${token}`
 
         },
     })
