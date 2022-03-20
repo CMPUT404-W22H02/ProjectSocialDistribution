@@ -18,7 +18,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import (AuthorDetailAPIView, AuthorsAPIView, FollowerDetailAPIView,
-                    FollowersAPIView, PostsAPIView, PostDetailAPIView)
+                    FollowersAPIView, PostsAPIView, PostDetailAPIView, CommentsAPIView)
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 router = DefaultRouter()
@@ -33,5 +33,6 @@ urlpatterns = [
     path('authors/<str:author_id>/followers/<path:follower_id>', FollowerDetailAPIView.as_view(), name='api_follower_details'),
     path('authors/<str:author_id>/posts/', PostsAPIView.as_view(), name='api_posts'),
     path('authors/<str:author_id>/posts/<str:post_id>', PostDetailAPIView.as_view(), name='api_post_detail'),
+    path('authors/<str:author_id>/posts/<str:post_id>/comments', CommentsAPIView.as_view(), name='api_comments'),
     *router.urls
 ]

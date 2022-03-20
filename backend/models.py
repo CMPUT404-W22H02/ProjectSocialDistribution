@@ -114,6 +114,22 @@ class Post(Model):
     def type(self):
         return 'post'
 
+class Comment(Model):
+    author = ForeignKey(Author, on_delete=CASCADE)
+    comment = CharField(max_length=500)
+
+    published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'))
+    id = URLField(primary_key=True, blank=True)
+
+    post = ForeignKey(Post, on_delete=CASCADE)
+
+    class Meta:
+        pass
+
+    @property
+    def type(self):
+        return 'comment'
+
 class Inbox(Model):
     author  = OneToOneField(Author, on_delete=CASCADE)
     posts = ManyToManyField(Post)

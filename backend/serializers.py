@@ -18,11 +18,12 @@ from wsgiref import validate
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import update_last_login
-from rest_framework.serializers import ModelSerializer, ReadOnlyField
+from rest_framework.serializers import ModelSerializer, ReadOnlyField, SerializerMethodField
 from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
                                                   api_settings)
 
-from .models import Author, NodeUser, Post
+from .models import Author, NodeUser, Post, Comment
+from socialdisto.pagination import CommentPagination
 
 
 class NodeUserSerializer(ModelSerializer):
@@ -71,10 +72,18 @@ class AuthorCreationSerializer(ModelSerializer):
 class PostDetailsSerializer(ModelSerializer):
     type = ReadOnlyField(default=str(Post.type))
     author = AuthorSerializer(read_only=True)
+    comment_src = SerializerMethodField('paginate_comment_src')
     
     class Meta:
         model = Post
         fields = '__all__'
+    
+    def paginate_comment_src(self, obj):
+        comments = Comment.objects.filter(post=obj)
+        paginator = CommentPagination()
+        page = paginator.paginate_queryset(comments, self.context['request'])
+        serializer = CommentSerializer(page, many=True)
+        return serializer.data
     
 class PostCreationSerializer(ModelSerializer):
     type = ReadOnlyField(default=str(Post.type))
@@ -87,3 +96,19 @@ class PostCreationSerializer(ModelSerializer):
         validated_data['id'] = self.context['id']
         validated_data['author'] = self.context['author']
         return super().create(validated_data)
+
+class CommentSerializer(ModelSerializer):
+    """Use to serialize the first 5 comments nested in a Post object."""
+    author = AuthorSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = ['type', 'author', 'comment', 'published', 'id']
+        ordering_fields = ['-published']
+
+class CommentCreationSerializer(ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+
+    class Meta:
+        model = Comment
+        fields = '__all__'

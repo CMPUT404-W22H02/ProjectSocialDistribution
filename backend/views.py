@@ -29,8 +29,8 @@ from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 
 from socialdisto.pagination import CustomPagination
 
-from .models import Author, NodeUser, Post
-from .serializers import (AuthorSerializer, PostCreationSerializer,
+from .models import Author, NodeUser, Post, Comment
+from .serializers import (AuthorSerializer, CommentCreationSerializer, CommentSerializer, PostCreationSerializer,
                           PostDetailsSerializer)
 
 
@@ -45,6 +45,7 @@ class UtilityAPI():
     _authors = 'authors'
     _followers = 'followers'
     _posts = 'posts'
+    _comments = 'comments'
 
     def get_author_id(self, request, author_id):
         """Return fully qualified id from author_id."""
@@ -316,3 +317,49 @@ class PostDetailAPIView(RetrieveUpdateDestroyAPIView, CreateAPIView, UtilityAPI)
     
     def put(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+
+class CommentsAPIView(ListCreateAPIView, UtilityAPI):
+    """Get and create comments for a post."""
+    queryset = Comment.objects.all()
+
+    serializer_class = CommentSerializer
+    pagination_class = CustomPagination
+
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        post_id = self.get_post_id(self.request, self.kwargs['author_id'], self.kwargs['post_id'])
+        return queryset.filter(post__id=post_id)
+    
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return CommentSerializer
+        return CommentCreationSerializer
+    
+    def get_serializer_context(self):
+        context =  super().get_serializer_context()
+        post_id = self.get_post_id(self.request, self.kwargs['author_id'], self.kwargs['post_id'])
+        post = get_object_or_404(Post.objects.all(), id=post_id)
+        context['post'] = post
+        return context
+    
+    def get_authenticators(self):
+        if self.request.method == 'POST':
+            self.authentication_classes = [JWTTokenUserAuthentication]
+        return super().get_authenticators()
+    
+    def list(self, request, *args, **kwargs):
+        response = {self._type: self._comments, self._items: None}
+        queryset = self.get_queryset()
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response[self._items] = serializer.data
+            return self.get_paginated_response(response)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        response[self._items] = serializer.data
+        return Response(response)
