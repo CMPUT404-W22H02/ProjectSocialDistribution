@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import {
@@ -11,8 +11,10 @@ import {
   Box,
   Link,
   FormControl,
-  InputRightElement
+  InputRightElement,
+  useToast,
 } from "@chakra-ui/react";
+import { useContext, useState , useRef} from "react";
 import PropTypes from 'prop-types';
 async function loginUser(credentials) {
   return axios.post(`${process.env.REACT_APP_API_URL}login/`,
@@ -22,6 +24,7 @@ async function loginUser(credentials) {
      
     }})
   .then((data) => data,
+  
   )
  }
 
@@ -30,6 +33,12 @@ function Login({ setToken }) {
   const [password, setPassword] = useState();
   
   const [showPassword, setShowPassword] = useState(false);
+  const toast = useToast()
+  const toastIdRef = useRef()
+  const statuses = ['success', 'error', 'warning', 'info']
+  function addToast(toast_data) {
+    toastIdRef.current = toast(toast_data)
+  }
 
   function handleShowClick() {
     setShowPassword(!showPassword);
@@ -43,10 +52,12 @@ function Login({ setToken }) {
     });
     console.log("---",data);
     //console.log("---",data.data.access)
-    const token = data.data
-    console.log(token)
-    setToken(token);
-    //window.location.assign("/dashboard")
+    const token = data.data.access
+    console.log({'token':token})
+    setToken({'token':token});
+    addToast({description: "success login",
+                  status: 'success', isClosable: true, duration: 1000,})
+    window.location.assign("/home")
   }
 
   function onSubmit(values) {

@@ -27,8 +27,8 @@ function Navbar() {
       top="0"
       zIndex="200"
     >
-      <Box>
-        <Heading>Social Distribution</Heading>
+      <Box >
+        <Heading ><a href="/home" >Social Distribution</a></Heading>
       </Box>
       <Stack direction="row" spacing="7">
         <Menu>

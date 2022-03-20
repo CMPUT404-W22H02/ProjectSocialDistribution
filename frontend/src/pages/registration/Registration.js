@@ -22,6 +22,7 @@ import {
 } from '@chakra-ui/react';
 import { useContext, useState , useRef} from "react";
 import axios from "axios";
+import { SmallCloseIcon } from '@chakra-ui/icons';
 
 
 export default function JoinOurTeam() {
@@ -201,15 +202,15 @@ export default function JoinOurTeam() {
             <FormControl id="userName">
                 <Center>
                   
-                  <Avatar size="xl" src={picture}>
+                <Avatar size="xl" src={picture}>
                     <AvatarBadge
                       as={IconButton}
                       size="sm"
                       rounded="full"
-                      top="-10px"
+                      bottom="-1px"
                       colorScheme="red"
                       aria-label="remove Image"
-                      icon={<CloseButton />}
+                      icon={<SmallCloseIcon />}
                       onClick={()=>(setPicture(""))}
                     />
                   </Avatar>

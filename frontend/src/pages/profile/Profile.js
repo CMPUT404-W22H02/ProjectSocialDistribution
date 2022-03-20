@@ -17,9 +17,11 @@ import {
     GridItem,
     Grid,
     ButtonGroup,
+    Box,
   } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import Navbar from "../../components/navbar";
 
 const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 //import Cookies from "universal-cookie";
@@ -76,6 +78,8 @@ useEffect(()=>{
 
 
 return (
+    <Box height="100vh">
+      <Navbar/>
     <Flex
     minH={'100vh'}
     align={'center'}
@@ -176,5 +180,6 @@ return (
         </Stack>
     </Stack>
     </Flex>
+    </Box>
 );
 }
