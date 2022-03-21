@@ -13,49 +13,65 @@ import {
     IconButton,
     Center,
     CloseButton,
-    useToast
+    useToast,
+    GridItem,
+    Grid,
+    ButtonGroup,
+    Box,
   } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-
+import Navbar from "../../components/navbar";
+import useToken from "../../components/App/useToken";
+import Identity from '../../model/Identity';
 const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 //import Cookies from "universal-cookie";
 
-
+let identity = Identity.GetIdentity();
   
 export default function Profile(props) {
 //const cookies = new Cookies();
+const { token, setToken } = useToken(identity.token);
 const [ value, setValue] = useState({});
 const [picture, setPicture] = useState('');
+const [userName, setUserName] = useState(identity.username);
+const [display_name, setDisplay_name] = useState("");
+const [github, setGithub] = useState("");
+const [emailAddress, setEmailAddress] = useState("");
+const [password1, setPassword1] = useState("");
 const toast = useToast()
 const toastIdRef = useRef()
-const  author_id = props?.location?.state?.author_id
+//const  author_id = props?.location?.state?.author_id
 function addToast(toast_data) {
     toastIdRef.current = toast(toast_data)
   }
   const onChangePicture = e => {
     setPicture(URL.createObjectURL(e.target.files[0]));
   };
-
-
-useEffect(()=>{
-    axios.get(`${author_id}/`,
+console.log(token,"---")
+const author_id =  identity.id
+console.log(author_id)
+useEffect(()=>{ 
+    axios.get(`${author_id}`,
     {
         headers: {
         "Content-Type": "application/json",
-        "X-CSRFToken": "xx"//cookies.get("csrftoken"),
+        //"Authorization" : `Bearer ${token}`
 
         },
     })
-        .then(res => {
-        const info = res.data;
-        if(info.id){
-            setValue( info );
+    .then(res => { 
+    const info = res.data;
+    if(info.id){
+        setValue( info );
 
-        }
-        else{
-            setValue(info.data[0])
-        }
+    } 
+    else{
+        setValue(info.data[0])
+    }
+    console.log(res)
+    setUserName(info.username)
+    setDisplay_name(info.display_name)
         
     }).catch(e => {
         console.log(e)
@@ -65,6 +81,8 @@ useEffect(()=>{
 
 
 return (
+    <Box height="100vh">
+      <Navbar/>
     <Flex
     minH={'100vh'}
     align={'center'}
@@ -83,34 +101,43 @@ return (
         User Profile Edit
         </Heading>
         <FormControl id="userName">
-                <Center>
-                  
-                  <Avatar size="xl" src={picture}>
-                    <AvatarBadge
-                      as={IconButton}
-                      size="sm"
-                      rounded="full"
-                      top="-10px"
-                      colorScheme="red"
-                      aria-label="remove Image"
-                      icon={<CloseButton />}
-                      onClick={()=>(setPicture(""))}
-                    />
-                  </Avatar>
-                  
-                </Center>
-            </FormControl>
+            <Center>
+                <Avatar size="xl" src={picture}>
+                </Avatar>
+            </Center>
+             
+        </FormControl>
+        <ButtonGroup size='sm' isAttached variant='outline'>
             <input
               type="file"
               name="myImage"
               onChange={onChangePicture}
             />
+            <Button variant='outline' onClick={()=>(setPicture(""))}>Remove</Button>
+        </ButtonGroup>
+        
+
+            
+            
         <FormControl id="userName" isRequired>
         <FormLabel>username</FormLabel>
         <Input
             placeholder="UserName"
             _placeholder={{ color: 'gray.500' }}
             type="text"
+            value={userName}
+            onChange={(e)=>setUserName(e.target.value)}
+        />
+        </FormControl>
+        <FormControl id="Display_name" isRequired>
+        <FormLabel>Display name</FormLabel>
+
+        <Input
+            placeholder="Display name"
+            _placeholder={{ color: 'gray.500' }}
+            type="text"
+            value={display_name}
+            onChange={(e)=>setDisplay_name(e.target.value)}
         />
         </FormControl>
         <FormControl id="email" isRequired>
@@ -159,5 +186,6 @@ return (
         </Stack>
     </Stack>
     </Flex>
+    </Box>
 );
 }

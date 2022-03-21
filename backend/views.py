@@ -17,24 +17,38 @@
 from uuid import uuid4
 
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication
-from rest_framework.generics import (ListAPIView, ListCreateAPIView,
-                                     RetrieveUpdateAPIView,
-                                     RetrieveUpdateDestroyAPIView, CreateAPIView)
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.generics import (CreateAPIView, ListAPIView,
+                                     ListCreateAPIView, RetrieveUpdateAPIView,
+                                     RetrieveUpdateDestroyAPIView)
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 
 from socialdisto.pagination import CustomPagination
 
-from .models import Author, NodeUser, Post, Comment
-from .serializers import (AuthorSerializer, CommentCreationSerializer, CommentSerializer, PostCreationSerializer,
+from .models import Author, Comment, NodeUser, Post
+from .serializers import (AuthorSerializer, CommentCreationSerializer,
+                          CommentSerializer, PostCreationSerializer,
                           PostDetailsSerializer)
 
 
-class UtilityAPI():
+class UtilityAPI(APIView):
+    # Itemized response templates
+    ritems = 'items'
+    rtype = 'type'
+    authors_response_template = {
+        rtype: "authors",
+        ritems: []
+    }
+    followers_response_template = {
+        rtype: "followers",
+        ritems: []
+    }
+
     _author_id = 'author_id'
     _follower_id = 'follower_id'
     _post_id = 'post_id'
@@ -47,14 +61,19 @@ class UtilityAPI():
     _posts = 'posts'
     _comments = 'comments'
 
-    def get_author_id(self, request, author_id):
-        """Return fully qualified id from author_id."""
-        return request.build_absolute_uri(f'/authors/{author_id}')
+    def get_author_id(self):
+        """Return the full path id for the request author."""
+        author_id = self.kwargs[self._author_id]
+        path = reverse('api_author_details', args=[author_id])
+        return self.request.build_absolute_uri(path)
     
-    def get_post_id(self, request, author_id, post_id):
-        return request.build_absolute_uri(f'/authors/{author_id}/posts/{post_id}')
+    def get_post_id(self):
+        """Return the full path id for the request post."""
+        author_id = self.kwargs[self._author_id]
+        post_id = self.kwargs[self._post_id]
+        path = reverse('api_post_detail', args=[author_id, post_id])
+        return self.request.build_absolute_uri(path)
         
-
 class AuthorsAPIView(ListAPIView, UtilityAPI):
     """Retrieve all authors registered on the server."""
     queryset = Author.objects.all()
@@ -63,7 +82,7 @@ class AuthorsAPIView(ListAPIView, UtilityAPI):
     pagination_class = CustomPagination
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -71,44 +90,46 @@ class AuthorsAPIView(ListAPIView, UtilityAPI):
         return queryset.filter(user__in=users)
 
     def list(self, request, *args, **kwargs):
-        response = {self._type: self._authors, self._items: None}
+        response = self.authors_response_template
         queryset = self.get_queryset()
 
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = self.get_serializer(page, many=True)
-            response[self._items] = serializer.data
+            response[self.ritems] = serializer.data
             return self.get_paginated_response(response)
 
         serializer = self.get_serializer(queryset, many=True)
-        response[self._items] = serializer.data
+        response[self.ritems] = serializer.data
         return Response(response)
 
 class AuthorDetailAPIView(RetrieveUpdateAPIView, UtilityAPI):
+    """Retrieve and update an author profile."""
     queryset = Author.objects.all()
 
     serializer_class = AuthorSerializer
 
-    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    #authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    #permission_classes = [IsAuthenticated]
+    #local_methods = ['POST']
 
     http_method_names = ['get', 'post']
+
+    def post(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
     def get_object(self):
         queryset = self.get_queryset()
 
-        id = self.get_author_id(self.request, self.kwargs[self._author_id])
+        id = self.get_author_id()
         obj = get_object_or_404(queryset, id=id)
 
         return obj
-    
+
     def get_authenticators(self):
-        if self.request.method == 'POST':
+        if self.request.method  == 'POST':
             self.authentication_classes = [JWTTokenUserAuthentication]
         return super().get_authenticators()
-    
-    def post(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
 
 class FollowersAPIView(ListAPIView, UtilityAPI):
     """Retrieve list of authors who follow a given author."""
@@ -117,13 +138,12 @@ class FollowersAPIView(ListAPIView, UtilityAPI):
     serializer_class = AuthorSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
         
-        id = self.get_author_id(self.request, self.kwargs[self._author_id])
-
+        id = self.get_author_id()
         try:
             queryset = queryset.get(id=id).followers.all()
         except:
@@ -131,17 +151,12 @@ class FollowersAPIView(ListAPIView, UtilityAPI):
         
         return queryset
     
-    def get_authenticators(self):
-        if self.request.method == 'PUT' or self.request.method == 'DELETE':
-            self.authentication_classes = [JWTTokenUserAuthentication]
-        return super().get_authenticators()
-    
     def list(self, request, *args, **kwargs):
-        response = {self._type: self._followers, self._items: None}
+        response = self.followers_response_template
         queryset = self.get_queryset()
 
         serializer = self.get_serializer(queryset, many=True)
-        response[self._items] = serializer.data
+        response[self.ritems] = serializer.data
         return Response(response)
     
 class FollowerDetailAPIView(RetrieveUpdateDestroyAPIView, UtilityAPI):
@@ -151,12 +166,13 @@ class FollowerDetailAPIView(RetrieveUpdateDestroyAPIView, UtilityAPI):
     serializer_class = AuthorSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
+    local_methods = ['PUT', 'DELETE']
 
     def get_queryset(self):
         queryset = super().get_queryset()
 
-        id = self.get_author_id(self.request, self.kwargs[self._author_id])
+        id = self.get_author_id()
 
         try:
             followers = queryset.get(id=id).followers.all()
@@ -169,7 +185,7 @@ class FollowerDetailAPIView(RetrieveUpdateDestroyAPIView, UtilityAPI):
         authors, followers = self.get_queryset()
         method = self.request.method
 
-        author_id = self.get_author_id(self.request, self.kwargs[self._author_id])
+        author_id = self.get_author_id()
         author = get_object_or_404(authors, id=author_id)
         
         try:
@@ -183,7 +199,7 @@ class FollowerDetailAPIView(RetrieveUpdateDestroyAPIView, UtilityAPI):
         return author, follower
     
     def get_authenticators(self):
-        if self.request.method == 'PUT' or self.request.method == 'DELETE':
+        if self.request.method in self.local_methods:
             self.authentication_classes = [JWTTokenUserAuthentication]
         return super().get_authenticators()
     
@@ -231,11 +247,12 @@ class PostsAPIView(ListCreateAPIView, UtilityAPI):
     pagination_class = CustomPagination
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
+    local_methods = ['POST']
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.filter(author__id=self.get_author_id(self.request, self.kwargs[self._author_id]))
+        return queryset.filter(author__id=self.get_author_id())
     
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -245,17 +262,16 @@ class PostsAPIView(ListCreateAPIView, UtilityAPI):
     def get_serializer_context(self):
         context = super().get_serializer_context()
         if self.request.method == 'POST':
-            author_id = self.get_author_id(self.request, self.kwargs[self._author_id])
+            author_id = self.get_author_id()
             author = get_object_or_404(Author.objects.all(), id=author_id)
             # TODO: assumes no POST ID collisions with the author
-            post_id = str(uuid4())
-            context[self._id] = author_id + '/posts/' + post_id
+            context[self._id] = author_id + '/posts/' + str(uuid4())
             context['author'] = author
             context['comments'] = context[self._id] + '/comments'
         return context
     
     def get_authenticators(self):
-        if self.request.method == 'POST':
+        if self.request.method in self.local_methods:
             self.authentication_classes = [JWTTokenUserAuthentication]
         return super().get_authenticators()
 
@@ -280,7 +296,8 @@ class PostDetailAPIView(RetrieveUpdateDestroyAPIView, CreateAPIView, UtilityAPI)
     serializer_class = PostDetailsSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
+    local_methods = ['PUT', 'POST', 'DELETE']
 
     def get_serializer_class(self):
         if self.request.method == 'GET':
@@ -290,24 +307,24 @@ class PostDetailAPIView(RetrieveUpdateDestroyAPIView, CreateAPIView, UtilityAPI)
     def get_serializer_context(self):
         context = super().get_serializer_context()
         if self.request.method == 'PUT':
-            author_id = self.get_author_id(self.request, self.kwargs[self._author_id])
+            author_id = self.get_author_id()
             author = get_object_or_404(Author.objects.all(), id=author_id)
             # TODO: assumes no POST ID collisions with the author
-            post_id = self.get_post_id(self.request, self.kwargs[self._author_id], self.kwargs[self._post_id])
+            post_id = self.get_post_id()
             context[self._id] = post_id
             context['author'] = author
             context['comments'] = context[self._id] + '/comments'
         return context
 
     def get_authenticators(self):
-        if self.request.method == 'POST' or self.request.method == 'PUT' or self.request.method == 'DELETE':
+        if self.request.method in self.local_methods:
             self.authentication_classes = [JWTTokenUserAuthentication]
         return super().get_authenticators()
     
     def get_object(self):
         queryset = self.get_queryset()
 
-        post_id = self.get_post_id(self.request, self.kwargs[self._author_id], self.kwargs[self._post_id])
+        post_id = self.get_post_id()
         obj = get_object_or_404(queryset, id=post_id)
 
         return obj
@@ -326,11 +343,12 @@ class CommentsAPIView(ListCreateAPIView, UtilityAPI):
     pagination_class = CustomPagination
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
+    permission_classes = [IsAuthenticated]
+    local_methods = ['POST']
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        post_id = self.get_post_id(self.request, self.kwargs['author_id'], self.kwargs['post_id'])
+        post_id = self.get_post_id()
         return queryset.filter(post__id=post_id)
     
     def get_serializer_class(self):
@@ -339,14 +357,17 @@ class CommentsAPIView(ListCreateAPIView, UtilityAPI):
         return CommentCreationSerializer
     
     def get_serializer_context(self):
-        context =  super().get_serializer_context()
-        post_id = self.get_post_id(self.request, self.kwargs['author_id'], self.kwargs['post_id'])
-        post = get_object_or_404(Post.objects.all(), id=post_id)
-        context['post'] = post
+        context = super().get_serializer_context()
+        if self.request.method == 'POST':
+            post_id = self.get_post_id()
+            post = get_object_or_404(Post.objects.all(), id=post_id)
+            context['post'] = post
+            context['id'] = f'{post_id}/comments/{str(uuid4())}'
+            context['author'] = get_object_or_404(Author.objects.all(), id=self.request.data['author']['id'])
         return context
     
     def get_authenticators(self):
-        if self.request.method == 'POST':
+        if self.request.method in self.local_methods:
             self.authentication_classes = [JWTTokenUserAuthentication]
         return super().get_authenticators()
     
