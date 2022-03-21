@@ -20,17 +20,7 @@ import PropTypes from 'prop-types';
 import Identity from "../../model/Identity";
 
 
-async function loginUser(credentials) {
-  return axios.post(`${process.env.REACT_APP_API_URL}login/`,
-  credentials, {
-    headers: {
-      'Content-Type': 'application/json'
-     
-    }})
-  .then((data) => data,
-  
-  )
-}
+
 
 function Login() {
   //function Login({ setToken }) {
@@ -49,6 +39,21 @@ function Login() {
 
   function handleShowClick() {
     setShowPassword(!showPassword);
+  }
+  async function loginUser(credentials) {
+    return axios.post(`${process.env.REACT_APP_API_URL}login/`,
+    credentials, {
+      headers: {
+        'Content-Type': 'application/json'
+       
+      }})
+    .then((data) => data,
+    
+    ).catch((e)=>{
+      addToast({description: "username/password is not correct",
+      status: 'error', isClosable: true, duration: 1000,})
+      
+    })
   }
 
   const handleLoginClick= async e=> {
