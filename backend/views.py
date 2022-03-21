@@ -16,7 +16,7 @@
 
 from uuid import uuid4
 
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_list_or_404, get_object_or_404
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication
@@ -27,12 +27,13 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
+from rest_framework.mixins import DestroyModelMixin
 
 from socialdisto.pagination import CustomPagination
 
-from .models import Author, Comment, Like, NodeUser, Post
+from .models import Author, Comment, Like, NodeUser, Post, Inbox
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
-                          CommentSerializer, LikeSerializer, PostCreationSerializer,
+                          CommentSerializer, FollowSerializer, InboxPostSerializer, LikeSerializer, PostCreationSerializer,
                           PostDetailsSerializer)
 
 
@@ -54,6 +55,11 @@ class UtilityAPI(APIView):
     }
     liked_response_template = {
         rtype: "liked",
+        ritems: []
+    }
+    inbox_response_template = {
+        rtype: "inbox",
+        "author": "",
         ritems: []
     }
 
@@ -467,3 +473,78 @@ class AuthorLikedAPIView(ListAPIView, UtilityAPI):
         serializer = self.get_serializer(queryset, many=True)
         response[self.ritems] = serializer.data
         return Response(response)
+
+class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
+    """Get, send, and clear content from an author's inbox."""
+
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    local_only_methods = ['GET']
+    http_method_names = ['get', 'post', 'delete', 'head', 'options'] 
+
+    def get_serializer_class(self):
+        method = self.request.method
+
+        if method == 'POST':
+            serializers = {
+                'post': InboxPostSerializer,
+                'comment': CommentCreationSerializer,
+                'like': LikeSerializer,
+                'follow': FollowSerializer
+            }
+            content_type = self.request.data['type']
+            return serializers[content_type]
+        return PostDetailsSerializer
+
+    def get_authenticators(self):
+        if self.request.method in self.local_only_methods:
+            self.authentication_classes = [JWTTokenUserAuthentication]
+        return super().get_authenticators()
+
+    def get_queryset(self):
+        method = self.request.method
+        inbox = get_object_or_404(Inbox.objects.all(), author__id=self.get_author_id())
+
+        if method == 'DELETE' or method == 'POST':
+            return Inbox.objects.all()
+        elif method == 'GET':
+            queryset = inbox.posts.all()
+            return queryset
+    
+    def get_object(self):
+        method = self.request.method
+        queryset = self.get_queryset()
+
+        if method == 'DELETE' or method == 'POST':
+            obj = get_object_or_404(queryset, author_id=self.get_author_id())
+            return obj
+
+    def delete(self):
+        """Don't destroy the posts, just remove the relation."""
+        inbox = self.get_object()
+
+        inbox.posts.clear()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def list(self, request, *args, **kwargs):
+        response = self.inbox_response_template
+        response['author'] = self.get_author_id()
+        queryset = self.get_queryset()
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response[self._items] = serializer.data
+            return self.get_paginated_response(response)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        response[self._items] = serializer.data
+        return Response(response)
+    
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, args, kwargs)
+        # Link the local copy to the inbox
+        inbox = self.get_object()
+        post = get_object_or_404(Post.objects.all(), id=response.data['id'])
+        inbox.posts.add(post)
+        return response

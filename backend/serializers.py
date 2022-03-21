@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from wsgiref import validate
-
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import update_last_login
 from rest_framework.serializers import (ModelSerializer, ReadOnlyField,
@@ -25,7 +23,7 @@ from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
 
 from socialdisto.pagination import CommentPagination
 
-from .models import Author, Comment, Like, NodeUser, Post
+from .models import Author, Comment, Follow, Like, NodeUser, Post
 
 
 class NodeUserSerializer(ModelSerializer):
@@ -136,3 +134,20 @@ class LikeSerializer(ModelSerializer):
     class Meta:
         model = Like
         fields = ['type', 'author', 'object']
+
+class FollowSerializer(ModelSerializer):
+    """Object and author may already exist on the server."""
+    type = ReadOnlyField(default=str(Follow.type))
+    author = AuthorSerializer()
+    object = AuthorSerializer()
+
+    class Meta:
+        model = Follow
+
+class InboxPostSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Post.type))
+    author = AuthorSerializer(read_only=True)
+
+    class Meta:
+        model = Post
+        fields = '__all__'

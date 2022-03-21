@@ -141,10 +141,22 @@ class Comment(Model):
     @property
     def type(self):
         return 'comment'
+    
+class Follow(Model):
+    """Actor wants to follow the object."""
+    actor = ForeignKey(Author, on_delete=CASCADE, related_name='sender')
+    object = ForeignKey(Author, on_delete=CASCADE, related_name='recipient')
+
+    class Meta:
+        pass
+
+    @property
+    def type(self):
+        return 'follow'
 
 class Inbox(Model):
-    author  = OneToOneField(Author, on_delete=CASCADE)
-    posts = ManyToManyField(Post)
+    author  = OneToOneField(Author, on_delete=CASCADE, related_name='author_inbox')
+    posts = ManyToManyField(Post, related_name='inbox_posts')
 
     @property
     def type(self):

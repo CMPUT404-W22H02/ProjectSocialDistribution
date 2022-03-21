@@ -19,7 +19,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from .views import (AuthorDetailAPIView, AuthorLikedAPIView, AuthorsAPIView, CommentLikesAPIView, CommentsAPIView,
-                    FollowerDetailAPIView, FollowersAPIView, PostDetailAPIView, PostLikesAPIView,
+                    FollowerDetailAPIView, FollowersAPIView, InboxAPIView, PostDetailAPIView, PostLikesAPIView,
                     PostsAPIView)
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
@@ -42,6 +42,8 @@ urlpatterns = [
     path('authors/<str:author_id>/posts/<str:post_id>/comments/<str:comment_id>/likes', CommentLikesAPIView.as_view(), name='api_comment_likes'),
     path('authors/<str:author_id>/liked', AuthorLikedAPIView.as_view(), name='api_author_liked'),
     
+    path('authors/<str:author_id>/inbox', InboxAPIView.as_view(), name='api_inbox'),
+
     # Viewsets
     *router.urls
 ]

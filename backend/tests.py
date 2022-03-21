@@ -592,7 +592,6 @@ class CommentsAPITests(GenericTestCase):
         response = self.client.get(url)
         self.assertEqual(len(response.data['results']['items']), size)
 
-@tag('current')
 class LikesAPITests(GenericTestCase):
     def setUp(self):
         super().setUp()
@@ -638,3 +637,54 @@ class LikesAPITests(GenericTestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(len(response.data['items']), 1)
         self.assertContains(response, self.author2.display_name)
+
+@tag('current')
+class InboxAPITests(GenericTestCase):
+    def setUp(self):
+        super().setUp()
+        self.mock_authors()
+        self.url = f'{self.author1.id}/inbox'
+
+        # External post not already on the server
+        self.post = {
+            "type": "post",
+            "title": "Hello, World!",
+            "id": "http://127.0.0.1:5454/authors/1/posts/1",
+            "source": "",
+            "origin": "",
+            "author": {
+                "type": "author",
+                "id": "http://127.0.0.1:5454/authors/1",
+                "host": "http://127.0.0.1:5454/",
+                "display_name": "External User1",
+                "url": "http://127.0.0.1:5454/authors/1/posts/1",
+                "github": ""
+            },
+            "description": "",
+            "count": 0,
+            "comments": "http://127.0.0.1:5454/authors/1/posts/1/comments",
+            "published": "",
+            "visibility": "PUBLIC",
+            "unlisted": False
+        }
+
+    def test_unauthenticated(self):
+        pass
+
+    def test_authenticated(self):
+        pass
+
+    def test_inbox_get(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+    
+    def test_inbox_post_post(self):
+        response = self.client.post(self.url, data=self.post)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Post should now appear in the inbox
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertContains(response, self.post['id'])
+        self.assertContains(response, self.post['title'])
+
