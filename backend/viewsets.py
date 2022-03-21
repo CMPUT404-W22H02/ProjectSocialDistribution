@@ -78,6 +78,7 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairSerializer):
             author=author
         )
         inbox.save()
+        breakpoint()
 
         refresh = RefreshToken.for_user(user)
         res = {

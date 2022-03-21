@@ -86,6 +86,14 @@ class Author(Model):
     def get_absolute_url(self):
         return self.id
 
+class Like(Model):
+    object = URLField(primary_key=True, blank=True)
+    author = ForeignKey(Author, on_delete=CASCADE)
+
+    @property
+    def type(self):
+        return 'like'
+
 class Post(Model):
     id = URLField(primary_key=True, blank=True)
     title = CharField(max_length=50, blank=True)
