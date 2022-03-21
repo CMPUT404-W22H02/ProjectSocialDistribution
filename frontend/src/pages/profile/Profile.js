@@ -56,7 +56,7 @@ useEffect(()=>{
     {
         headers: {
         "Content-Type": "application/json",
-        //"Authorization" : `Bearer ${token}`
+        "Authorization" : `Bearer ${token}`
 
         },
     })
@@ -125,11 +125,12 @@ return (
             placeholder="UserName"
             _placeholder={{ color: 'gray.500' }}
             type="text"
+            value={userName}
+            onChange={(e)=>setUserName(e.target.value)}
         />
         </FormControl>
         <FormControl id="Display_name" isRequired>
         <FormLabel>Display name</FormLabel>
-        <p>{display_name}</p>
 
         <Input
             placeholder="Display name"
