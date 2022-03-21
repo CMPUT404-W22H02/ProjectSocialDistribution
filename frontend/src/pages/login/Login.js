@@ -1,4 +1,5 @@
 
+
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import {
@@ -132,7 +133,3 @@ function Login() {
 };
 
 export default Login;
-
-// Login.propTypes = {
-//   setToken: PropTypes.func.isRequired
-// }
