@@ -15,9 +15,12 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from email.policy import default
-from rest_framework.serializers import ModelSerializer, ReadOnlyField, CharField
+
+from rest_framework.serializers import (CharField, ModelSerializer,
+                                        ReadOnlyField)
 
 from .models import Comment, FollowRequest, Inbox, Like, NodeUser, Post
+
 
 class LoginSerializer(ModelSerializer):
     username = CharField()

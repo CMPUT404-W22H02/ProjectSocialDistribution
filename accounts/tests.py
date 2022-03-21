@@ -14,23 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from uuid import uuid4
+# from uuid import uuid4
 
-from django.test import TestCase, tag
-from django.urls import reverse
-from rest_framework import status
-import requests
+# import requests
+# from django.test import TestCase, tag
+# from django.urls import reverse
+# from rest_framework import status
 
-from .models import NodeUser
+# from .models import NodeUser
 
 
-class PermissionTests(TestCase):
-    """Test redirect for unauthenticated access."""
-    def test_login_redirect(self):
-        url = reverse('inbox:home')
-        response = self.client.get(url)
+# class PermissionTests(TestCase):
+#     """Test redirect for unauthenticated access."""
+#     def test_login_redirect(self):
+#         url = reverse('inbox:home')
+#         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
+#         self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
 # TEST HAVE BEEN MOVED TO API_TESTS.PY BECAUSE DJANGO IS A JOKE
 # @tag('heroku')

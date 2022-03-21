@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useForm } from "react-hook-form";
 import {
   Flex,
@@ -11,7 +12,7 @@ import {
   Box,
   Link,
   FormControl,
-  InputRightElement
+  InputRightElement,
 } from "@chakra-ui/react";
 
 
@@ -32,14 +33,18 @@ function Login() {
     setShowPassword(!showPassword);
   }
 
+
   function handleLoginClick() {
-    axios.post(`${process.env.REACT_APP_API_URL}/login`,
+    axios.post(`${process.env.REACT_APP_API_URL}/login/`,
     {
       username: username,
       password: password
     })
     .then((response) => {
       console.log(response.data);
+      // save refresh token in local storage and save access token in cookie
+      localStorage.setItem('refreshToken', response.data['refresh']);
+      Cookies.set('accessToken', response.data['access']);
     })
     .catch((error) => {
       console.log(error);

@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from django.db import models
+from django.contrib import admin
 
-# Create your models here.
+from .models import NodeUser
+
+admin.site.register(NodeUser)
