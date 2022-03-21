@@ -51,21 +51,21 @@ function addToast(toast_data) {
 console.log(token,"---")
 const author_id =  identity.id
 console.log(author_id)
-useEffect(()=>{
+useEffect(()=>{ 
     axios.get(`${author_id}`,
     {
         headers: {
         "Content-Type": "application/json",
-        "Authorization" : `Bearer ${token}`
+        //"Authorization" : `Bearer ${token}`
 
         },
     })
-    .then(res => {
+    .then(res => { 
     const info = res.data;
     if(info.id){
         setValue( info );
 
-    }
+    } 
     else{
         setValue(info.data[0])
     }
@@ -136,6 +136,8 @@ return (
             placeholder="Display name"
             _placeholder={{ color: 'gray.500' }}
             type="text"
+            value={display_name}
+            onChange={(e)=>setDisplay_name(e.target.value)}
         />
         </FormControl>
         <FormControl id="email" isRequired>
