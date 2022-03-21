@@ -52,6 +52,10 @@ class UtilityAPI(APIView):
         rtype: "likes",
         ritems: []
     }
+    liked_response_template = {
+        rtype: "liked",
+        ritems: []
+    }
 
     _author_id = 'author_id'
     _follower_id = 'follower_id'
@@ -413,7 +417,7 @@ class PostLikesAPIView(ListAPIView, UtilityAPI):
         return queryset.filter(object=post_id)
     
     def list(self, request, *args, **kwargs):
-        response = self.likes_response_template()
+        response = self.likes_response_template
         queryset = self.get_queryset()
 
         serializer = self.get_serializer(queryset, many=True)
@@ -435,7 +439,7 @@ class CommentLikesAPIView(ListAPIView, UtilityAPI):
         return queryset.filter(object=comment_id)
     
     def list(self, request, *args, **kwargs):
-        response = self.likes_response_template()
+        response = self.likes_response_template
         queryset = self.get_queryset()
 
         serializer = self.get_serializer(queryset, many=True)
@@ -457,7 +461,7 @@ class AuthorLikedAPIView(ListAPIView, UtilityAPI):
         return queryset.filter(author__id=author_id)
     
     def list(self, request, *args, **kwargs):
-        response = self.likes_response_template()
+        response = self.liked_response_template
         queryset = self.get_queryset()
 
         serializer = self.get_serializer(queryset, many=True)

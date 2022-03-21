@@ -23,7 +23,7 @@ from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.test import APIRequestFactory, APITestCase
 
-from .models import Author
+from .models import Author, Like
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 
@@ -535,7 +535,6 @@ class PostDetailAPITests(GenericTestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
-@tag('current')
 class CommentsAPITests(GenericTestCase):
     """GET, POST authors/<id>/posts/<id>/comments"""
     def setUp(self):
@@ -592,3 +591,48 @@ class CommentsAPITests(GenericTestCase):
         url = f'{self.url}/comments?page=1&size={size}'
         response = self.client.get(url)
         self.assertEqual(len(response.data['results']['items']), size)
+
+@tag('current')
+class LikesAPITests(GenericTestCase):
+    def setUp(self):
+        super().setUp()
+        self.mock_authors()
+
+        self.comment1 = {
+            "type": "comment",
+            "author": {
+                "type": "author",
+                "id": self.author2.id,
+                "url": "",
+                "host": "",
+                "display_name": "",
+                "github": ""
+            },
+            "comment": "First Comment!",
+        }
+
+        # Create a post to like
+        self.post_url = f'{self.author1.id}/posts/{str(uuid4())}'
+        self.client.put(self.post_url)
+
+        # Create a comment on the post to like
+        self.comment_url = f'{self.post_url}/comments'
+        response = self.client.post(self.comment_url, data=self.comment1)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        like = Like.objects.create(
+            object=self.post_url,
+            author=self.author2
+        )
+        like.save()
+    
+    def test_unauthenticated(self):
+        pass
+
+    def test_authenticated(self):
+        pass
+
+    def test_post_like(self):
+        url = f'{self.post_url}/likes'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
