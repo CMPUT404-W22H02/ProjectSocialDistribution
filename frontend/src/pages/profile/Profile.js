@@ -22,18 +22,19 @@ import {
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import Navbar from "../../components/navbar";
-import useToken from "../../components/App/useToken"
+import useToken from "../../components/App/useToken";
+import Identity from '../../model/Identity';
 const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 //import Cookies from "universal-cookie";
 
-
+let identity = Identity.GetIdentity();
   
 export default function Profile(props) {
 //const cookies = new Cookies();
-const { token, setToken } = useToken();
+const { token, setToken } = useToken(identity.token);
 const [ value, setValue] = useState({});
 const [picture, setPicture] = useState('');
-const [userName, setUserName] = useState("");
+const [userName, setUserName] = useState(identity.username);
 const [display_name, setDisplay_name] = useState("");
 const [github, setGithub] = useState("");
 const [emailAddress, setEmailAddress] = useState("");
@@ -48,7 +49,8 @@ function addToast(toast_data) {
     setPicture(URL.createObjectURL(e.target.files[0]));
   };
 console.log(token,"---")
-const author_id =  "http://localhost:8000/authors/f9d97e2c-b2ee-455b-ac4b-0eabc766a804";
+const author_id =  identity.id
+console.log(author_id)
 useEffect(()=>{
     axios.get(`${author_id}`,
     {

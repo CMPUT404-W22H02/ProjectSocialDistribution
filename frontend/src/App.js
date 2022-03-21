@@ -1,6 +1,7 @@
 import './App.css';
 import React, { useState } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import PrivateRoute from "./auth/PrivateRoute";
 import Login from "./pages/login";
 import HomePage from "./pages/homePage";
 import Profile from "./pages/profile"
@@ -10,8 +11,46 @@ import NotFound404 from "./pages/NotFound";
 import useToken from "./components/App/useToken"
 import PleaseSignIn from "./pages/NotFound/PleaseSinIn"
 function App() {
+
+  return (
+  <div className="wrapper">
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Registration />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+
+
+          <Route exact path='/home' element={<PrivateRoute/>}>
+              <Route exact path='/home' element={<HomePage/>}/>
+          </Route>
+          <Route exact path='/profile' element={<PrivateRoute/>}>
+          <Route path="/profile" element={<Profile />} />
+          </Route>
+
+          <Route path="*" element={<NotFound404 />} />
+        </Routes>
+      </BrowserRouter>
+    </div>
+
+  )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   //const token = getToken();
-  const { token, setToken } = useToken();
+  /* const { token, setToken } = useToken();
   console.log(token)
   if(!token) {
     console.log("---1")
@@ -48,7 +87,7 @@ function App() {
       </BrowserRouter>
     </div></>
   );
-  
+   */
 }
 
 export default App;

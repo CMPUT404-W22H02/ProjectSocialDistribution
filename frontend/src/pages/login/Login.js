@@ -16,6 +16,9 @@ import {
 } from "@chakra-ui/react";
 import { useContext, useState , useRef} from "react";
 import PropTypes from 'prop-types';
+import Identity from "../../model/Identity";
+
+
 async function loginUser(credentials) {
   return axios.post(`${process.env.REACT_APP_API_URL}login/`,
   credentials, {
@@ -28,11 +31,14 @@ async function loginUser(credentials) {
   )
 }
 
-function Login({ setToken }) {
+function Login() {
+  //function Login({ setToken }) {
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
   
   const [showPassword, setShowPassword] = useState(false);
+  let UserIdentity = Identity.GetIdentity();
+
   const toast = useToast()
   const toastIdRef = useRef()
   const statuses = ['success', 'error', 'warning', 'info']
@@ -53,9 +59,13 @@ function Login({ setToken }) {
     console.log("---",data);
     
     //console.log("---",data.data.access)
+    const user = data.data.user
     const token = data.data.access
-    console.log({'token':token})
-    setToken({'token':token});
+    ///console.log({'token':token})
+    //console.log(data.data.access, data.data.refresh, data.data.user.username, data.data.user.id)
+    //setToken({'token':token});
+    UserIdentity = new Identity(data.data.access, data.data.refresh, data.data.user.username, data.data.user.id, )
+    UserIdentity.StoreIdentity()
     addToast({description: "success login",
                   status: 'success', isClosable: true, duration: 1000,})
     window.location.assign("/home")
@@ -123,6 +133,6 @@ function Login({ setToken }) {
 
 export default Login;
 
-Login.propTypes = {
-  setToken: PropTypes.func.isRequired
-}
+// Login.propTypes = {
+//   setToken: PropTypes.func.isRequired
+// }
