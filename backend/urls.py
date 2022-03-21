@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import (AuthorDetailAPIView, AuthorsAPIView, FollowerDetailAPIView,
-                    FollowersAPIView, PostsAPIView, PostDetailAPIView)
+from .views import (AuthorDetailAPIView, AuthorsAPIView, CommentsAPIView,
+                    FollowerDetailAPIView, FollowersAPIView, PostDetailAPIView,
+                    PostsAPIView)
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 router = DefaultRouter()
@@ -33,5 +35,6 @@ urlpatterns = [
     path('authors/<str:author_id>/followers/<path:follower_id>', FollowerDetailAPIView.as_view(), name='api_follower_details'),
     path('authors/<str:author_id>/posts/', PostsAPIView.as_view(), name='api_posts'),
     path('authors/<str:author_id>/posts/<str:post_id>', PostDetailAPIView.as_view(), name='api_post_detail'),
+    path('authors/<str:author_id>/posts/<str:post_id>/comments', CommentsAPIView.as_view(), name='api_comments'),
     *router.urls
 ]
