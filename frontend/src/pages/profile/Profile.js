@@ -140,14 +140,7 @@ return (
             onChange={(e)=>setDisplay_name(e.target.value)}
         />
         </FormControl>
-        <FormControl id="email" isRequired>
-        <FormLabel>Email address</FormLabel>
-        <Input
-            placeholder="your-email@example.com"
-            _placeholder={{ color: 'gray.500' }}
-            type="email"
-        />
-        </FormControl>
+        
         <FormControl id="github" isRequired>
         <FormLabel>Github</FormLabel>
         <Input
