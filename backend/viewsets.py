@@ -26,7 +26,7 @@ from rest_framework_simplejwt.settings import api_settings
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from .models import Author
+from .models import Author, Inbox
 from .serializers import LoginSerializer, RegistrationSerializer
 
 
@@ -61,7 +61,7 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairSerializer):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # Link the newly registered user to an Author object
+        # Link the newly registered user to an Author object with an inbox
         scheme = request.scheme + '://'
         host = scheme + request.get_host() + '/'
         id = host + 'authors/' + str(uuid4())
@@ -73,6 +73,11 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairSerializer):
             user=user
         )
         author.save()
+
+        inbox = Inbox.objects.create(
+            author=author
+        )
+        inbox.save()
 
         refresh = RefreshToken.for_user(user)
         res = {
