@@ -636,3 +636,5 @@ class LikesAPITests(GenericTestCase):
         url = f'{self.post_url}/likes'
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(response.data['items']), 1)
+        self.assertContains(response, self.author2.display_name)
