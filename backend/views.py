@@ -23,8 +23,7 @@ from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import (CreateAPIView, ListAPIView,
                                      ListCreateAPIView, RetrieveUpdateAPIView,
                                      RetrieveUpdateDestroyAPIView)
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
@@ -35,6 +34,7 @@ from .models import Author, Comment, NodeUser, Post
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
                           CommentSerializer, PostCreationSerializer,
                           PostDetailsSerializer)
+
 
 class UtilityAPI(APIView):
     # Itemized response templates

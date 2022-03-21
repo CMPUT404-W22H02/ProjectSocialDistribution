@@ -14,16 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from uuid import uuid4
 from base64 import b64encode
+from uuid import uuid4
 
 from django.test import tag
 from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_204_NO_CONTENT, HTTP_401_UNAUTHORIZED,
                                    HTTP_404_NOT_FOUND)
-from rest_framework.test import (APIRequestFactory, APITestCase)
+from rest_framework.test import APIRequestFactory, APITestCase
 
-from .models import Author, NodeUser, Post, Comment
+from .models import Author
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 
