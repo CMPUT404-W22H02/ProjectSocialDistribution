@@ -25,7 +25,7 @@ from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
 
 from socialdisto.pagination import CommentPagination
 
-from .models import Author, Comment, NodeUser, Post
+from .models import Author, Comment, Like, NodeUser, Post
 
 
 class NodeUserSerializer(ModelSerializer):
@@ -129,3 +129,10 @@ class CommentCreationSerializer(ModelSerializer):
         validated_data['post'] = self.context['post']
         validated_data['author'] = self.context['author']
         return super().create(validated_data)
+
+class LikeSerializer(ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+
+    class Meta:
+        model = Like
+        fields = ['type', 'author', 'object']

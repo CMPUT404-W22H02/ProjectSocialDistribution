@@ -87,7 +87,7 @@ class Author(Model):
         return self.id
 
 class Like(Model):
-    object = URLField(primary_key=True, blank=True)
+    object = URLField(blank=True)
     author = ForeignKey(Author, on_delete=CASCADE)
 
     @property

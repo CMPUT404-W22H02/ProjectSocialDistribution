@@ -30,9 +30,9 @@ from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 
 from socialdisto.pagination import CustomPagination
 
-from .models import Author, Comment, NodeUser, Post
+from .models import Author, Comment, Like, NodeUser, Post
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
-                          CommentSerializer, PostCreationSerializer,
+                          CommentSerializer, LikeSerializer, PostCreationSerializer,
                           PostDetailsSerializer)
 
 
@@ -48,10 +48,15 @@ class UtilityAPI(APIView):
         rtype: "followers",
         ritems: []
     }
+    likes_response_template = {
+        rtype: "likes",
+        ritems: []
+    }
 
     _author_id = 'author_id'
     _follower_id = 'follower_id'
     _post_id = 'post_id'
+    _comment_id = 'comment_id'
 
     _id = 'id'
     _type = 'type'
@@ -72,6 +77,14 @@ class UtilityAPI(APIView):
         author_id = self.kwargs[self._author_id]
         post_id = self.kwargs[self._post_id]
         path = reverse('api_post_detail', args=[author_id, post_id])
+        return self.request.build_absolute_uri(path)
+    
+    def get_comment_id(self):
+        """Return the full path id for the request comment."""
+        author_id = self.kwargs[self._author_id]
+        post_id = self.kwargs[self._post_id]
+        comment_id = self.kwargs[self._comment_id]
+        path = reverse('api_comment_likes', args=[author_id, post_id, comment_id])
         return self.request.build_absolute_uri(path)
         
 class AuthorsAPIView(ListAPIView, UtilityAPI):
@@ -383,4 +396,70 @@ class CommentsAPIView(ListCreateAPIView, UtilityAPI):
         
         serializer = self.get_serializer(queryset, many=True)
         response[self._items] = serializer.data
+        return Response(response)
+
+class PostLikesAPIView(ListAPIView, UtilityAPI):
+    """Get the likes on a post."""
+    queryset = Like.objects.all()
+
+    serializer_class = LikeSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        post_id = self.get_post_id()
+        return queryset.filter(object=post_id)
+    
+    def list(self, request, *args, **kwargs):
+        response = self.likes_response_template()
+        queryset = self.get_queryset()
+
+        serializer = self.get_serializer(queryset, many=True)
+        response[self.ritems] = serializer.data
+        return Response(response)
+
+class CommentLikesAPIView(ListAPIView, UtilityAPI):
+    """Get the likes on a comment."""
+    queryset = Like.objects.all()
+
+    serializer_class = LikeSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        comment_id = self.get_comment_id()
+        return queryset.filter(object=comment_id)
+    
+    def list(self, request, *args, **kwargs):
+        response = self.likes_response_template()
+        queryset = self.get_queryset()
+
+        serializer = self.get_serializer(queryset, many=True)
+        response[self.ritems] = serializer.data
+        return Response(response)
+
+class AuthorLikedAPIView(ListAPIView, UtilityAPI):
+    """Get the like objects made by an author."""
+    queryset = Like.objects.all()
+
+    serializer_class = LikeSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        author_id = self.get_author_id()
+        return queryset.filter(author__id=author_id)
+    
+    def list(self, request, *args, **kwargs):
+        response = self.likes_response_template()
+        queryset = self.get_queryset()
+
+        serializer = self.get_serializer(queryset, many=True)
+        response[self.ritems] = serializer.data
         return Response(response)
