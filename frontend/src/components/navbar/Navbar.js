@@ -14,7 +14,16 @@ import {
 } from '@chakra-ui/react';
 
 function Navbar() {
+  const signOut= () => {
+    // clear identity
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+    window.location.assign("/")
 
+    // clear refresh timer
+    clearTimeout();
+
+}
   return (
     <Flex 
       bg="teal.400"
@@ -45,7 +54,7 @@ function Navbar() {
             <MenuDivider />
             <MenuItem>Your Servers</MenuItem>
             <MenuItem><a href="/profile">Profile Settings</a></MenuItem>
-            <MenuItem>Logout</MenuItem>
+            <MenuItem onClick={signOut}>Logout</MenuItem>
           </MenuList>
         </Menu>
       </Stack>

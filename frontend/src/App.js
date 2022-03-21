@@ -8,7 +8,7 @@ import Registration from './pages/registration';
 import Dashboard from './components/Dashboard';
 import NotFound404 from "./pages/NotFound";
 import useToken from "./components/App/useToken"
-
+import PleaseSignIn from "./pages/NotFound/PleaseSinIn"
 function App() {
   //const token = getToken();
   const { token, setToken } = useToken();
@@ -21,7 +21,8 @@ function App() {
         <Route path="/" element={<Navigate to="/login"/>}/> 
         <Route path="/login" element={<Login setToken={setToken}/>}/>
         <Route path="/register" element={<Registration />}/>
-
+        <Route path="/home" element={<PleaseSignIn />} />
+        <Route path="/profile" element={<PleaseSignIn />} />
         <Route path="*" element={<NotFound404 />} />
       </Routes>
     </BrowserRouter>
