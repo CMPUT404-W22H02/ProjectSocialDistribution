@@ -18,8 +18,10 @@ from datetime import datetime
 
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin
-from django.db.models import (CASCADE, BooleanField, CharField, ForeignKey,
-                              ManyToManyField, Model, OneToOneField, URLField, IntegerField, DateTimeField)
+from django.db.models import (CASCADE, BooleanField, CharField, DateTimeField,
+                              ForeignKey, IntegerField, ManyToManyField, Model,
+                              OneToOneField, URLField)
+from django.forms import ImageField
 from django.utils.timezone import now
 
 URL_MAX = 255
@@ -71,9 +73,12 @@ class Author(Model):
 
     # TODO: profile image
 
-    user = ForeignKey(NodeUser, on_delete=CASCADE)
+    user = ForeignKey(NodeUser, on_delete=CASCADE, null=True)
 
     followers = ManyToManyField('self', symmetrical=False)
+
+    class Meta:
+        ordering = ['-id']
 
     @property
     def type(self):
@@ -89,14 +94,14 @@ class Post(Model):
     origin = URLField(blank=True)
     description = CharField(max_length=50, blank=True)
 
-    author = ForeignKey(Author, on_delete=CASCADE, blank=True, null=True)
+    author = ForeignKey(Author, on_delete=CASCADE, null=True)
 
     # Comment data
     count = IntegerField(default=0)
     comments = URLField(blank=True)
 
     # Post meta-data
-    published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'))
+    published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'), editable=False)
     visibility_choices = (
         ('PUBLIC', 'PUBLIC'),
         ('FRIENDS', 'FRIENDS')
@@ -105,7 +110,7 @@ class Post(Model):
     unlisted = BooleanField(default=False)
 
     class Meta:
-        pass
+        ordering = ['-published']
     
     def get_absolute_url(self):
         return self.id
@@ -118,13 +123,13 @@ class Comment(Model):
     author = ForeignKey(Author, on_delete=CASCADE)
     comment = CharField(max_length=500)
 
-    published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'))
+    published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'), editable=False)
     id = URLField(primary_key=True, blank=True)
 
-    post = ForeignKey(Post, on_delete=CASCADE)
+    post = ForeignKey(Post, on_delete=CASCADE, null=True)
 
     class Meta:
-        pass
+        ordering = ['-published']
 
     @property
     def type(self):

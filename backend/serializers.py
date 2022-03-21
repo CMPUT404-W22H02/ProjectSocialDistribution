@@ -18,12 +18,14 @@ from wsgiref import validate
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import update_last_login
-from rest_framework.serializers import ModelSerializer, ReadOnlyField, SerializerMethodField
+from rest_framework.serializers import (ModelSerializer, ReadOnlyField,
+                                        SerializerMethodField)
 from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
                                                   api_settings)
 
-from .models import Author, NodeUser, Post, Comment
 from socialdisto.pagination import CommentPagination
+
+from .models import Author, Comment, NodeUser, Post
 
 
 class NodeUserSerializer(ModelSerializer):
@@ -95,7 +97,16 @@ class PostCreationSerializer(ModelSerializer):
     def create(self, validated_data):
         validated_data['id'] = self.context['id']
         validated_data['author'] = self.context['author']
+        validated_data['comments'] = self.context['comments']
         return super().create(validated_data)
+
+class PostSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Post.type))
+    author = AuthorSerializer()
+
+    class Meta:
+        model = Post
+        fields = '__all__'
 
 class CommentSerializer(ModelSerializer):
     """Use to serialize the first 5 comments nested in a Post object."""
@@ -112,3 +123,9 @@ class CommentCreationSerializer(ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+    
+    def create(self, validated_data):
+        validated_data['id'] = self.context['id']
+        validated_data['post'] = self.context['post']
+        validated_data['author'] = self.context['author']
+        return super().create(validated_data)

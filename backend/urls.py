@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import (AuthorDetailAPIView, AuthorsAPIView, FollowerDetailAPIView,
-                    FollowersAPIView, PostsAPIView, PostDetailAPIView, CommentsAPIView)
+from .views import (AuthorDetailAPIView, AuthorsAPIView, CommentsAPIView,
+                    FollowerDetailAPIView, FollowersAPIView, PostDetailAPIView,
+                    PostsAPIView)
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 router = DefaultRouter()

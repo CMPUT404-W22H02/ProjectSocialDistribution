@@ -44,6 +44,10 @@ class LoginViewSet(ModelViewSet, TokenObtainPairSerializer):
         except TokenError as e:
             raise InvalidToken(e.args[0])
         
+        # Get corresponding author id on login
+        username = serializer.validated_data['user']['username']
+        author_id = Author.objects.get(user__username=username).id
+        serializer.validated_data['user']['id'] = author_id
         return Response(serializer.validated_data, status=HTTP_200_OK)
 
 class RegistrationViewSet(ModelViewSet, TokenObtainPairSerializer):
@@ -59,8 +63,8 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairSerializer):
 
         # Link the newly registered user to an Author object
         scheme = request.scheme + '://'
-        host = scheme + request.get_host() + '/authors/'
-        id = host + str(uuid4())
+        host = scheme + request.get_host() + '/'
+        id = host + 'authors/' + str(uuid4())
         author = Author.objects.create(
             id=id,
             url=id,
@@ -70,7 +74,6 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairSerializer):
         )
         author.save()
 
-
         refresh = RefreshToken.for_user(user)
         res = {
             'refresh': str(refresh),
@@ -78,7 +81,7 @@ class RegistrationViewSet(ModelViewSet, TokenObtainPairSerializer):
         }
 
         return Response({
-            'user': serializer.data,
+            'id': serializer.data,
             'refresh': res["refresh"],
             'token': res["access"]
         }, status=HTTP_201_CREATED)
