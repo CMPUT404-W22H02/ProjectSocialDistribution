@@ -20,7 +20,7 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin
 from django.db.models import (CASCADE, BooleanField, CharField, DateTimeField,
                               ForeignKey, IntegerField, ManyToManyField, Model,
-                              OneToOneField, URLField)
+                              OneToOneField, URLField, JSONField)
 from django.utils.timezone import now
 
 URL_MAX = 255
@@ -74,6 +74,7 @@ class Author(Model):
     host = CharField(max_length=CHAR_MAX, blank=True)
     display_name = CharField(max_length=CHAR_MAX, blank=False)
     github = URLField(blank=True)
+    profile_image = URLField(blank=True)
 
     # TODO: profile image
 
@@ -106,7 +107,12 @@ class Post(Model):
     origin = URLField(blank=True)
     description = CharField(max_length=50, blank=True)
 
+    content_type = CharField(blank=True, max_length=255)
+
     author = ForeignKey(Author, on_delete=CASCADE, null=True)
+
+    # SQLite does not support JSONField, so only enable for production
+    # categories = JSONField(default=list)
 
     # Comment data
     count = IntegerField(default=0)
