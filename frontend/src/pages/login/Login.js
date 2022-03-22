@@ -24,8 +24,8 @@ import Identity from "../../model/Identity";
 
 function Login() {
   //function Login({ setToken }) {
-  const [username, setUserName] = useState();
-  const [password, setPassword] = useState();
+  const [username, setUserName] = useState("");
+  const [password, setPassword] = useState("");
   
   const [showPassword, setShowPassword] = useState(false);
   let UserIdentity = Identity.GetIdentity();
@@ -50,6 +50,8 @@ function Login() {
     .then((data) => data,
     
     ).catch((e)=>{
+      setUserName("")
+      setPassword("")
       addToast({description: "username/password is not correct",
       status: 'error', isClosable: true, duration: 1000,})
       
@@ -62,6 +64,8 @@ function Login() {
       username,
       password
     });
+    setUserName("")
+    setPassword("")
     console.log("---",data);
     
     //console.log("---",data.data.access)
@@ -77,9 +81,6 @@ function Login() {
     window.location.assign("/home")
   }
 
-  function onSubmit(values) {
-    console.log(values);
-  }
 
   return (
     <Flex
@@ -104,6 +105,7 @@ function Login() {
                 <Input 
                   type="text"
                   placeholder="Username"
+                  value = {username}
                   onChange={e => setUserName(e.target.value)}
                 />
               </FormControl>
@@ -112,6 +114,7 @@ function Login() {
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
+                    value = {password}
                     onChange={e => setPassword(e.target.value)} 
                   />
                   <InputRightElement width="4.5rem">
