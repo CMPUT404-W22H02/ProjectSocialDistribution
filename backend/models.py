@@ -19,8 +19,8 @@ from datetime import datetime
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin
 from django.db.models import (CASCADE, BooleanField, CharField, DateTimeField,
-                              ForeignKey, IntegerField, ManyToManyField, Model,
-                              OneToOneField, URLField, JSONField)
+                              ForeignKey, IntegerField, JSONField,
+                              ManyToManyField, Model, OneToOneField, URLField)
 from django.utils.timezone import now
 
 URL_MAX = 255

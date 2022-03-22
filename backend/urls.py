@@ -18,9 +18,11 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import (AuthorDetailAPIView, AuthorLikedAPIView, AuthorsAPIView, CommentLikesAPIView, CommentsAPIView,
-                    FollowerDetailAPIView, FollowersAPIView, InboxAPIView, PostDetailAPIView, PostLikesAPIView,
-                    PostsAPIView, PublicFeedView)
+from .views import (AuthorDetailAPIView, AuthorLikedAPIView, AuthorsAPIView,
+                    CommentLikesAPIView, CommentsAPIView,
+                    FollowerDetailAPIView, FollowersAPIView, InboxAPIView,
+                    PostDetailAPIView, PostLikesAPIView, PostsAPIView,
+                    PublicFeedView)
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 router = DefaultRouter()
