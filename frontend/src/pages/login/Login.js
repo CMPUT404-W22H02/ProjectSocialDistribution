@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import {
@@ -11,44 +12,75 @@ import {
   Box,
   Link,
   FormControl,
-  InputRightElement
+  InputRightElement,
+  useToast,
 } from "@chakra-ui/react";
+import { useContext, useState , useRef} from "react";
+import PropTypes from 'prop-types';
+import Identity from "../../model/Identity";
+
+
 
 
 function Login() {
-  const [username, setUsername] = useState("");
+  //function Login({ setToken }) {
+  const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  
   const [showPassword, setShowPassword] = useState(false);
+  let UserIdentity = Identity.GetIdentity();
 
-  function handleUsernameOnChange(event) {
-    setUsername(event.target.value);
-  }
-
-  function handlePasswordOnChange(event) {
-    setPassword(event.target.value);
+  const toast = useToast()
+  const toastIdRef = useRef()
+  const statuses = ['success', 'error', 'warning', 'info']
+  function addToast(toast_data) {
+    toastIdRef.current = toast(toast_data)
   }
 
   function handleShowClick() {
     setShowPassword(!showPassword);
   }
+  async function loginUser(credentials) {
+    return axios.post(`${process.env.REACT_APP_API_URL}login/`,
+    credentials, {
+      headers: {
+        'Content-Type': 'application/json'
+       
+      }})
+    .then((data) => data,
+    
+    ).catch((e)=>{
+      setUserName("")
+      setPassword("")
+      addToast({description: "username/password is not correct",
+      status: 'error', isClosable: true, duration: 1000,})
+      
+    })
+  }
 
-  function handleLoginClick() {
-    axios.post(`${process.env.REACT_APP_API_URL}/login`,
-    {
-      username: username,
-      password: password
-    })
-    .then((response) => {
-      console.log(response.data);
-    })
-    .catch((error) => {
-      console.log(error);
+  const handleLoginClick= async e=> {
+    e.preventDefault();
+    const data = await loginUser({
+      username,
+      password
     });
+    setUserName("")
+    setPassword("")
+    console.log("---",data);
+    
+    //console.log("---",data.data.access)
+    const user = data.data.user
+    const token = data.data.access
+    ///console.log({'token':token})
+    //console.log(data.data.access, data.data.refresh, data.data.user.username, data.data.user.id)
+    //setToken({'token':token});
+    UserIdentity = new Identity(data.data.access, data.data.refresh, data.data.user.username, data.data.user.id, )
+    UserIdentity.StoreIdentity()
+    addToast({description: "success login",
+                  status: 'success', isClosable: true, duration: 1000,})
+    window.location.assign("/home")
   }
 
-  function onSubmit(values) {
-    console.log(values);
-  }
 
   return (
     <Flex
@@ -73,7 +105,8 @@ function Login() {
                 <Input 
                   type="text"
                   placeholder="Username"
-                  onChange={handleUsernameOnChange}
+                  value = {username}
+                  onChange={e => setUserName(e.target.value)}
                 />
               </FormControl>
               <FormControl>
@@ -81,7 +114,8 @@ function Login() {
                   <Input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
-                    onChange={handlePasswordOnChange}
+                    value = {password}
+                    onChange={e => setPassword(e.target.value)} 
                   />
                   <InputRightElement width="4.5rem">
                     <Button h="1.75rem" size="sm" onClick={handleShowClick}>
