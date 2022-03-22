@@ -23,7 +23,7 @@ from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.test import APIRequestFactory, APITestCase
 
-from .models import Author
+from .models import Author, Follow, Like, Post, Comment
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 
@@ -535,7 +535,6 @@ class PostDetailAPITests(GenericTestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)
 
-@tag('current')
 class CommentsAPITests(GenericTestCase):
     """GET, POST authors/<id>/posts/<id>/comments"""
     def setUp(self):
@@ -592,3 +591,199 @@ class CommentsAPITests(GenericTestCase):
         url = f'{self.url}/comments?page=1&size={size}'
         response = self.client.get(url)
         self.assertEqual(len(response.data['results']['items']), size)
+
+class LikesAPITests(GenericTestCase):
+    def setUp(self):
+        super().setUp()
+        self.mock_authors()
+
+        self.comment1 = {
+            "type": "comment",
+            "author": {
+                "type": "author",
+                "id": self.author2.id,
+                "url": "",
+                "host": "",
+                "display_name": "",
+                "github": ""
+            },
+            "comment": "First Comment!",
+        }
+
+        # Create a post to like
+        self.post_url = f'{self.author1.id}/posts/{str(uuid4())}'
+        self.client.put(self.post_url)
+
+        # Create a comment on the post to like
+        self.comment_url = f'{self.post_url}/comments'
+        response = self.client.post(self.comment_url, data=self.comment1)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        like = Like.objects.create(
+            object=self.post_url,
+            author=self.author2
+        )
+        like.save()
+    
+    def test_unauthenticated(self):
+        pass
+
+    def test_authenticated(self):
+        pass
+
+    def test_post_like(self):
+        url = f'{self.post_url}/likes'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(response.data['items']), 1)
+        self.assertContains(response, self.author2.display_name)
+
+@tag('current')
+class InboxAPITests(GenericTestCase):
+    def setUp(self):
+        super().setUp()
+        self.mock_authors()
+        self.url = f'{self.author1.id}/inbox'
+
+        # External post not already on the server
+        self.post = {
+            "type": "post",
+            "title": "Hello, World!",
+            "id": "http://127.0.0.1:5454/authors/1/posts/1",
+            "source": "",
+            "origin": "",
+            "author": {
+                "type": "author",
+                "id": "http://127.0.0.1:5454/authors/1",
+                "host": "http://127.0.0.1:5454/",
+                "display_name": "External User1",
+                "url": "http://127.0.0.1:5454/authors/1/posts/1",
+                "github": ""
+            },
+            "description": "",
+            "count": 0,
+            "comments": "http://127.0.0.1:5454/authors/1/posts/1/comments",
+            "published": "",
+            "visibility": "PUBLIC",
+            "unlisted": False
+        }
+
+        self.comment = {
+            "type": "comment",
+            "author": {
+                "type": "author",
+                "id": "http://127.0.0.1:5454/authors/1",
+                "url": "http://127.0.0.1:5454/authors/1",
+                "host": "http://127.0.0.1:5454/",
+                "display_name": "External User1",
+                "github": ""
+            },
+            "comment": "First Comment!",
+            "id": "http://127.0.0.1:5454/authors/1/posts/1/comments/1"
+        }
+
+        self.post_like = {
+            "type": "like",
+            "author": {
+                "type": "author",
+                "id": "http://127.0.0.1:5454/authors/1",
+                "url": "http://127.0.0.1:5454/authors/1",
+                "host": "http://127.0.0.1:5454/",
+                "display_name": "External User1",
+                "github": ""
+            },
+            "object": "http://127.0.0.1:5454/authors/1/posts/1"
+        }
+
+        self.comment_like = {
+            "type": "like",
+            "author": {
+                "type": "author",
+                "id": "http://127.0.0.1:5454/authors/1",
+                "url": "http://127.0.0.1:5454/authors/1",
+                "host": "http://127.0.0.1:5454/",
+                "display_name": "External User1",
+                "github": ""
+            },
+            "object": "http://127.0.0.1:5454/authors/1/posts/1/comments/1"
+        }
+
+        self.follow_request = {
+            "type": "follow",
+            "actor": {
+                "type": "author",
+                "id": "http://127.0.0.1:5454/authors/1",
+                "url": "http://127.0.0.1:5454/authors/1",
+                "host": "http://127.0.0.1:5454/",
+                "display_name": "External User1",
+                "github": ""
+            },
+            # object should be on server, otherwise raise 404
+            "object": {
+                "type": "author",
+                "id": self.author1.id,
+                "url": self.author1.url,
+                "host": self.author1.host,
+                "display_name": self.author1.display_name,
+                "github": ""
+            }
+        }
+
+    def test_unauthenticated(self):
+        pass
+
+    def test_authenticated(self):
+        pass
+
+    def test_inbox_get(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+    
+    def test_inbox_post_post(self):
+        response = self.client.post(self.url, data=self.post)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Post should now appear in the inbox
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertContains(response, self.post['id'])
+        self.assertContains(response, self.post['title'])
+    
+    def test_inbox_post_comment(self):
+        # Have the post already on server to comment on
+        response = self.client.post(self.url, data=self.post)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Send the comment to the post via inbox
+        response = self.client.post(self.url, data=self.comment)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Verify comment is now attached to the local copy of the post (in inbox)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+        post = Post.objects.get(id='http://127.0.0.1:5454/authors/1/posts/1')
+        post_from_comment = Comment.objects.get(id='http://127.0.0.1:5454/authors/1/posts/1/comments/1').post
+        self.assertEqual(post, post_from_comment)
+
+    def test_inbox_post_like(self):
+        # Have the post already on server to comment on
+        response = self.client.post(self.url, data=self.post)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Send the comment to the post via inbox
+        response = self.client.post(self.url, data=self.comment)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Like both the post and the comment on the post
+        response = self.client.post(self.url, self.post_like)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+        response = self.client.post(self.url, self.comment_like)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+    
+    def test_inbox_post_follower(self):
+        response = self.client.post(self.url, data=self.follow_request)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Check that author1 has the follow request pending
+        Follow.objects.get(object=self.author1)

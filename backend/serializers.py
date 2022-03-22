@@ -14,10 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from wsgiref import validate
-
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import update_last_login
+from django.shortcuts import get_object_or_404
 from rest_framework.serializers import (ModelSerializer, ReadOnlyField,
                                         SerializerMethodField)
 from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
@@ -25,7 +24,7 @@ from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
 
 from socialdisto.pagination import CommentPagination
 
-from .models import Author, Comment, NodeUser, Post
+from .models import Author, Comment, Follow, Like, NodeUser, Post
 
 
 class NodeUserSerializer(ModelSerializer):
@@ -128,4 +127,75 @@ class CommentCreationSerializer(ModelSerializer):
         validated_data['id'] = self.context['id']
         validated_data['post'] = self.context['post']
         validated_data['author'] = self.context['author']
+        return super().create(validated_data)
+
+class LikeSerializer(ModelSerializer):
+    author = AuthorSerializer(read_only=True)
+
+    class Meta:
+        model = Like
+        fields = ['type', 'author', 'object']
+
+class FollowSerializer(ModelSerializer):
+    """Object and author may already exist on the server."""
+    type = ReadOnlyField(default=str(Follow.type))
+    author = AuthorSerializer()
+    object = AuthorSerializer()
+
+    class Meta:
+        model = Follow
+    
+    def create(self, validated_data):
+        # Check to see if the author exists on server before creating
+        breakpoint()
+        try:
+            author = Author.objects.get(validated_data['id'])
+            return author
+        except:
+            return super().create(validated_data)
+
+class InboxPostSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Post.type))
+
+    class Meta:
+        model = Post
+        exclude = ['author']
+    
+    def create(self, validated_data):
+        validated_data['author'] = self.context['author']
+        return super().create(validated_data)
+
+class InboxCommentSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Comment.type))
+
+    class Meta:
+        model = Comment
+        exclude = ['author', 'post']
+    
+    def create(self, validated_data):
+        validated_data['author'] = self.context['author']
+        validated_data['post'] = self.context['post']
+        return super().create(validated_data)
+
+class InboxLikeSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Like.type))
+
+    class Meta:
+        model = Like
+        exclude = ['author']
+    
+    def create(self, validated_data):
+        validated_data['author'] = self.context['author']
+        return super().create(validated_data)
+
+class InboxFollowSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Follow.type))
+
+    class Meta:
+        model = Follow
+        exclude = ['actor', 'object']
+    
+    def create(self, validated_data):
+        validated_data['actor'] = self.context['actor']
+        validated_data['object'] = self.context['object']
         return super().create(validated_data)

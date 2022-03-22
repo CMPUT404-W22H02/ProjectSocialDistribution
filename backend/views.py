@@ -16,7 +16,7 @@
 
 from uuid import uuid4
 
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_list_or_404, get_object_or_404
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication
@@ -27,13 +27,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
+from rest_framework.mixins import DestroyModelMixin
 
 from socialdisto.pagination import CustomPagination
 
-from .models import Author, Comment, NodeUser, Post
+from .models import Author, Comment, Like, NodeUser, Post, Inbox
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
-                          CommentSerializer, PostCreationSerializer,
-                          PostDetailsSerializer)
+                          CommentSerializer, FollowSerializer, InboxFollowSerializer, InboxLikeSerializer, InboxPostSerializer, LikeSerializer, PostCreationSerializer,
+                          PostDetailsSerializer, InboxCommentSerializer)
 
 
 class UtilityAPI(APIView):
@@ -48,10 +49,24 @@ class UtilityAPI(APIView):
         rtype: "followers",
         ritems: []
     }
+    likes_response_template = {
+        rtype: "likes",
+        ritems: []
+    }
+    liked_response_template = {
+        rtype: "liked",
+        ritems: []
+    }
+    inbox_response_template = {
+        rtype: "inbox",
+        "author": "",
+        ritems: []
+    }
 
     _author_id = 'author_id'
     _follower_id = 'follower_id'
     _post_id = 'post_id'
+    _comment_id = 'comment_id'
 
     _id = 'id'
     _type = 'type'
@@ -72,6 +87,14 @@ class UtilityAPI(APIView):
         author_id = self.kwargs[self._author_id]
         post_id = self.kwargs[self._post_id]
         path = reverse('api_post_detail', args=[author_id, post_id])
+        return self.request.build_absolute_uri(path)
+    
+    def get_comment_id(self):
+        """Return the full path id for the request comment."""
+        author_id = self.kwargs[self._author_id]
+        post_id = self.kwargs[self._post_id]
+        comment_id = self.kwargs[self._comment_id]
+        path = reverse('api_comment_likes', args=[author_id, post_id, comment_id])
         return self.request.build_absolute_uri(path)
         
 class AuthorsAPIView(ListAPIView, UtilityAPI):
@@ -127,7 +150,7 @@ class AuthorDetailAPIView(RetrieveUpdateAPIView, UtilityAPI):
         return obj
 
     def get_authenticators(self):
-        if self.request.method in self.local_methods:
+        if self.request.method  == 'POST':
             self.authentication_classes = [JWTTokenUserAuthentication]
         return super().get_authenticators()
 
@@ -384,3 +407,179 @@ class CommentsAPIView(ListCreateAPIView, UtilityAPI):
         serializer = self.get_serializer(queryset, many=True)
         response[self._items] = serializer.data
         return Response(response)
+
+class PostLikesAPIView(ListAPIView, UtilityAPI):
+    """Get the likes on a post."""
+    queryset = Like.objects.all()
+
+    serializer_class = LikeSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        post_id = self.get_post_id()
+        return queryset.filter(object=post_id)
+    
+    def list(self, request, *args, **kwargs):
+        response = self.likes_response_template
+        queryset = self.get_queryset()
+
+        serializer = self.get_serializer(queryset, many=True)
+        response[self.ritems] = serializer.data
+        return Response(response)
+
+class CommentLikesAPIView(ListAPIView, UtilityAPI):
+    """Get the likes on a comment."""
+    queryset = Like.objects.all()
+
+    serializer_class = LikeSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        comment_id = self.get_comment_id()
+        return queryset.filter(object=comment_id)
+    
+    def list(self, request, *args, **kwargs):
+        response = self.likes_response_template
+        queryset = self.get_queryset()
+
+        serializer = self.get_serializer(queryset, many=True)
+        response[self.ritems] = serializer.data
+        return Response(response)
+
+class AuthorLikedAPIView(ListAPIView, UtilityAPI):
+    """Get the like objects made by an author."""
+    queryset = Like.objects.all()
+
+    serializer_class = LikeSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        author_id = self.get_author_id()
+        return queryset.filter(author__id=author_id)
+    
+    def list(self, request, *args, **kwargs):
+        response = self.liked_response_template
+        queryset = self.get_queryset()
+
+        serializer = self.get_serializer(queryset, many=True)
+        response[self.ritems] = serializer.data
+        return Response(response)
+
+class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
+    """Get, send, and clear content from an author's inbox."""
+
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+    local_only_methods = ['GET']
+    http_method_names = ['get', 'post', 'delete', 'head', 'options'] 
+
+    def get_serializer_class(self):
+        method = self.request.method
+
+        if method == 'POST':
+            serializers = {
+                'post': InboxPostSerializer,
+                'comment': InboxCommentSerializer,
+                'like': InboxLikeSerializer,
+                'follow': InboxFollowSerializer
+            }
+            content_type = self.request.data['type']
+            return serializers[content_type]
+        return PostDetailsSerializer
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        if self.request.method == 'POST':
+            content_type = self.request.data['type']
+
+            if content_type == 'post' or content_type == 'comment' or content_type == 'like':
+                author_id = self.request.data['author']['id']
+                author, created = Author.objects.get_or_create(id=author_id)
+                context['author'] = author
+            
+            if content_type == 'comment':
+                comment_id = self.request.data['id']
+                sub = comment_id[:comment_id.find('/comments')]
+                post = Post.objects.get(id=sub)
+                context['post'] = post
+        
+            if content_type == 'follow':
+                actor_id = self.request.data['actor']['id']
+                actor, created = Author.objects.get_or_create(id=actor_id)
+                context['actor'] = actor
+
+                object_id = self.request.data['object']['id']
+                object = get_object_or_404(Author.objects.all(), id=object_id)
+                context['object'] = object
+        return context
+
+    def get_authenticators(self):
+        if self.request.method in self.local_only_methods:
+            self.authentication_classes = [JWTTokenUserAuthentication]
+        return super().get_authenticators()
+
+    def get_queryset(self):
+        method = self.request.method
+        inbox = get_object_or_404(Inbox.objects.all(), author__id=self.get_author_id())
+
+        if method == 'DELETE' or method == 'POST':
+            return Inbox.objects.all()
+        elif method == 'GET':
+            queryset = inbox.posts.all()
+            return queryset
+    
+    def get_object(self):
+        method = self.request.method
+        queryset = self.get_queryset()
+
+        if method == 'DELETE' or method == 'POST':
+            obj = get_object_or_404(queryset, author_id=self.get_author_id())
+            return obj
+
+    def delete(self):
+        """Don't destroy the posts, just remove the relation."""
+        inbox = self.get_object()
+
+        inbox.posts.clear()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    def list(self, request, *args, **kwargs):
+        response = self.inbox_response_template
+        response['author'] = self.get_author_id()
+        queryset = self.get_queryset()
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            response[self._items] = serializer.data
+            return self.get_paginated_response(response)
+        
+        serializer = self.get_serializer(queryset, many=True)
+        response[self._items] = serializer.data
+        return Response(response)
+    
+    def create(self, request, *args, **kwargs):
+        response = super().create(request, args, kwargs)
+        
+        # Link the local copy to the inbox
+        inbox = self.get_object()
+        content_type = self.request.data['type']
+        if content_type == 'post':
+            post = get_object_or_404(Post.objects.all(), id=response.data['id'])
+            inbox.posts.add(post)
+        elif content_type == 'like':
+            pass
+        elif content_type == 'comment':
+            pass
+        elif content_type == 'follow':
+            pass
+        return response
