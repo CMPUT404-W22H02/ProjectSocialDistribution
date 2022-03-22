@@ -16,6 +16,12 @@
 
 from django.contrib import admin
 
-from .models import NodeUser
+from .models import NodeUser, Author, Post, Node, Comment, Like, Follow
 
 admin.site.register(NodeUser)
+admin.site.register(Author)
+admin.site.register(Post)
+admin.site.register(Node)
+admin.site.register(Comment)
+admin.site.register(Like)
+admin.site.register(Follow)
