@@ -132,9 +132,9 @@ class AuthorDetailAPIView(RetrieveUpdateAPIView, UtilityAPI):
 
     serializer_class = AuthorSerializer
 
-    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
-    local_methods = ['POST']
+    #authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    #permission_classes = [IsAuthenticated]
+    #local_methods = ['POST']
 
     http_method_names = ['get', 'post']
 
@@ -150,7 +150,7 @@ class AuthorDetailAPIView(RetrieveUpdateAPIView, UtilityAPI):
         return obj
 
     def get_authenticators(self):
-        if self.request.method in self.local_methods:
+        if self.request.method  == 'POST':
             self.authentication_classes = [JWTTokenUserAuthentication]
         return super().get_authenticators()
 
