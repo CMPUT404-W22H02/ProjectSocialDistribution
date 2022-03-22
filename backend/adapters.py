@@ -16,6 +16,7 @@
 
 from .models import Node
 
+
 class AdapterDispatcher():
     """Dispatches the correct adapter for a request based on host."""
     pass

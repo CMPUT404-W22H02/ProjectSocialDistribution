@@ -23,7 +23,7 @@ from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.test import APIRequestFactory, APITestCase
 
-from .models import Author, Follow, Like, Post, Comment
+from .models import Author, Comment, Follow, Like, Post
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 
