@@ -20,7 +20,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (AuthorDetailAPIView, AuthorLikedAPIView, AuthorsAPIView, CommentLikesAPIView, CommentsAPIView,
                     FollowerDetailAPIView, FollowersAPIView, InboxAPIView, PostDetailAPIView, PostLikesAPIView,
-                    PostsAPIView)
+                    PostsAPIView, PublicFeedView)
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 router = DefaultRouter()
@@ -43,6 +43,9 @@ urlpatterns = [
     path('authors/<str:author_id>/liked', AuthorLikedAPIView.as_view(), name='api_author_liked'),
     
     path('authors/<str:author_id>/inbox', InboxAPIView.as_view(), name='api_inbox'),
+
+    # Public feed
+    path('publicposts/', PublicFeedView.as_view(), name='public_posts'),
 
     # Viewsets
     *router.urls

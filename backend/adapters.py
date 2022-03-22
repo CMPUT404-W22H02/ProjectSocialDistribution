@@ -16,17 +16,39 @@
 
 from .models import Node
 
+class AdapterDispatcher():
+    """Dispatches the correct adapter for a request based on host."""
+    pass
+
 class AdapterBase():
     """Base adapter for all incoming content from remote Nodes."""
     def __init__(self, data):
         self.data = data
 
+# Temporary hardcoding
 class Team02Adapter(AdapterBase):
-    pass
+    def __init__(self, data):
+        super().__init__(data)
+        node = Node.objects.get_or_create(
+            api_domain='https://social-dist-wed.herokuapp.com/service/',
+            username='team02admin',
+            password='admin'
+        )
 
 class Team05Adapter(AdapterBase):
-    pass
+    def __init__(self, data):
+        super().__init__(data)
+        # node = Node.objects.get_or_create(
+        #     api_domain='https://social-dist-wed.herokuapp.com/service/',
+        #     username='othergroupadmin',
+        #     password='othergroupadmin'
+        # )
 
 class Team07Adapter(AdapterBase):
-    pass
-
+    def __init__(self, data):
+        super().__init__(data)
+        node = Node.objects.get_or_create(
+            api_domain='https://c404-social-distribution.herokuapp.com/service/',
+            username='othergroupadmin',
+            password='othergroupadmin'
+        )

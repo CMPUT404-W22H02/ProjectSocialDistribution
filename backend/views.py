@@ -15,14 +15,16 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from uuid import uuid4
+from requests.auth import HTTPBasicAuth
+from requests import get
 
-from django.shortcuts import get_list_or_404, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import (CreateAPIView, ListAPIView,
                                      ListCreateAPIView, RetrieveUpdateAPIView,
-                                     RetrieveUpdateDestroyAPIView)
+                                     RetrieveUpdateDestroyAPIView, RetrieveAPIView)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -31,10 +33,11 @@ from rest_framework.mixins import DestroyModelMixin
 
 from socialdisto.pagination import CustomPagination
 
-from .models import Author, Comment, Like, NodeUser, Post, Inbox
+from .models import Author, Comment, Like, NodeUser, Post, Inbox, Node
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
-                          CommentSerializer, FollowSerializer, InboxFollowSerializer, InboxLikeSerializer, InboxPostSerializer, LikeSerializer, PostCreationSerializer,
+                          CommentSerializer, InboxFollowSerializer, InboxLikeSerializer, InboxPostSerializer, LikeSerializer, PostCreationSerializer,
                           PostDetailsSerializer, InboxCommentSerializer)
+from .adapters import Team02Adapter, Team05Adapter, Team07Adapter
 
 
 class UtilityAPI(APIView):
@@ -583,3 +586,46 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         elif content_type == 'follow':
             pass
         return response
+
+class PublicFeedView(ListAPIView):
+    """Gathers public posts from all connected nodes."""
+
+    # authentication_classes = [JWTTokenUserAuthentication]
+    # permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        public_posts = []
+        # Get all home content first
+        home_host = self.request.get_host()
+        queryset = Post.objects.filter(author__host=home_host, visibility='PUBLIC')
+        serializer = PostDetailsSerializer(queryset, many=True)
+        public_posts.extend(serializer.data)
+
+        Node.objects.all().delete()
+
+        team_02 = Team02Adapter(None)
+        # team_05 = Team05Adapter()
+        # team_07 = Team07Adapter(None)
+
+        # Remote content
+        # This all needs to be wrapped in adapters
+        remote_nodes = Node.objects.all()
+        for node in remote_nodes:
+            # TODO: dispatcher for each remote node
+            host = node.api_domain
+            username = node.username
+            password = node.password
+
+            try:
+                authors_url = f'{host}authors/'
+                authors = get(authors_url, auth=HTTPBasicAuth(username, password)).json()['items']
+
+                for author in authors:
+                    author_id = author['url'][author['url'].find('authors')+(len('/authors')):]
+                    author_posts_url = f'{authors_url}{author_id}/posts/'
+                    breakpoint()
+                    posts = get(author_posts_url, auth=HTTPBasicAuth(username, password)).json()['items']
+            except Exception as e:
+                print(e)
+            
+        return Response(data=public_posts)
