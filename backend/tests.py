@@ -102,7 +102,8 @@ class GenericTestCase(APITestCase):
             "comments": "",
             "published": "",
             "visibility": "PUBLIC",
-            "unlisted": False
+            "unlisted": False,
+            "content_type": ""
         }
         return post
     
