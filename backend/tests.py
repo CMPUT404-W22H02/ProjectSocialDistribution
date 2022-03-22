@@ -445,6 +445,7 @@ class PostsAPITests(GenericTestCase):
             # "comments": "", Same as id
             # "comment_src": [], Test comment_src content in CommentTests
             # "published": "", Authogenerated timestamp
+            "content_type": "",
             "visibility": "PUBLIC",
             "unlisted": False
         }
