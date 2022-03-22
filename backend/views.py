@@ -33,7 +33,7 @@ from socialdisto.pagination import CustomPagination
 
 from .models import Author, Comment, Like, NodeUser, Post, Inbox
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
-                          CommentSerializer, FollowSerializer, InboxPostSerializer, LikeSerializer, PostCreationSerializer,
+                          CommentSerializer, FollowSerializer, InboxFollowSerializer, InboxLikeSerializer, InboxPostSerializer, LikeSerializer, PostCreationSerializer,
                           PostDetailsSerializer, InboxCommentSerializer)
 
 
@@ -489,8 +489,8 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
             serializers = {
                 'post': InboxPostSerializer,
                 'comment': InboxCommentSerializer,
-                'like': LikeSerializer,
-                'follow': FollowSerializer
+                'like': InboxLikeSerializer,
+                'follow': InboxFollowSerializer
             }
             content_type = self.request.data['type']
             return serializers[content_type]
@@ -501,7 +501,7 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         if self.request.method == 'POST':
             content_type = self.request.data['type']
 
-            if content_type == 'post' or content_type == 'comment':
+            if content_type == 'post' or content_type == 'comment' or content_type == 'like':
                 author_id = self.request.data['author']['id']
                 author, created = Author.objects.get_or_create(id=author_id)
                 context['author'] = author
@@ -511,6 +511,15 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
                 sub = comment_id[:comment_id.find('/comments')]
                 post = Post.objects.get(id=sub)
                 context['post'] = post
+        
+            if content_type == 'follow':
+                actor_id = self.request.data['actor']['id']
+                actor, created = Author.objects.get_or_create(id=actor_id)
+                context['actor'] = actor
+
+                object_id = self.request.data['object']['id']
+                object = get_object_or_404(Author.objects.all(), id=object_id)
+                context['object'] = object
         return context
 
     def get_authenticators(self):

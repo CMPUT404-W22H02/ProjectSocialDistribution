@@ -88,7 +88,7 @@ class Author(Model):
 
 class Like(Model):
     object = URLField(blank=True)
-    author = ForeignKey(Author, on_delete=CASCADE)
+    author = ForeignKey(Author, on_delete=CASCADE, null=True)
 
     @property
     def type(self):

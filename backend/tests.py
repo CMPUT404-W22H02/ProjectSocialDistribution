@@ -23,7 +23,7 @@ from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.test import APIRequestFactory, APITestCase
 
-from .models import Author, Like, Post, Comment
+from .models import Author, Follow, Like, Post, Comment
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 
@@ -681,6 +681,54 @@ class InboxAPITests(GenericTestCase):
             "comment": "First Comment!",
             "id": "http://127.0.0.1:5454/authors/1/posts/1/comments/1"
         }
+
+        self.post_like = {
+            "type": "like",
+            "author": {
+                "type": "author",
+                "id": "http://127.0.0.1:5454/authors/1",
+                "url": "http://127.0.0.1:5454/authors/1",
+                "host": "http://127.0.0.1:5454/",
+                "display_name": "External User1",
+                "github": ""
+            },
+            "object": "http://127.0.0.1:5454/authors/1/posts/1"
+        }
+
+        self.comment_like = {
+            "type": "like",
+            "author": {
+                "type": "author",
+                "id": "http://127.0.0.1:5454/authors/1",
+                "url": "http://127.0.0.1:5454/authors/1",
+                "host": "http://127.0.0.1:5454/",
+                "display_name": "External User1",
+                "github": ""
+            },
+            "object": "http://127.0.0.1:5454/authors/1/posts/1/comments/1"
+        }
+
+        self.follow_request = {
+            "type": "follow",
+            "actor": {
+                "type": "author",
+                "id": "http://127.0.0.1:5454/authors/1",
+                "url": "http://127.0.0.1:5454/authors/1",
+                "host": "http://127.0.0.1:5454/",
+                "display_name": "External User1",
+                "github": ""
+            },
+            # object should be on server, otherwise raise 404
+            "object": {
+                "type": "author",
+                "id": self.author1.id,
+                "url": self.author1.url,
+                "host": self.author1.host,
+                "display_name": self.author1.display_name,
+                "github": ""
+            }
+        }
+
     def test_unauthenticated(self):
         pass
 
@@ -718,4 +766,24 @@ class InboxAPITests(GenericTestCase):
         post_from_comment = Comment.objects.get(id='http://127.0.0.1:5454/authors/1/posts/1/comments/1').post
         self.assertEqual(post, post_from_comment)
 
+    def test_inbox_post_like(self):
+        # Have the post already on server to comment on
+        response = self.client.post(self.url, data=self.post)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
 
+        # Send the comment to the post via inbox
+        response = self.client.post(self.url, data=self.comment)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Like both the post and the comment on the post
+        response = self.client.post(self.url, self.post_like)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+        response = self.client.post(self.url, self.comment_like)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+    
+    def test_inbox_post_follower(self):
+        response = self.client.post(self.url, data=self.follow_request)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Check that author1 has the follow request pending
+        Follow.objects.get(object=self.author1)
