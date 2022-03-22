@@ -23,7 +23,7 @@ from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.test import APIRequestFactory, APITestCase
 
-from .models import Author, Like
+from .models import Author, Like, Post, Comment
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 
@@ -668,6 +668,19 @@ class InboxAPITests(GenericTestCase):
             "unlisted": False
         }
 
+        self.comment = {
+            "type": "comment",
+            "author": {
+                "type": "author",
+                "id": "http://127.0.0.1:5454/authors/1",
+                "url": "http://127.0.0.1:5454/authors/1",
+                "host": "http://127.0.0.1:5454/",
+                "display_name": "External User1",
+                "github": ""
+            },
+            "comment": "First Comment!",
+            "id": "http://127.0.0.1:5454/authors/1/posts/1/comments/1"
+        }
     def test_unauthenticated(self):
         pass
 
@@ -687,4 +700,22 @@ class InboxAPITests(GenericTestCase):
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertContains(response, self.post['id'])
         self.assertContains(response, self.post['title'])
+    
+    def test_inbox_post_comment(self):
+        # Have the post already on server to comment on
+        response = self.client.post(self.url, data=self.post)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Send the comment to the post via inbox
+        response = self.client.post(self.url, data=self.comment)
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Verify comment is now attached to the local copy of the post (in inbox)
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+
+        post = Post.objects.get(id='http://127.0.0.1:5454/authors/1/posts/1')
+        post_from_comment = Comment.objects.get(id='http://127.0.0.1:5454/authors/1/posts/1/comments/1').post
+        self.assertEqual(post, post_from_comment)
+
 

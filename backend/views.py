@@ -34,7 +34,7 @@ from socialdisto.pagination import CustomPagination
 from .models import Author, Comment, Like, NodeUser, Post, Inbox
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
                           CommentSerializer, FollowSerializer, InboxPostSerializer, LikeSerializer, PostCreationSerializer,
-                          PostDetailsSerializer)
+                          PostDetailsSerializer, InboxCommentSerializer)
 
 
 class UtilityAPI(APIView):
@@ -488,13 +488,30 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         if method == 'POST':
             serializers = {
                 'post': InboxPostSerializer,
-                'comment': CommentCreationSerializer,
+                'comment': InboxCommentSerializer,
                 'like': LikeSerializer,
                 'follow': FollowSerializer
             }
             content_type = self.request.data['type']
             return serializers[content_type]
         return PostDetailsSerializer
+    
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        if self.request.method == 'POST':
+            content_type = self.request.data['type']
+
+            if content_type == 'post' or content_type == 'comment':
+                author_id = self.request.data['author']['id']
+                author, created = Author.objects.get_or_create(id=author_id)
+                context['author'] = author
+            
+            if content_type == 'comment':
+                comment_id = self.request.data['id']
+                sub = comment_id[:comment_id.find('/comments')]
+                post = Post.objects.get(id=sub)
+                context['post'] = post
+        return context
 
     def get_authenticators(self):
         if self.request.method in self.local_only_methods:
@@ -543,8 +560,17 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
     
     def create(self, request, *args, **kwargs):
         response = super().create(request, args, kwargs)
+        
         # Link the local copy to the inbox
         inbox = self.get_object()
-        post = get_object_or_404(Post.objects.all(), id=response.data['id'])
-        inbox.posts.add(post)
+        content_type = self.request.data['type']
+        if content_type == 'post':
+            post = get_object_or_404(Post.objects.all(), id=response.data['id'])
+            inbox.posts.add(post)
+        elif content_type == 'like':
+            pass
+        elif content_type == 'comment':
+            pass
+        elif content_type == 'follow':
+            pass
         return response

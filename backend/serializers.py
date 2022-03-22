@@ -16,6 +16,7 @@
 
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import update_last_login
+from django.shortcuts import get_object_or_404
 from rest_framework.serializers import (ModelSerializer, ReadOnlyField,
                                         SerializerMethodField)
 from rest_framework_simplejwt.serializers import (TokenObtainPairSerializer,
@@ -143,11 +144,36 @@ class FollowSerializer(ModelSerializer):
 
     class Meta:
         model = Follow
+    
+    def create(self, validated_data):
+        # Check to see if the author exists on server before creating
+        breakpoint()
+        try:
+            author = Author.objects.get(validated_data['id'])
+            return author
+        except:
+            return super().create(validated_data)
 
 class InboxPostSerializer(ModelSerializer):
     type = ReadOnlyField(default=str(Post.type))
-    author = AuthorSerializer(read_only=True)
 
     class Meta:
         model = Post
-        fields = '__all__'
+        exclude = ['author']
+    
+    def create(self, validated_data):
+        validated_data['author'] = self.context['author']
+        return super().create(validated_data)
+
+class InboxCommentSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Comment.type))
+
+    class Meta:
+        model = Comment
+        exclude = ['author', 'post']
+    
+    def create(self, validated_data):
+        validated_data['author'] = self.context['author']
+        validated_data['post'] = self.context['post']
+        return super().create(validated_data)
+
