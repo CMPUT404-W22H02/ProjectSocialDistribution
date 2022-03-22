@@ -26,6 +26,11 @@ from django.utils.timezone import now
 URL_MAX = 255
 CHAR_MAX = 255
 
+class Node(Model):
+    api_domain = URLField(primary_key=True)
+    username = CharField(max_length=255)
+    password = CharField(max_length=255)
+
 class NodeUserManager(BaseUserManager):
     """Create and assign an author to a user once created."""
     def create_user(self, username, password):
