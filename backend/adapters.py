@@ -24,6 +24,9 @@ class RemoteAdapter():
         """Execute object adaption, including nested objects."""
         obj = self.data
         self.type_adapter(obj)
+
+        if not obj:
+            return obj
         type = obj['type']
 
         # GET /authors/, can be paginated
@@ -81,7 +84,7 @@ class RemoteAdapter():
             comments = obj['items']
             self.comments_adapter(comments)
 
-        return self.data
+        return obj
 
     def items_adapter(self, obj):
         """Plural responses tied to an items key."""
@@ -96,15 +99,16 @@ class RemoteAdapter():
     def type_adapter(self, obj):
         """Determines the type of object in the request and normalizes the type."""
         local_field = 'type'
-        remote_fields = []
+        remote_fields = ()
 
         try:
-            type = obj[local_field]
+            obj[local_field]
         except:
-            type = self.key_replacement(obj, local_field, remote_fields)
+            self.key_replacement(obj, local_field, remote_fields)
 
         # Type values should all be lowercase
-        obj[local_field] = (obj[local_field]).lower()      
+        if obj:
+            obj[local_field] = (obj[local_field]).lower()      
 
     def authors_adapter(self, authors):
         for author in authors:
@@ -224,12 +228,19 @@ class RemoteAdapter():
 
     def key_replacement(self, obj, local_field, remote_fields):
         """Finds the matching remote field and replaces the key with one compatible with our service."""
+        # Input cannot be adapted
+        if len(remote_fields) == 0:
+            obj.clear()
+            return
+        
         for field in remote_fields:
             try:
                 obj[local_field] = obj.pop(field)
             except Exception as e:
                 print(e)
-        return None
+                obj.clear()
+                return
+        # Special case for no adapter fields exisxting
 
 # class AdapterBase():
 #     """Base adapter for all incoming content from remote Nodes."""

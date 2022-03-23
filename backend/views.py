@@ -614,13 +614,15 @@ class PublicFeedView(ListAPIView, UtilityAPI):
             try:
                 authors_url = f'{api_domain}authors/'
                 authors = get(authors_url, auth=HTTPBasicAuth(username, password)).json()
+                breakpoint()
                 adapter = RemoteAdapter(authors)
                 adapted_authors = adapter.adapt_data()
-
+                
                 for author in adapted_authors['items']:
                     author_url = author['url']
                     posts_url = f'{author_url}/posts/'
                     author_posts = get(posts_url, auth=HTTPBasicAuth(username, password)).json()
+                    breakpoint()
                     adapter = RemoteAdapter(author_posts)
                     adapted_posts = adapter.adapt_data()
    
