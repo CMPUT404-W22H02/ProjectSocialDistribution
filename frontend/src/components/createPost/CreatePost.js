@@ -66,10 +66,8 @@ export default function CreatePost () {
         "Authorization" : `Bearer ${token}`
         
         }})
-    .then((data) => console.log(data),
-    
-    addToast({description: "create post successfull",
-         status: 'success', isClosable: true, duration: 1000,})
+    .then((data) => addToast({description: "create post successfull",
+         status: 'success', isClosable: true, duration: 1000,}),
     
     ).catch((e)=>{
         console.log(e)
