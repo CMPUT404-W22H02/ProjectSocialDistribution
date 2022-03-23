@@ -26,7 +26,7 @@ async function fetchAllPosts() {
     return null;
   }
   
-
+  posts.sort((a, b) => b.published - a.published)
   return posts;
 }
 
