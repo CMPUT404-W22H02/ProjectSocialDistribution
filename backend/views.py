@@ -68,6 +68,10 @@ class UtilityAPI(APIView):
         "author": "",
         ritems: []
     }
+    posts_response_template = {
+        rtype: "posts",
+        ritems: []
+    }
 
     _author_id = 'author_id'
     _follower_id = 'follower_id'
@@ -597,7 +601,7 @@ class PublicFeedView(ListAPIView, UtilityAPI):
     # permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
-        public_posts = self.authors_response_template
+        public_posts = self.posts_response_template
         # Get all home content first
         home_host = self.request.get_host()
         queryset = Post.objects.filter(author__host=home_host, visibility='PUBLIC')
@@ -608,6 +612,7 @@ class PublicFeedView(ListAPIView, UtilityAPI):
         remote_nodes = Node.objects.all()
         for node in remote_nodes:
             api_domain = node.api_domain
+            api_prefix = node.api_prefix
             username = node.username
             password = node.password
 
@@ -619,7 +624,11 @@ class PublicFeedView(ListAPIView, UtilityAPI):
                 
                 for author in adapted_authors['items']:
                     author_url = author['url']
-                    posts_url = f'{author_url}/posts/'
+                    # Need to interpolate the api prefix as not all ids and urls are saved with it
+                    slice_from = author_url.find('authors/')
+                    author_uri = author['url'][slice_from:]
+                    
+                    posts_url = f'{api_domain}{author_uri}/posts/'
                     author_posts = get(posts_url, auth=HTTPBasicAuth(username, password)).json()
                     adapter = RemoteAdapter(author_posts)
                     adapted_posts = adapter.adapt_data()

@@ -28,6 +28,7 @@ CHAR_MAX = 255
 
 class Node(Model):
     api_domain = URLField(primary_key=True)
+    api_prefix = CharField(max_length=255, blank=True, null=True)
     username = CharField(max_length=255)
     password = CharField(max_length=255)
 
@@ -108,6 +109,7 @@ class Post(Model):
     description = CharField(max_length=50, blank=True)
 
     content_type = CharField(blank=True, max_length=255)
+    content = CharField(blank=True, max_length=5000)
 
     author = ForeignKey(Author, on_delete=CASCADE, null=True)
 

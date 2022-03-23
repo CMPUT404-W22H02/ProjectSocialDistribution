@@ -147,12 +147,12 @@ class RemoteAdapter():
             "source": (),
             "origin": (),
             "description": (),
-            "content_type": ("contentType"),
+            "content_type": ("contentType",),
             "author": (),
             "categories": (),
             "count": (),
             "comments": (),
-            "comments_src": ("commentsSrc"),
+            "comments_src": ("commentsSrc",),
             "published": (),
             "visibility": (),
             "unlisted": ()
@@ -227,20 +227,15 @@ class RemoteAdapter():
                 self.key_replacement(obj, field, field_adaptation[field])
 
     def key_replacement(self, obj, local_field, remote_fields):
-        """Finds the matching remote field and replaces the key with one compatible with our service."""
-        # Input cannot be adapted
-        if len(remote_fields) == 0:
-            obj.clear()
-            return
-        
+        """Finds the matching remote field and replaces the key with one compatible with our service."""      
         for field in remote_fields:
             try:
                 obj[local_field] = obj.pop(field)
             except Exception as e:
                 print(e)
-                obj.clear()
-                return
-        # Special case for no adapter fields exisxting
+        
+        # Field doesn't exist or there is no adapter for it
+        obj[local_field] = None
 
 # class AdapterBase():
 #     """Base adapter for all incoming content from remote Nodes."""
