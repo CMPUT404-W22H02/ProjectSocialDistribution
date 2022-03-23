@@ -71,8 +71,8 @@ export default function CreatePost () {
     const onSubmit = async values => {
     //window.alert(JSON.stringify(values, 0, 2));
     const id = identity.id
-    const token = localStorage.getItem("token")
-    const refreshToken = localStorage.getItem("refreshToken")
+    let token = localStorage.getItem("token")
+    let refreshToken = localStorage.getItem("refreshToken")
     console.log("--", token)
     console.log("-1-", refreshToken)
     let decodedToken = jwt_decode(token);
@@ -81,7 +81,8 @@ export default function CreatePost () {
     // JWT exp is in seconds
     if (decodedToken.exp * 1000 < currentDate.getTime()) {
         console.log("Token expired.");
-        Refresh.refreshToken().then(sendRequest(id, values, token));
+        Refresh.refreshToken().then(()=>{token = localStorage.getItem("token");
+          sendRequest(id, values, token)});
         
     } else {
         console.log("Valid token");  
