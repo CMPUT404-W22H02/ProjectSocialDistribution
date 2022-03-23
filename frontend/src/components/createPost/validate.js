@@ -14,7 +14,7 @@ const validate = values => {
     }
 
     if (!values.visibility) {
-      errors.visibility = 'You choose public'
+      errors.visibility = 'Please choose public/friend'
     } else if (values.visibility === 'true') {
       errors.visibility = 'You choose unpublic'
     }
