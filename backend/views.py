@@ -270,7 +270,7 @@ class PostsAPIView(ListCreateAPIView, UtilityAPI):
     pagination_class = CustomPagination
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     local_methods = ['POST']
 
     def get_queryset(self):

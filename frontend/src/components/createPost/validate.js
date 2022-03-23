@@ -1,16 +1,16 @@
 const validate = values => {
     const errors = {}
-    if (!values.Title) {
-      errors.Title = 'Required'
+    if (!values.title) {
+      errors.title = 'Required'
     }
-    if (!values.Description) {
-      errors.Description = 'Required'
+    if (!values.description) {
+      errors.description = 'Required'
     }
-    if (!values.Content) {
-        errors.Content = 'Required'
+    if (!values.content) {
+        errors.content = 'Required'
       }
-    if (!values.Categories) {
-    errors.Categories = 'Required'
+    if (!values.categories) {
+    errors.categories = 'Required'
     }
 
     if (!values.unlisted) {

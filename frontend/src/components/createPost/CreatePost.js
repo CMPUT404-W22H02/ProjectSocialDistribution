@@ -107,11 +107,11 @@ export default function CreatePost () {
                             as="form"
                             onSubmit={handleSubmit}
                         >
-                            <InputControl w={400} name="Title" label="Title" />
-                            <InputControl w={400} name="Description" label="Description" />
+                            <InputControl w={400} name="title" label="Title" />
+                            <InputControl w={400} name="description" label="Description" />
                             {!picture ?
 
-                                <InputControl name="Content" label="Content" />
+                                <InputControl name="content" label="Content" />
                                 :
                                 setShow(true)
                             }
@@ -123,9 +123,9 @@ export default function CreatePost () {
                                     onChange={onChangePicture} />
                                 <Button variant='outline' onClick={() => (setPicture(""))}>Remove</Button>
                             </ButtonGroup>
-                            <InputControl name="Categories" label="Categories" />
+                            <InputControl name="categories" label="Categories" />
 
-                            <CheckboxControl name="Public">Public</CheckboxControl>
+                            <CheckboxControl name="public">Public</CheckboxControl>
                             <Field
                                 name="unlisted"
                                 component={AdaptedRadioGroup}
