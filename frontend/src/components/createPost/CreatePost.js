@@ -26,6 +26,7 @@ import { Form, Field, useField, useForm } from "react-final-form";
 import validate from "./validate";
 import NavbarAdd from "../../components/navbar/NavbarAdd";
 import Identity from '../../model/Identity';
+import {Refresh} from "../../pages/login/Refresh"
 const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 //import Cookies from "universal-cookie";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -40,20 +41,27 @@ export default function CreatePost () {
     const toast = useToast()
     const toastIdRef = useRef()
     //const  author_id = props?.location?.state?.author_id
+    useEffect(() => {
+        //console.log("222")
+        const interval = setInterval(() => {
+          Refresh.refreshToken();
+        }, 50000);
+        return () => clearInterval(interval);
+      }, []);
     function addToast(toast_data) {
         toastIdRef.current = toast(toast_data)
     }
     const onChangePicture = e => {
         setPicture(URL.createObjectURL(e.target.files[0]));
     };
-    console.log(identity)
-    console.log(identity.id)
+    //console.log(identity)
+    //console.log(identity.id)
     //setId(identity.id)
     //setToken(identity.token)
     const id = identity.id
     const token = identity.token
-    console.log(id)
-    console.log(token)
+    //console.log(id)
+    //console.log(token)
     const onSubmit = async values => {
     await sleep(300);
     //window.alert(JSON.stringify(values, 0, 2));
