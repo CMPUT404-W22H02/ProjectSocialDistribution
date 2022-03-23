@@ -81,8 +81,8 @@ export default function CreatePost () {
     // JWT exp is in seconds
     if (decodedToken.exp * 1000 < currentDate.getTime()) {
         console.log("Token expired.");
-        Refresh.refreshToken();
-        sendRequest(id, values, token)
+        Refresh.refreshToken().then(sendRequest(id, values, token));
+        
     } else {
         console.log("Valid token");  
         sendRequest(id, values, token) 
