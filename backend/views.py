@@ -23,9 +23,9 @@ from requests.auth import HTTPBasicAuth
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import (CreateAPIView, ListAPIView,
-                                     ListCreateAPIView, RetrieveAPIView,
-                                     RetrieveUpdateAPIView,
-                                     RetrieveUpdateDestroyAPIView)
+                                     ListCreateAPIView, RetrieveUpdateAPIView,
+                                     RetrieveUpdateDestroyAPIView,
+                                     UpdateAPIView)
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -630,3 +630,15 @@ class PublicFeedView(ListAPIView, UtilityAPI):
                 print(e)
             
         return Response(data=public_posts)
+    
+class AdaptView(UpdateAPIView):
+    """PUT to this endpoint to run content through the adapter."""
+
+    authentication_classes = [JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        adapter = RemoteAdapter(request.data)
+        adapted_data = adapter.adapt_data()
+
+        return Response(adapted_data)

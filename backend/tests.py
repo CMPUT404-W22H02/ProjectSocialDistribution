@@ -640,7 +640,6 @@ class LikesAPITests(GenericTestCase):
         self.assertEqual(len(response.data['items']), 1)
         self.assertContains(response, self.author2.display_name)
 
-@tag('current')
 class InboxAPITests(GenericTestCase):
     def setUp(self):
         super().setUp()
@@ -789,3 +788,26 @@ class InboxAPITests(GenericTestCase):
 
         # Check that author1 has the follow request pending
         Follow.objects.get(object=self.author1)
+
+@tag('current')
+class AdapterTestCases(GenericTestCase):
+    """Test remote object adapter."""
+    def setUp(self):
+        super().setUp()
+        self.mock_authors()
+        self.url = f'{self.host}adapt'
+    
+    def test_author_adapter(self):
+        author = {
+            "type": "AUTHOr",           # Should adapt to "author"
+            "id": self.author1.id,      # Do nothing
+            "host": self.author1.host,  # Do nothing
+            "displayName": self.author1.display_name,   # Should adapt to "display_name"
+            "url": self.author1.url,    # Do nothing
+            "github": self.author1.github   # Do nothing
+        }
+        response = self.client.put(self.url, data=author)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data['type'], 'author')
+        self.assertContains(response, 'display_name')
+        self.assertNotContains(response, 'displayName')

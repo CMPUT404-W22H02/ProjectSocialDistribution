@@ -23,7 +23,8 @@ class RemoteAdapter():
     def adapt_data(self):
         """Execute object adaption, including nested objects."""
         obj = self.data
-        type = self.type_adapter(obj)
+        self.type_adapter(obj)
+        type = obj['type']
 
         # GET /authors/, can be paginated
         if type == 'authors':
@@ -33,7 +34,7 @@ class RemoteAdapter():
         
         # GET /authors/{id} remote
         elif type == 'author':
-            self.authors_adapter(obj)
+            self.author_adapter(obj)
         
         # GET /authors/{id}/followers
         elif type == 'followers':
@@ -103,8 +104,7 @@ class RemoteAdapter():
             type = self.key_replacement(obj, local_field, remote_fields)
 
         # Type values should all be lowercase
-        obj[local_field] = obj[local_field].lower()
-        return type            
+        obj[local_field] = (obj[local_field]).lower()      
 
     def authors_adapter(self, authors):
         for author in authors:

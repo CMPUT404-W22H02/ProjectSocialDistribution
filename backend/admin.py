@@ -16,7 +16,7 @@
 
 from django.contrib import admin
 
-from .models import NodeUser, Author, Post, Node, Comment, Like, Follow
+from .models import Author, Comment, Follow, Like, Node, NodeUser, Post
 
 admin.site.register(NodeUser)
 admin.site.register(Author)

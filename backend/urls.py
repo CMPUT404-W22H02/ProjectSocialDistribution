@@ -18,8 +18,8 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from .views import (AuthorDetailAPIView, AuthorLikedAPIView, AuthorsAPIView,
-                    CommentLikesAPIView, CommentsAPIView,
+from .views import (AdaptView, AuthorDetailAPIView, AuthorLikedAPIView,
+                    AuthorsAPIView, CommentLikesAPIView, CommentsAPIView,
                     FollowerDetailAPIView, FollowersAPIView, InboxAPIView,
                     PostDetailAPIView, PostLikesAPIView, PostsAPIView,
                     PublicFeedView)
@@ -48,6 +48,9 @@ urlpatterns = [
 
     # Public feed
     path('publicposts/', PublicFeedView.as_view(), name='public_posts'),
+
+    # Adapter
+    path('adapt', AdaptView.as_view(), name='adapter'),
 
     # Viewsets
     *router.urls
