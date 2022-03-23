@@ -99,6 +99,7 @@ class GenericTestCase(APITestCase):
             "author": "",
             "description": "",
             "count": 0,
+            "content": "",
             "comments": "",
             "published": "",
             "visibility": "PUBLIC",
@@ -443,6 +444,7 @@ class PostsAPITests(GenericTestCase):
             # "author": "", Nested field, test the foreign key relationship
             "description": "",
             "count": 0,
+            "content": "",
             # "comments": "", Same as id
             # "comment_src": [], Test comment_src content in CommentTests
             # "published": "", Authogenerated timestamp

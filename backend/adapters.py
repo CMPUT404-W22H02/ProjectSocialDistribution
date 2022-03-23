@@ -104,7 +104,7 @@ class RemoteAdapter():
         try:
             obj[local_field]
         except:
-            self.key_replacement(obj, local_field, remote_fields)
+            obj.clear()
 
         # Type values should all be lowercase
         if obj:
