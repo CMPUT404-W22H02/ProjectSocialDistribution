@@ -13,10 +13,10 @@ const validate = values => {
     errors.categories = 'Required'
     }
 
-    if (!values.unlisted) {
-      errors.unlisted = 'You choose unlisted'
-    } else if (values.unlisted === 'true') {
-      errors.unlisted = 'You choose listed'
+    if (!values.visibility) {
+      errors.visibility = 'You choose public'
+    } else if (values.visibility === 'true') {
+      errors.visibility = 'You choose unpublic'
     }
     return errors
   }

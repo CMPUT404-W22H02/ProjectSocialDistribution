@@ -56,7 +56,7 @@ export default function CreatePost () {
     console.log(token)
     const onSubmit = async values => {
     await sleep(300);
-    window.alert(JSON.stringify(values, 0, 2));
+    //window.alert(JSON.stringify(values, 0, 2));
     
 
     axios.post(`${id}/posts/`,
@@ -68,8 +68,8 @@ export default function CreatePost () {
         }})
     .then((data) => console.log(data),
     
-    // addToast({description: "create post successfull",
-    //     status: 'success', isClosable: true, duration: 1000,})
+    addToast({description: "create post successfull",
+         status: 'success', isClosable: true, duration: 1000,})
     
     ).catch((e)=>{
         console.log(e)
@@ -125,17 +125,17 @@ export default function CreatePost () {
                             </ButtonGroup>
                             <InputControl name="categories" label="Categories" />
 
-                            <CheckboxControl name="public">Public</CheckboxControl>
+                            <CheckboxControl name="unlisted">Unlisted</CheckboxControl>
                             <Field
-                                name="unlisted"
+                                name="visibility"
                                 component={AdaptedRadioGroup}
-                                label="Unlisted"
+                                label="Visibility"
                             >
-                                <Radio value="false" color="teal">
-                                    Unlisted
+                                <Radio value="PUBLIC" color="teal">
+                                     PUBLIC
                                 </Radio>
-                                <Radio value="true" color="green">
-                                    Listed
+                                <Radio value="FRIENDS" color="green">
+                                        FRIENDS
                                 </Radio>
                             </Field>
                             <PercentComplete size="sm" my={5} hasStripe isAnimated />
