@@ -59,7 +59,7 @@ export default function CreatePost () {
     window.alert(JSON.stringify(values, 0, 2));
     
 
-    axios.post(`${process.env.REACT_APP_API_URL}`+ 'authors/' + `${id}/posts/`,
+    axios.post(`${id}/posts/`,
     values, {
         headers: {
         'Content-Type': 'application/json',

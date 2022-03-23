@@ -41,7 +41,7 @@ function Login() {
     setShowPassword(!showPassword);
   }
   async function loginUser(credentials) {
-    return axios.post(`${process.env.REACT_APP_API_URL}login/`,
+    return axios.post('http://localhost:8000/login/',
     credentials, {
       headers: {
         'Content-Type': 'application/json'
