@@ -48,24 +48,7 @@ export default function CreatePost () {
     const onChangePicture = e => {
         setPicture(URL.createObjectURL(e.target.files[0]));
     };
-    const onSubmit = async values => {
-    //window.alert(JSON.stringify(values, 0, 2));
-    const id = identity.id
-    const token = localStorage.getItem("token")
-    const refreshToken = localStorage.getItem("refreshToken")
-    console.log("--", token)
-    console.log("-1-", refreshToken)
-    let decodedToken = jwt_decode(token);
-    let currentDate = new Date();
-
-    // JWT exp is in seconds
-    if (decodedToken.exp * 1000 < currentDate.getTime()) {
-        console.log("Token expired.");
-        Refresh.refreshToken();
-    } else {
-        console.log("Valid token");   
-        }
-        
+    function sendRequest(id, values, token){
       axios.post(`${id}/posts/`,
           values, {
               headers: {
@@ -83,7 +66,27 @@ export default function CreatePost () {
               status: 'error', isClosable: true, duration: 1000,})
               
           })
-    
+
+    }
+    const onSubmit = async values => {
+    //window.alert(JSON.stringify(values, 0, 2));
+    const id = identity.id
+    const token = localStorage.getItem("token")
+    const refreshToken = localStorage.getItem("refreshToken")
+    console.log("--", token)
+    console.log("-1-", refreshToken)
+    let decodedToken = jwt_decode(token);
+    let currentDate = new Date();
+
+    // JWT exp is in seconds
+    if (decodedToken.exp * 1000 < currentDate.getTime()) {
+        console.log("Token expired.");
+        Refresh.refreshToken();
+        sendRequest(id, values, token)
+    } else {
+        console.log("Valid token");  
+        sendRequest(id, values, token) 
+    }
     }
 
 
