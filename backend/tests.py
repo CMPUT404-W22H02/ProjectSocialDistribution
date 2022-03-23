@@ -98,6 +98,8 @@ class GenericTestCase(APITestCase):
             "origin": "",
             "author": "",
             "description": "",
+            "categories": "",
+            "comments_src": "",
             "count": 0,
             "content": "",
             "comments": "",
