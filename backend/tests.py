@@ -642,6 +642,7 @@ class LikesAPITests(GenericTestCase):
         self.assertEqual(len(response.data['items']), 1)
         self.assertContains(response, self.author2.display_name)
 
+@tag('current')
 class InboxAPITests(GenericTestCase):
     def setUp(self):
         super().setUp()
@@ -791,7 +792,6 @@ class InboxAPITests(GenericTestCase):
         # Check that author1 has the follow request pending
         Follow.objects.get(object=self.author1)
 
-@tag('current')
 class AdapterTestCases(GenericTestCase):
     """Test remote object adapter."""
     def setUp(self):

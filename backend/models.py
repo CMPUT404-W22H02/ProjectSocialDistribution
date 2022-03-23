@@ -108,17 +108,19 @@ class Post(Model):
     origin = URLField(blank=True)
     description = CharField(max_length=50, blank=True)
 
-    content_type = CharField(blank=True, max_length=255)
-    content = CharField(blank=True, max_length=5000)
+    content_type = CharField(blank=True, max_length=255, null=True)
+    content = CharField(blank=True, max_length=5000, null=True)
 
     author = ForeignKey(Author, on_delete=CASCADE, null=True)
 
     # SQLite does not support JSONField, so only enable for production
     # categories = JSONField(default=list)
+    categories = CharField(max_length=255, blank=True, null=True)
 
     # Comment data
     count = IntegerField(default=0)
     comments = URLField(blank=True)
+    comments_src = URLField(blank=True, null=True)
 
     # Post meta-data
     published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'), editable=False)

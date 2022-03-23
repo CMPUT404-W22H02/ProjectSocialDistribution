@@ -578,7 +578,17 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         return Response(response)
     
     def create(self, request, *args, **kwargs):
-        response = super().create(request, args, kwargs)
+        object = self.request.data.copy()
+        adapter = RemoteAdapter(object)
+        adapted_object = adapter.adapt_data()
+        self.request.data.update(adapted_object)
+
+        serializer = self.get_serializer(data=adapted_object)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        response = Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         
         # Link the local copy to the inbox
         inbox = self.get_object()

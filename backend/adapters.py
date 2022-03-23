@@ -232,7 +232,7 @@ class RemoteAdapter():
             try:
                 obj[local_field] = obj.pop(field)
             except Exception as e:
-                print(e)
+                pass
         
         # Field doesn't exist or there is no adapter for it
         obj[local_field] = None
