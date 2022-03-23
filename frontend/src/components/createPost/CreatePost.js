@@ -64,28 +64,25 @@ export default function CreatePost () {
         Refresh.refreshToken();
     } else {
         console.log("Valid token");   
-        axios.post(`${id}/posts/`,
-            values, {
-                headers: {
-                'Content-Type': 'application/json',
-                "Authorization" : `Bearer ${token}`
-                
-                }})
-            .then((data) => addToast({description: "create post successfull",
-                status: 'success', isClosable: true, duration: 1000,}),
-            
-            ).catch((e)=>{
-                console.log(e.response.status)
-                setStatus(e.response.status)
-                addToast({description: "create post not successfull",
-                status: 'error', isClosable: true, duration: 1000,})
-                
-            })
-    }
-
+        }
         
-
-
+      axios.post(`${id}/posts/`,
+          values, {
+              headers: {
+              'Content-Type': 'application/json',
+              "Authorization" : `Bearer ${token}`
+              
+              }})
+          .then((data) => addToast({description: "create post successfull",
+              status: 'success', isClosable: true, duration: 1000,}),
+          
+          ).catch((e)=>{
+              console.log(e.response.status)
+              setStatus(e.response.status)
+              addToast({description: "create post not successfull",
+              status: 'error', isClosable: true, duration: 1000,})
+              
+          })
     
     }
 
