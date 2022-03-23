@@ -27,7 +27,12 @@ loginUser(credentials) {
 async refreshToken(){
 
     if (Refresh.Identity.refreshToken === "" || Refresh.Identity.refreshToken == null) {
+        window.alert("Ops! Please login again!")
+        window.location.assign("/")
+        window.localStorage.clear();
+        window.sessionStorage.clear();
         throw Error("Attempt to refresh access token without a refresh token")
+        
     }
     await axios.post('http://localhost:8000/refresh/',
     {refresh: Refresh.Identity.refreshToken}, {

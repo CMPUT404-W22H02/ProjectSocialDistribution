@@ -56,7 +56,6 @@ export default function CreatePost () {
     console.log("--", token)
     console.log("-1-", refreshToken)
     let decodedToken = jwt_decode(token);
-    //console.log("Decoded Token", decodedToken);
     let currentDate = new Date();
 
     // JWT exp is in seconds
