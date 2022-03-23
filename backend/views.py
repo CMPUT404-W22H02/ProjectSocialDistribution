@@ -34,7 +34,7 @@ from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 
 from socialdisto.pagination import CustomPagination
 
-from .adapters import Team02Adapter, Team05Adapter, Team07Adapter
+from .adapters import RemoteAdapter
 from .models import Author, Comment, Inbox, Like, Node, NodeUser, Post
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
                           CommentSerializer, InboxCommentSerializer,
@@ -590,44 +590,42 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
             pass
         return response
 
-class PublicFeedView(ListAPIView):
+class PublicFeedView(ListAPIView, UtilityAPI):
     """Gathers public posts from all connected nodes."""
 
     # authentication_classes = [JWTTokenUserAuthentication]
     # permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
-        public_posts = []
+        public_posts = self.authors_response_template
         # Get all home content first
         home_host = self.request.get_host()
         queryset = Post.objects.filter(author__host=home_host, visibility='PUBLIC')
         serializer = PostDetailsSerializer(queryset, many=True)
-        public_posts.extend(serializer.data)
-
-        Node.objects.all().delete()
-
-        team_02 = Team02Adapter(None)
-        # team_05 = Team05Adapter()
-        # team_07 = Team07Adapter(None)
+        public_posts[self.ritems] += serializer.data
 
         # Remote content
-        # This all needs to be wrapped in adapters
         remote_nodes = Node.objects.all()
         for node in remote_nodes:
-            # TODO: dispatcher for each remote node
-            host = node.api_domain
+            api_domain = node.api_domain
             username = node.username
             password = node.password
 
             try:
-                authors_url = f'{host}authors/'
-                authors = get(authors_url, auth=HTTPBasicAuth(username, password)).json()['items']
+                authors_url = f'{api_domain}authors/'
+                authors = get(authors_url, auth=HTTPBasicAuth(username, password)).json()
+                adapter = RemoteAdapter(authors)
+                adapted_authors = adapter.adapt_data()
 
-                for author in authors:
-                    author_id = author['url'][author['url'].find('authors')+(len('/authors')):]
-                    author_posts_url = f'{authors_url}{author_id}/posts/'
-                    breakpoint()
-                    posts = get(author_posts_url, auth=HTTPBasicAuth(username, password)).json()['items']
+                for author in adapted_authors['items']:
+                    author_url = author['url']
+                    posts_url = f'{author_url}/posts/'
+                    author_posts = get(posts_url, auth=HTTPBasicAuth(username, password)).json()
+                    adapter = RemoteAdapter(author_posts)
+                    adapted_posts = adapter.adapt_data()
+   
+                    public_posts[self.ritems] += adapted_posts['items']
+
             except Exception as e:
                 print(e)
             
