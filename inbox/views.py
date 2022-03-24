@@ -18,16 +18,16 @@
 from django.http import Http404, HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from rest_framework import status
 from rest_framework.generics import ListCreateAPIView
 from rest_framework.mixins import DestroyModelMixin
-from rest_framework import status
-from socialdisto.pagination import  CustomPagination
 
 from accounts.models import Inbox, Post
-from accounts.serializers import (
-                          FollowRequestSerializer, 
-                          LikeSerializer,PostSerializer)
-    
+from accounts.serializers import (FollowRequestSerializer, LikeSerializer,
+                                  PostSerializer)
+from socialdisto.pagination import CustomPagination
+
+
 class InboxxView(ListCreateAPIView, DestroyModelMixin):
     
     queryset = Post.objects.all()

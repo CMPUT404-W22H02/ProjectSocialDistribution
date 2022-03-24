@@ -14,10 +14,25 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-from rest_framework.serializers import ModelSerializer
+from email.policy import default
+
+from rest_framework.serializers import (CharField, ModelSerializer,
+                                        ReadOnlyField)
 
 from .models import Comment, FollowRequest, Inbox, Like, NodeUser, Post
 
+
+class LoginSerializer(ModelSerializer):
+    username = CharField()
+    password = CharField()
+    class Meta:
+        model = NodeUser
+        ref_name = 'LogIn'
+        fields = ['username','password']
+class AuthorSerializer(ModelSerializer):
+  class Meta:
+      model = NodeUser
+      fields = ['username','password','id','author_id','type','host','display_name','url','github']
 
 class NodeUserSerializer(ModelSerializer):
 
@@ -48,6 +63,7 @@ class LikeSerializer(ModelSerializer):
         fields = '__all__'
 
 class PostSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Post.type))
     commentSrc = CommentSerializer(read_only=True)
 
     class Meta:

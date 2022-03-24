@@ -15,6 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from datetime import datetime
+from distutils.text_file import TextFile
 from uuid import uuid4
 
 from django.contrib.auth.models import AbstractUser
@@ -22,11 +23,13 @@ from django.db.models import (CASCADE, BooleanField, CharField, DateTimeField,
                               ForeignKey, IntegerField, ManyToManyField, Model,
                               OneToOneField, URLField, UUIDField)
 from django.utils.timezone import now
+from rest_framework.authtoken.models import Token
 
 
 class NodeUser(AbstractUser):
     # API fields
-    id = URLField(primary_key=True, max_length=255)
+    id = URLField(max_length=255,default=uuid4,blank=True,unique=True,verbose_name='url_id',editable=True)
+    author_id = UUIDField(primary_key=True, auto_created = True , default = uuid4)
     url = URLField()
     host = CharField(max_length=255)
     display_name = CharField(max_length=20, blank=False)
@@ -66,6 +69,7 @@ class Post(Model):
             ('image/jpeg;base64', 'image/jpeg;base64')
         )
     content_type = CharField(choices=content_choices, max_length=255)
+    content = CharField(max_length=10000, blank=True)
 
     author = ForeignKey(NodeUser, on_delete=CASCADE)
 

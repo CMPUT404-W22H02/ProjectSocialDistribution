@@ -17,28 +17,89 @@
 from uuid import uuid4
 
 import requests
+from django.contrib.auth import authenticate, login
 from django.http import Http404, HttpResponseBadRequest
-from django.template.response import TemplateResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.template.response import TemplateResponse
 from django.urls import reverse
 from django.views.generic.base import RedirectView
 from django.views.generic.edit import CreateView
-from rest_framework import status
-from rest_framework.generics import (CreateAPIView, ListAPIView,
-                                     ListCreateAPIView, RetrieveUpdateAPIView,
+from rest_framework import permissions, status
+from rest_framework.authtoken.models import Token
+from rest_framework.generics import (CreateAPIView, GenericAPIView,
+                                     ListAPIView, ListCreateAPIView,
+                                     RetrieveUpdateAPIView,
                                      RetrieveUpdateDestroyAPIView)
 from rest_framework.mixins import DestroyModelMixin
 from rest_framework.response import Response
 
-from socialdisto.pagination import CommentPagination, CustomPagination
+from socialdisto.pagination import *
 
 from .forms import RegistrationForm
-from .models import Comment, FollowRequest, Inbox, Like, NodeUser, Post
-from .serializers import (CommentCreationSerializer, CommentSerializer,
-                          FollowRequestSerializer, InboxSerializer,
-                          LikeSerializer, NodeUserSerializer, PostSerializer)
+from .models import *
+from .serializers import (AuthorSerializer, CommentCreationSerializer,
+                          CommentSerializer, FollowRequestSerializer,
+                          InboxSerializer, LikeSerializer, LoginSerializer,
+                          NodeUserSerializer, PostSerializer)
 
 
+class LoginAPI(GenericAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = LoginSerializer
+    def post(self, request):
+        username = request.data["username"]
+        password = request.data["password"]
+        user = authenticate(username=username, password=password)
+        print(user)
+        if user is not None:
+            login(request,user)
+            response = {
+                'detail': 'User logs in successfully!',
+                'id': user.author_id,
+                'token': Token.objects.get_or_create(user=user)[0].key
+            }
+            return Response(response, status=status.HTTP_200_OK)
+        else:
+            return Response({'detail': 'Incorrect Credentials'},status=status.HTTP_400_BAD_REQUEST)
+
+class SignupAPI(CreateAPIView):
+    permission_classes = [permissions.AllowAny]
+    serializer_class = AuthorSerializer
+    def post(self, request, *args, **kwargs):
+        try:
+            author = {}
+            author['username'] = request.data['username']
+            author['display_name'] = request.data['display_name']
+            author['password'] = request.data['password']
+            author["type"] = 'author'
+            author['host'] = 'http://'+request.get_host()+'/'
+            author['url'] = request.build_absolute_uri()
+            author['github'] = "http://github.com/"+request.data['github']
+        except:
+            return Response({'detail': 'Bad Input!'}, status=status.HTTP_400_BAD_REQUEST)
+        author_serializer = AuthorSerializer(data=author)
+        if author_serializer.is_valid():
+            author_serializer.save()
+            new_author = NodeUser.objects.get(username=author['username'])
+            new_author.set_password(author['password'])
+            new_author.save()
+            new_author = NodeUser.objects.filter(username=author['username'])
+            id = author_serializer.data['author_id']
+            new_author.update(url=author['url']+id)
+            new_author = NodeUser.objects.get(username=author['username'])
+            response = {
+                'detail': 'User creates succeed!',
+                'id': new_author.author_id,
+                'token': Token.objects.get_or_create(user=new_author)[0].key
+            }
+            return Response(response, status=status.HTTP_201_CREATED)
+
+        else :
+            print(author_serializer.errors)
+            response = {
+                'detail':'User created failed!'
+            }
+            return Response(response, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class RegisterCreateView(CreateView):
     template_name = 'accounts/register.html'
     form_class = RegistrationForm
@@ -452,8 +513,11 @@ class InboxView(ListCreateAPIView, DestroyModelMixin):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         elif request.data[self._type] == 'Post'or request.data[self._type] == 'post':
             return self.create_post(request, *args, **kwargs)
-        elif request.data[self._type] == 'Follow':
+        elif request.data[self._type] == 'follow':
             return self.create_follow(request, *args, **kwargs)
+        elif request.data[self._type] == 'comment':
+            return Response(status=status.HTTP_501_NOT_IMPLEMENTED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def create_post(self, request, *args, **kwargs):
         # Check if post already exists on the server
@@ -497,6 +561,17 @@ class InboxView(ListCreateAPIView, DestroyModelMixin):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_OK, headers=headers)
     
+    # TODO: Need to appropriately link a comment to the Post object without it showing up in the Post
+    # as comments sent to the inbox are private
+    def create_comment(self, request, *args, **kwargs):
+        kwargs['context'] = self.get_serializer_context()
+        serializer = CommentSerializer(*args, **kwargs)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
     def create_like(self, request, *args, **kwargs):
         # TODO: add protection against multiple likes, albeit unlikely to occur
         kwargs['context'] = self.get_serializer_context()
@@ -531,4 +606,5 @@ class InboxView(ListCreateAPIView, DestroyModelMixin):
         view_name = 'accounts:api_author_details'
         kwargs = {key: self.kwargs[key]}
         return self.request.get_host() + reverse(view_name, kwargs=kwargs)
+
 

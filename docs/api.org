@@ -1,0 +1,347 @@
+* Project Social Distribution API Documentation
+** Description
+
+This file specifies the expected payload fields for endpoints, as well as the return structure.
+
+As of the Project Part 1 release, authentication for remote requests has not been implemented, but
+future releases will expect HTTP Basic Auth, for which the (username, password) will be listed here.
+
+For future releases, endpoints marked as *local* will only be accepted with the site's local token authorization.
+*Remote* methods will be accessible via HTTP Basic Auth.
+
+*** Single Author
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}
+
+Methods:
+- GET [local, remote]: retrieve AUTHOR_ID's profile.
+- POST [local]: update AUTHOR_ID's profile.
+
+GET http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/
+#+BEGIN_SRC json
+{
+    # type cannot be edited with POST
+    "type": "author",
+    # id is returned fully qualified to the server
+    # id cannot be edited with POST
+    "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+    # url cannot be edited with POST
+    "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+    # host cannot be edited with POST
+    "host": "socialdisto.herokuapp.com",
+    "display_name": "John Doe",
+    "github": "https://github.com/johndoe"
+}
+#+END_SRC
+
+POST payload structure will include fields from the author model which should be updated. Content is partially
+updated, so fields not included in the POST content will be preserved on update.
+
+*** Authors on Server
+
+Endpoint: http://socialdisto.herokuapp.com/authors/
+
+Methods:
+- GET [local, remote]: retrieve all author profiles on the server, can be paginated with *page* and *size* query parameters.
+
+Individual author profile structures are consistent with a requests for a specific author profile.
+
+Unpaginated example: http://socialdisto.herokuapp.com/authors/authors/
+#+BEGIN_SRC json
+{
+    # No pagination template returned for unpaginated requests
+    "type": "authors",
+    "items": [
+        {
+            "type": "author",
+            "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+            "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+            "host": "socialdisto.herokuapp.com",
+            "display_name": "John Doe",
+            "github": "https://github.com/johndoe"
+        },
+        {
+            "type": "author",
+            "id": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+            "url": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+            "host": "socialdisto.herokuapp.com",
+            "display_name": "Jane Doe",
+            "github": "https://github.com/janedoe"
+        }
+    ]
+}
+#+END_SRC
+
+Paginated example: http://socialdisto.herokuapp.com/authors/?page=1&size=1
+#+BEGIN_SRC json
+{
+    # Pagination fields include page count, the next/previous page url, and the pagination results
+    "count": 2,
+    "next": "http://socialdisto.herokuapp.com/authors/?page=2&size=1",
+    "previous": null,
+    "results": {
+        "type": "authors",
+        "items": [
+            {
+                "type": "author",
+                "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                "host": "socialdisto.herokuapp.com",
+                "display_name": "John Doe",
+                "github": "https://github.com/johndoe"
+            }
+        ]
+    }
+}
+#+END_SRC
+
+*** Followers
+
+**** Followers of an Author
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/followers/
+
+Methods:
+- GET [local, remote]: get a list of authors who are AUTHOR_ID's followers.
+
+Follower items are of type author, and are consistent with the author profile structure.
+
+GET http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/followers/
+#+BEGIN_SRC json
+{
+    "type": "followers",
+    "items": [
+        {
+            "type": "author",
+            "id": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+            "url": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+            "host": "socialdisto.herokuapp.com",
+            "display_name": "Jane Doe",
+            "github": "https://github.com/janedoe"
+        }
+    ]
+}
+#+END_SRC
+
+**** Specific Follower
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
+
+Methods:
+- GET [local, remote]: check if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID.
+- PUT [local]: Add FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID (authentication required).
+- DELETE [local]: remove FOREIGN_AUTHOR_ID as a follower of AUTHOR_ID.
+
+GET return structure will be identical to the followers/ endpoint, except it will return only a single follower item
+corresponding to the author profile of FOREIGN_AUTHOR_ID.
+
+*** Friend Requests
+
+The object which is sent to the inbox of an author, requesting bi-directional friendship between two authors.
+#+BEGIN_SRC json
+{
+    "type": "follow",      
+    "summary": "John wants to follow Jane",
+    # Actor is the author sending the request
+    "actor": {
+        "type": "author",
+        "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+        "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+        "host": "socialdisto.herokuapp.com",
+        "display_name": "John Doe",
+        "github": "https://github.com/johndoe"
+    },
+    # Object is the request recipient
+    "object": {
+        "type": "author",
+        "id": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+        "url": "http://socialdisto.herokuapp.com/authors/da3c414d-7727-422e-91b9-c492b66f2386/",
+        "host": "socialdisto.herokuapp.com",
+        "display_name": "Jane Doe",
+        "github": "https://github.com/janedoe"
+    }
+}
+    
+#+END_SRC
+
+*** Posts
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/{POST_ID}
+
+Methods:
+- GET [local, remote]: get the public post with id POST_ID.
+- POST [local]: update the post with id POST_ID (authentication required).
+- DELETE [local]: remove the post with id POST_ID.
+- PUT [local]: create a post with id POST_ID.
+
+GET http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed
+#+BEGIN_SRC json
+{
+    "type": "post",
+    # Fully qualified id of the post
+    # POST_ID must be unique to the server for creation to succeed
+    "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed", 
+    # Post title is required for creation
+    "title": "My Very First Post!",
+    # Post source and origin are optional fields for creation
+    "source": "https://en.wikipedia.org/wiki/Lorem_ipsum",
+    "origin": "https://en.wikipedia.org/wiki/Lorem_ipsum",
+    # Post description is required for creation
+    "description": "A rather meaningless post wouldn't you agree?",
+    # Only text/plain currently supported
+    "content_type": "text/plain",
+    # Post content is required for creation
+    "content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    # Total number of comments for the post
+    "count": 0,
+    # The first page of comments for the post
+    # commentSrc field to be implemented for GET
+    "comments": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed/comments/",
+    # ISO 8601 TIMESTAMP
+    "published": "2022-03-04T17:50:14Z",
+    # Visibility can be PUBLIC or FRIENDS, but only PUBLIC functionality currently implemented
+    "visibility": "PUBLIC",
+    "unlisted": false,
+    "author": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/"
+}
+#+END_SRC
+
+*** Posts Creation URL
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/
+
+Methods:
+- GET [local, remote]: get the recent posts from author AUTHOR_ID, can be paginated.
+- POST [local]: create a new post with a newly generated id.
+
+*** Image Posts
+
+Not currently supported.
+
+*** Comments
+
+**** Posts
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/
+
+Methods:
+- GET [local, remote]: get the list of comments of the post with id POST_ID, automatically paginated to page=1, size=5.
+- POST [local] add a comment object to the Post with id POST_ID.
+
+GET http://socialdistodev.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed/comments/
+#+BEGIN_SRC json
+{
+    # Pagination fields
+    "count": 1,
+    "next": null,
+    "previous": null,
+    # Results contain the list of comments associated with POST_ID sorted by newest first.
+    "results": {
+        "type": "comments",
+        "items": [
+            {
+                "type": "comment",
+                "author": {
+                    "type": "author",
+                    "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                    "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                    "host": "socialdisto.herokuapp.com",
+                    "display_name": "John Doe",
+                    "github": "https://github.com/johndoe"
+                },
+                "comment": "A very interesting read!",
+                "published": "2022-03-04T17:50:14Z",
+                "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed/comments/e4991956-7b9f-4324-b8ff-4febde1dd91f"
+            }
+        ]
+    }
+}
+#+END_SRC
+
+**** Specific Comment
+
+Not currently supported.
+
+*** Likes
+
+#+BEGIN_SRC json
+{
+    # Like structure reference    
+    "@context": "https://www.w3.org/ns/activitystreams",
+    "summary": "John Doe likes your post",         
+    "type": "like",
+    # Author sending the like
+    "author":{
+        "type": "author",
+        "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+        "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+        "host": "socialdisto.herokuapp.com",
+        "display_name": "John Doe",
+        "github": "https://github.com/johndoe"
+        },
+    # Object the like is referencing
+    "object": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed"
+}
+#+END_SRC
+
+**** Inbox
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/inbox
+
+Methods:
+- POST [local, remote]: send a Like object to AUTHOR_ID's inbox.
+
+**** Posts
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/{POST_ID}/likes
+
+Methods:
+- GET [local, remote]: retrieve a list of likes from AUTHOR_ID's post POST_ID
+
+**** Comments
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/posts/{POST_ID}/comments/{COMMENT_ID}/likes
+
+Not current supported.
+
+*** Liked
+
+Endpoint: http://socialdistodev.herokuapp.com/authors/{AUTHOR_ID}/liked
+
+Methods:
+- GET [local, remote]: retrieve a list of public objects AUTHOR_ID liked.
+
+#+BEGIN_SRC json
+{
+    "type": "liked",
+    "items": [
+        {
+            "@context": "https://www.w3.org/ns/activitystreams",
+            "summary": "John Doe likes your post",         
+            "type": "like",
+            "author":{
+                "type": "author",
+                "id": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                "url": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/",
+                "host": "socialdisto.herokuapp.com",
+                "display_name": "John Doe",
+                "github": "https://github.com/johndoe"
+            },
+            "object": "http://socialdisto.herokuapp.com/authors/445c0898-6458-458c-8fca-68a31a3a465d/posts/9e86354c-53b1-4500-803c-81110498a3ed"
+        }  
+    ]
+}
+#+END_SRC
+
+*** Inbox
+
+Endpoint: http://socialdisto.herokuapp.com/authors/{AUTHOR_ID}/inbox
+
+Methods:
+- GET [local]: list of paginated Posts send to AUTHOR_ID's inbox, must be authenticated.
+- POST [local, remote]: send an object to AUTHOR_ID's inbox where:
+    - "type": "post", add the Post to AUTHOR_ID's inbox.
+    - "type": "follow", add the Follow to AUTHOR_ID's inbox to approve later.
+    - "type": "like", add the Like to AUTHOR_ID's inbox.
+    - "type": "comment", add the Comment to AUTHOR_ID's inbox.
+- DELETE [local]: clear the inbox (not currently supported).

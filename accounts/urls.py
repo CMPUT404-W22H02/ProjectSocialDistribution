@@ -18,23 +18,25 @@ from django.urls import include, path
 from rest_framework.urlpatterns import format_suffix_patterns
 
 from .views import (AuthorDetailView, AuthorLikedView, AuthorListView,
-                    CommentListView, FollowerExistsView, FollowerListView,
-                    HomeRedirectView, InboxView, LoggedInRedirectView,
-                    PostDetailView, PostLikesView, PostListView,
-                    RegisterCreateView, ProfileView,
-                    CreatePost, DisplayPostView, UserInboxView)
+                    CommentListView, CreatePost, DisplayPostView,
+                    FollowerExistsView, FollowerListView, HomeRedirectView,
+                    InboxView, LoggedInRedirectView, LoginAPI, PostDetailView,
+                    PostLikesView, PostListView, ProfileView,
+                    RegisterCreateView, SignupAPI, UserInboxView)
 
 app_name = 'accounts'
 
 urlpatterns = [
-    path('', include('django.contrib.auth.urls')),
-    path('', HomeRedirectView.as_view(), name='home'),
-    path('create/', CreatePost.as_view(), name="create_post_view"),
-    path('profile/', ProfileView.as_view(), name='profile_view'),
-    path('register/', RegisterCreateView.as_view(), name='register'),
-    path('home/', LoggedInRedirectView.as_view(), name='logged_in'),
-    path('post/<path:url>', DisplayPostView.as_view(), name="post_display"),
-    path('inbox', UserInboxView.as_view(), name="user_inbox"),
+    #path('', include('django.contrib.auth.urls')),
+    #path('', HomeRedirectView.as_view(), name='home'),
+    #path('create/', CreatePost.as_view(), name="create_post_view"),
+    #path('profile/', ProfileView.as_view(), name='profile_view'),
+    #path('register/', RegisterCreateView.as_view(), name='register'),
+    #path('home/', LoggedInRedirectView.as_view(), name='logged_in'),
+    #path('post/<path:url>', DisplayPostView.as_view(), name="post_display"),
+    #path('inbox', UserInboxView.as_view(), name="user_inbox"),
+    path('login/', LoginAPI.as_view()),
+    path('signup/', SignupAPI.as_view()),
 
     # REST API endpoints
     path('authors/', AuthorListView.as_view(), name='api_author_list'),
