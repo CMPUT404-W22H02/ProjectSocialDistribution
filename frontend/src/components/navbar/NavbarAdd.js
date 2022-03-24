@@ -23,7 +23,7 @@ import { useState, } from "react";
 import Identity from "../../model/Identity";
 import React from 'react';
 let identity = Identity.GetIdentity();
-function Navbar() {
+function NavbarAdd() {
   const [userName, setUserName] = useState(identity.username);
 
   const signOut= () => {
@@ -76,4 +76,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default NavbarAdd;

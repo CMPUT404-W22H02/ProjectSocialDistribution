@@ -1,5 +1,3 @@
-
-
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import {
@@ -41,7 +39,7 @@ function Login() {
     setShowPassword(!showPassword);
   }
   async function loginUser(credentials) {
-    return axios.post(`${process.env.REACT_APP_API_URL}login/`,
+    return axios.post(`${process.env.REACT_APP_API_URL}/login/`,
     credentials, {
       headers: {
         'Content-Type': 'application/json'

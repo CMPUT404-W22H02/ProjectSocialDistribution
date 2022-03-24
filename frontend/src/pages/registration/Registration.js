@@ -83,7 +83,7 @@ export default function JoinOurTeam() {
     target.append("password",password1)
     target.append("display_name",display_name)
     axios
-      .post(`${base_url}register/`, target,{
+      .post(`${base_url}/register/`, target,{
         headers: {
           "Content-Type": "multipart/form-data",
          
