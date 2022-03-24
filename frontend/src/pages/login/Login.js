@@ -22,9 +22,10 @@ let UserIdentity = Identity.GetIdentity();
 //console.log(UserIdentity)
 
 function Login() {
-  if (Identity.GetIdentity().IsAuthenticated()) {
-    window.location.assign("/home")
-}
+//   if (Identity.GetIdentity().IsAuthenticated()) {
+//     window.location.assign("/home")
+//     console.log(Identity.GetIdentity().refreshToken)
+// }
   //function Login({ setToken }) {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
@@ -41,23 +42,6 @@ function Login() {
 
   function handleShowClick() {
     setShowPassword(!showPassword);
-  }
-  async function loginUser(credentials) {
-    return axios.post(`${process.env.REACT_APP_API_URL}/login/`,
-    credentials, {
-      headers: {
-        'Content-Type': 'application/json'
-       
-      }})
-    .then((data) => data,
-    
-    ).catch((e)=>{
-      setUserName("")
-      setPassword("")
-      addToast({description: "username/password is not correct",
-      status: 'error', isClosable: true, duration: 1000,})
-      
-    })
   }
 
   const handleLoginClick= async e=> {
