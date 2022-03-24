@@ -26,6 +26,8 @@ import { Form, Field, useField, useForm } from "react-final-form";
 import validate from "./validate";
 import NavbarAdd from "../../components/navbar/NavbarAdd";
 import Identity from '../../model/Identity';
+import {Refresh} from "../../../src/auth/Refresh"
+import jwt_decode from "jwt-decode";
 const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 //import Cookies from "universal-cookie";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -33,50 +35,59 @@ let identity = Identity.GetIdentity();
 
 export default function CreatePost () {
     //const { id, setId } = useState(identity.id);
-    //const { token, setToken } = useState(identity.token);
-    const { refreshToken, setRefreshToken } = useState(identity.refreshToken);
+    //const { token, setToken } = useState(localStorage.getItem("token"));
+    //const { refreshToken, setRefreshToken } = useState(localStorage.getItem("refreshToken"));
     const [picture, setPicture] = useState('');
     const [show, setShow] = useState(false);
-    const toast = useToast()
-    const toastIdRef = useRef()
-    //const  author_id = props?.location?.state?.author_id
+    const toast = useToast();
+    const toastIdRef = useRef();
+    const [status , setStatus]= useState();
     function addToast(toast_data) {
         toastIdRef.current = toast(toast_data)
     }
     const onChangePicture = e => {
         setPicture(URL.createObjectURL(e.target.files[0]));
     };
-    console.log(identity)
-    console.log(identity.id)
-    //setId(identity.id)
-    //setToken(identity.token)
-    const id = identity.id
-    const token = identity.token
-    console.log(id)
-    console.log(token)
-    const onSubmit = async values => {
-    await sleep(300);
-    window.alert(JSON.stringify(values, 0, 2));
-    
+    function sendRequest(id, values, token){
+      axios.post(`${id}/posts/`,
+          values, {
+              headers: {
+              'Content-Type': 'application/json',
+              "Authorization" : `Bearer ${token}`
+              
+              }})
+          .then((data) => addToast({description: "create post successfull",
+              status: 'success', isClosable: true, duration: 1000,}),
+          
+          ).catch((e)=>{
+              console.log(e.response.status)
+              setStatus(e.response.status)
+              addToast({description: "create post not successfull",
+              status: 'error', isClosable: true, duration: 1000,})
+              
+          })
 
-    axios.post(`${id}/posts/`,
-    values, {
-        headers: {
-        'Content-Type': 'application/json',
-        "Authorization" : `Bearer ${token}`
+    }
+    const onSubmit = async values => {
+    //window.alert(JSON.stringify(values, 0, 2));
+    const id = identity.id
+    let token = localStorage.getItem("token")
+    let refreshToken = localStorage.getItem("refreshToken")
+    console.log("--", token)
+    console.log("-1-", refreshToken)
+    let decodedToken = jwt_decode(token);
+    let currentDate = new Date();
+
+    // JWT exp is in seconds
+    if (decodedToken.exp * 1000 < currentDate.getTime()) {
+        console.log("Token expired.");
+        Refresh.refreshToken().then(()=>{token = localStorage.getItem("token");
+          sendRequest(id, values, token)});
         
-        }})
-    .then((data) => console.log(data),
-    
-    // addToast({description: "create post successfull",
-    //     status: 'success', isClosable: true, duration: 1000,})
-    
-    ).catch((e)=>{
-        console.log(e)
-        addToast({description: "create post not successfull",
-        status: 'error', isClosable: true, duration: 1000,})
-        
-    })
+    } else {
+        console.log("Valid token");  
+        sendRequest(id, values, token) 
+    }
     }
 
 
@@ -125,17 +136,17 @@ export default function CreatePost () {
                             </ButtonGroup>
                             <InputControl name="categories" label="Categories" />
 
-                            <CheckboxControl name="public">Public</CheckboxControl>
+                            <CheckboxControl name="unlisted">Unlisted</CheckboxControl>
                             <Field
-                                name="unlisted"
+                                name="visibility"
                                 component={AdaptedRadioGroup}
-                                label="Unlisted"
+                                label="Visibility"
                             >
-                                <Radio value="false" color="teal">
-                                    Unlisted
+                                <Radio value="PUBLIC" color="teal">
+                                     PUBLIC
                                 </Radio>
-                                <Radio value="true" color="green">
-                                    Listed
+                                <Radio value="FRIENDS" color="green">
+                                        FRIENDS
                                 </Radio>
                             </Field>
                             <PercentComplete size="sm" my={5} hasStripe isAnimated />

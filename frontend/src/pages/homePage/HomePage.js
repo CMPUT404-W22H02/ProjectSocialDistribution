@@ -5,8 +5,12 @@ import {
 } from "@chakra-ui/react";
 import Navbar from "../../components/navbar";
 import Post from "../../components/post";
-
 function HomePage() {
+
+
+
+
+
   return (
     <Box height="100vh">
       <Navbar/>
