@@ -26,7 +26,7 @@ import { SmallCloseIcon } from '@chakra-ui/icons';
 
 
 export default function JoinOurTeam() {
-  const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+  const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000/';
   
   const [token, setToken]=useState("");
   const [refrensh, setRefrensh]=useState("");
@@ -71,7 +71,7 @@ export default function JoinOurTeam() {
       "images": picture,
       "display_name":display_name
   }
-  console.log(data)
+  //console.log(data)
   
 
 
@@ -102,8 +102,8 @@ export default function JoinOurTeam() {
         console.log(response)
         setToken(response.data.token)
         setRefrensh(response.data.refresh)
-        console.log(response.data.refresh)
-        console.log(response.data.token)
+        //console.log(response.data.refresh)
+        //console.log(response.data.token)
 
 
       })

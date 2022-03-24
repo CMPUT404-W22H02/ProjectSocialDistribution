@@ -50,10 +50,10 @@ const onChangePicture = e => {
 setPicture(URL.createObjectURL(e.target.files[0]));
 };
 //console.log(token,"---")
-console.log(identity)
+//console.log(identity)
 const author_id =  identity.id
 const token = identity.token
-console.log(author_id)
+//console.log(author_id)
 useEffect(()=>{ 
     axios.get(`${author_id}`,
     {
@@ -67,19 +67,19 @@ useEffect(()=>{
     const info = res.data;
     if(info.id){
         setValue( info );
-        console.log(token)
+        //console.log(token)
 
     } 
     else{
         setValue(info.data[0])
     }
-    console.log(res)
+    //console.log(res)
     setUserName(info.username)
     setDisplay_name(info.display_name)
         
     }).catch(e => {
         console.log("error-----")
-        console.log(token)
+        //console.log(token)
         console.log(e)
     })
 },[])
