@@ -5,7 +5,7 @@ async function fetchAllPosts() {
   const posts = [];
 
   try {
-    const response = await axios.get(`${process.env.REACT_APP_API_URL}/authors/`, {
+    const response = await axios.get(`${process.env.REACT_APP_API_URL}authors/`, {
       headers: {
         Authorization: "Bearer " + Identity.GetIdentity().token
       }});
