@@ -21,7 +21,9 @@ function HomePage() {
   }, []);
 
   return (
-    <Box height="100vh">
+    <Box 
+    margin="-20px"
+    height="100vh">
       <Navbar/>
       <Flex flexDirection="column" align="center">
         <VStack spacing="4">
