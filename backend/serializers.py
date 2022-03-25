@@ -174,3 +174,25 @@ class InboxCommentSerializer(ModelSerializer):
         validated_data['post'] = self.context['post']
         return super().create(validated_data)
 
+class InboxLikeSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Like.type))
+
+    class Meta:
+        model = Like
+        exclude = ['author']
+    
+    def create(self, validated_data):
+        validated_data['author'] = self.context['author']
+        return super().create(validated_data)
+
+class InboxFollowSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Follow.type))
+
+    class Meta:
+        model = Follow
+        exclude = ['actor', 'object']
+    
+    def create(self, validated_data):
+        validated_data['actor'] = self.context['actor']
+        validated_data['object'] = self.context['object']
+        return super().create(validated_data)
