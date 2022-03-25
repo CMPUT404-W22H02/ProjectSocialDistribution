@@ -308,15 +308,12 @@ const onsubmitValueLike = (current_user, follower) => {
     catch (error) {
       console.log(error);
     }
-<<<<<<< HEAD
   }
 
   const handleCommentInput = (event) => {
     setCommentInput(event.target.value);
   }
 
-=======
->>>>>>> 2a5b22327ed7f920d4b800064f1cd6018bd2b8dd
   return (
     <Flex width="50rem" minH="10rem" boxShadow="lg" py="2" alignContent="center" flexDirection="column">
       <Stack direction="column" spacing="3" px="4" justify="space-between">
