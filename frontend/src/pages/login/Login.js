@@ -22,12 +22,14 @@ let UserIdentity = Identity.GetIdentity();
 //console.log(UserIdentity)
 
 function Login() {
-  if (Identity.GetIdentity().IsAuthenticated()) {
-    window.location.assign("/home")
-}
+//   if (Identity.GetIdentity().IsAuthenticated()) {
+//     window.location.assign("/home")
+//     console.log(Identity.GetIdentity().refreshToken)
+// }
   //function Login({ setToken }) {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading]=useState(false)
   
   const [showPassword, setShowPassword] = useState(false);
   
@@ -42,26 +44,9 @@ function Login() {
   function handleShowClick() {
     setShowPassword(!showPassword);
   }
-  async function loginUser(credentials) {
-    return axios.post(`${process.env.REACT_APP_API_URL}/login/`,
-    credentials, {
-      headers: {
-        'Content-Type': 'application/json'
-       
-      }})
-    .then((data) => data,
-    
-    ).catch((e)=>{
-      setUserName("")
-      setPassword("")
-      addToast({description: "username/password is not correct",
-      status: 'error', isClosable: true, duration: 1000,})
-      
-    })
-  }
-
   const handleLoginClick= async e=> {
     e.preventDefault();
+    setLoading(true)
     Refresh.loginUser({
       username,
       password
@@ -85,6 +70,7 @@ function Login() {
       backgroundColor="gray.200"
       justifyContent="center"
       alignItems="center"
+      margin="-20px"
     >
       <Stack
         flexDirection="column"
@@ -119,7 +105,7 @@ function Login() {
                   </InputRightElement>
                 </InputGroup>
               </FormControl>
-              <Button variant="solid" colorScheme="teal" width="full" onClick={handleLoginClick}>
+              <Button variant="solid" isLoading ={loading} colorScheme="teal" width="full" onClick={handleLoginClick}>
                 Login
               </Button>
             </Stack>
