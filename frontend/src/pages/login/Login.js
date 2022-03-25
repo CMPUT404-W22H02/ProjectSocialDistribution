@@ -29,6 +29,7 @@ function Login() {
   //function Login({ setToken }) {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading]=useState(false)
   
   const [showPassword, setShowPassword] = useState(false);
   
@@ -43,9 +44,9 @@ function Login() {
   function handleShowClick() {
     setShowPassword(!showPassword);
   }
-
   const handleLoginClick= async e=> {
     e.preventDefault();
+    setLoading(true)
     Refresh.loginUser({
       username,
       password
@@ -104,7 +105,7 @@ function Login() {
                   </InputRightElement>
                 </InputGroup>
               </FormControl>
-              <Button variant="solid" colorScheme="teal" width="full" onClick={handleLoginClick}>
+              <Button variant="solid" isLoading ={loading} colorScheme="teal" width="full" onClick={handleLoginClick}>
                 Login
               </Button>
             </Stack>
