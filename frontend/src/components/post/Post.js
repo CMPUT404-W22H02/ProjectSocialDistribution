@@ -63,16 +63,21 @@ function Post({ postData }) {
     .then(res => { 
     const info = res.data;
     if(info.id){
+      console.log("--",info)
       var follower = info.display_name
       onsubmitValue(info, follower);
     } 
     else{
+      console.log("===", info.data[0])
       var follower = info.data[0].display_name
       onsubmitValue(info.data[0], follower);
     }
         
     }).catch(e => {
         console.log("error-----")
+        addToast({description: "Do not send again!",
+              status: 'info', isClosable: true, duration: 1000,})
+
         console.log(e)
     })
 }
