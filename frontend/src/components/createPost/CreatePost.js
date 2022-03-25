@@ -28,7 +28,7 @@ import NavbarAdd from "../../components/navbar/NavbarAdd";
 import Identity from '../../model/Identity';
 import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
-const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000/';
 //import Cookies from "universal-cookie";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let identity = Identity.GetIdentity();
@@ -49,18 +49,18 @@ export default function CreatePost () {
         setPicture(URL.createObjectURL(e.target.files[0]));
     };
     function getAllFollowers(id, values, token ){
-      axios.get(`${base_url}authors/${id}/followers`, {
+      axios.get(`${base_url}authors/`, {
               headers: {
               'Content-Type': 'application/json',
               "Authorization" : `Bearer ${token}`
               
               }})
           .then((data) => {
-            const followersList = data.data.items;
-            console.log("--",followersList)
-
-            for (let author of followersList) {
-              const response = axios.post(`authors/${author.id}/inbox`, 
+            console.log(data.data.items)
+            values['type']='post'
+            for (let author of data.data.items) {
+              console.log(author)
+              const response = axios.post(`${author.id}/inbox`, 
               values,
               {
                 headers: {
@@ -143,11 +143,11 @@ export default function CreatePost () {
         console.log("Valid token");  
         sendRequest(id, values, token) ;
         console.log(values.visibility==="FRIENDS")
-        if (values.visibility==="FRIENDS"){
-          console.log(id)
+        /*if (values.visibility==="FRIENDS"){
+          console.log(id)*/
           let id_uuid = id.slice(-36, id.length)
           getAllFollowers(id_uuid, values, token)
-        }
+        
     }
     }
 

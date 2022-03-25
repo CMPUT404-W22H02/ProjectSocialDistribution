@@ -23,7 +23,7 @@ import {
   InputGroup,
   InputRightAddon
 } from "@chakra-ui/react";
-import { FaComment, FaThumbsUp } from "react-icons/fa";
+import { FaComment, FaThumbsUp, FaShare } from "react-icons/fa";
 import Identity from "../../model/Identity";
 import EditDialog from "../editDialog";
 import Comment from "../comment";
@@ -55,6 +55,132 @@ function Post({ postData }) {
   // TODO: check with userID to hide/show edit dialog button
   var [post_author_id, setPostAuthId] = useState(postData.author.id)
   const author = postData.author.display_name
+  const onShare = () =>{ 
+
+
+    axios.get(`${current_user_id}`,
+    {
+        headers: {
+        "Content-Type": "application/json",
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+
+        },
+    })
+    .then(res => { 
+    let values = {}
+    values['title'] = postData.title;
+    values['source'] = postData.id;
+    values['description'] = postData.description;
+    values['categories'] = postData.categories;
+    values['visibility'] = postData.visibility;
+    values['unlisted'] = postData.unlisted;
+    current_user_id=current_user_id.slice(-36, current_user_id.length)
+    axios.post(base_url+`authors/${current_user_id}/posts/`,
+    values, {
+        headers: {
+        'Content-Type': 'application/json',
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+        
+        }})
+    .then((data) => addToast({description: "send follow successfull",
+        status: 'success', isClosable: true, duration: 1000,}),
+    
+    ).catch((e)=>{
+        console.log(e.response.status)
+        setStatus(e.response.status)
+        addToast({description: "send follow not successfull",
+        status: 'error', isClosable: true, duration: 1000,})
+        
+    })
+
+
+
+})
+  }
+  
+  const onSubmitLike = () =>{ 
+
+
+    axios.get(`${current_user_id}`,
+    {
+        headers: {
+        "Content-Type": "application/json",
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+
+        },
+    })
+    .then(res => { 
+    const info = res.data;
+    if(info.id){
+      var follower = info.display_name
+      onsubmitValueLike(info, follower);
+    } 
+    else{
+      
+      var follower = info.data[0].display_name
+      onsubmitValueLike(info.data[0], follower);
+    }
+        
+    }).catch(e => {
+        console.log("error-----")
+        addToast({description: "Do not send again!",
+              status: 'info', isClosable: true, duration: 1000,})
+
+        console.log(e)
+    })
+}
+const sendLike=((values, token)=>{
+  post_author_id=post_author_id.slice(-36, post_author_id.length)
+  current_user_id=current_user_id.slice(-36, current_user_id.length)
+
+  axios.post(base_url+`authors/${post_author_id}/inbox`,
+        values, {
+            headers: {
+            'Content-Type': 'application/json',
+            "Authorization" : `Bearer ${token}`
+            
+            }})
+        .then((data) => addToast({description: "send follow successfull",
+            status: 'success', isClosable: true, duration: 1000,}),
+        
+        ).catch((e)=>{
+            console.log(e.response.status)
+            setStatus(e.response.status)
+            addToast({description: "send follow not successfull",
+            status: 'error', isClosable: true, duration: 1000,})
+            
+        })
+
+
+
+})
+
+const onsubmitValueLike = (current_user, follower) => {
+  
+  const values ={"type": "like", 
+  "summary":`${follower} Likes your post.`, 
+  "author": postData.author,
+  "object": postData.id}
+  // console.log("author", postData.author)
+  // console.log("user", current_user)
+  // console.log("CURR", current_user_id)
+  console.log(values)
+
+  let token = localStorage.getItem("token")
+  let decodedToken = jwt_decode(token);
+  let currentDate = new Date();
+
+  // JWT exp is in seconds
+  if (decodedToken.exp * 1000 < currentDate.getTime()) {
+      console.log("Token expired.");
+      Refresh.refreshToken().then(()=>{token = localStorage.getItem("token");
+        sendLike(values, token)});
+      
+  } else {
+      console.log("Valid token");  
+      sendLike(values, token) 
+  }
+  }
   const onSubmit = () =>{ 
     axios.get(`${current_user_id}`,
     {
@@ -182,12 +308,15 @@ function Post({ postData }) {
     catch (error) {
       console.log(error);
     }
+<<<<<<< HEAD
   }
 
   const handleCommentInput = (event) => {
     setCommentInput(event.target.value);
   }
 
+=======
+>>>>>>> 2a5b22327ed7f920d4b800064f1cd6018bd2b8dd
   return (
     <Flex width="50rem" minH="10rem" boxShadow="lg" py="2" alignContent="center" flexDirection="column">
       <Stack direction="column" spacing="3" px="4" justify="space-between">
@@ -214,8 +343,11 @@ function Post({ postData }) {
         </Container>
         <HStack justify="space-between">
           <ButtonGroup isAttached>
-            <Button leftIcon={<FaThumbsUp/>} variant="ghost">
+            <Button onClick={onSubmitLike} leftIcon={<FaThumbsUp/>} variant="ghost">
               Likes
+            </Button>
+            <Button onClick={onShare} leftIcon={<FaShare />} colorScheme='teal' variant='outline'>
+            Share
             </Button>
             <Button leftIcon={<FaComment/>} variant="ghost" onClick={onToggle}>
               {postData.count} Comments
