@@ -5,11 +5,13 @@ import PrivateRoute from "./auth/PrivateRoute";
 import Login from "./pages/login";
 import HomePage from "./pages/homePage";
 import Profile from "./pages/profile"
+import User from "./pages/user"
 import Registration from './pages/registration';
 import Dashboard from './components/Dashboard';
 import NotFound404 from "./pages/NotFound";
 import useToken from "./components/App/useToken"
 import PleaseSignIn from "./pages/NotFound/PleaseSinIn"
+import CreatePost from './components/createPost';
 function App() {
 
   return (
@@ -26,7 +28,11 @@ function App() {
               <Route exact path='/home' element={<HomePage/>}/>
           </Route>
           <Route exact path='/profile' element={<PrivateRoute/>}>
-          <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<Profile />} />
+          </Route>
+          <Route path='/user/:id' element={<User/>} />
+          <Route exact path='/create' element={<PrivateRoute/>}>
+              <Route path="/create" element={<CreatePost />} />
           </Route>
 
           {/* <Route path="*" element={<NotFound404 />} /> */}
