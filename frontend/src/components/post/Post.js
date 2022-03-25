@@ -34,7 +34,7 @@ let identity = Identity.GetIdentity();
 
 
 function Post({ postData }) {
-  const current_user_id=identity.id
+  var current_user_id=identity.id
   const { isOpen: isEditOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isCommentOpen, onToggle } = useDisclosure();
   //const [id, setId] = useState();
@@ -47,7 +47,7 @@ function Post({ postData }) {
   }
   
   // TODO: check with userID to hide/show edit dialog button
-  const [post_author_id, setPostAuthId] = useState(postData.author.id)
+  var [post_author_id, setPostAuthId] = useState(postData.author.id)
   const [current_user , setCurrentUser] = useState()
   const [values, setValue] = useState();
   const author = postData.author.display_name
@@ -77,7 +77,11 @@ function Post({ postData }) {
     })
 })
   const sendFollow=((values, token)=>{
-    axios.post(base_url+`service/authors/07a6871b-8d80-444c-b5f4-e859d4666e42/followers/f6b64d92-01ad-4836-b533-a79cdba54eb9`,
+    post_author_id=post_author_id.slice(-36, post_author_id.length)
+    current_user_id=current_user_id.slice(-36, current_user_id.length)
+    console.log("pp", post_author_id)
+
+    axios.post(base_url+`authors/${post_author_id}/followers/${current_user_id}`,
           values, {
               headers: {
               'Content-Type': 'application/json',
