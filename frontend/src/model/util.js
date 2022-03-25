@@ -22,12 +22,48 @@ async function fetchAllPosts() {
     }
   }
   catch (error) {
-    console.log(error)
+    console.log(error);
     return null;
   }
   
-  posts.sort((a, b) => b.published - a.published)
+  posts.sort((a, b) => b.published - a.published);
   return posts;
 }
 
-export { fetchAllPosts };
+async function fetchComments(commentsUrl) {
+  const comments = [];
+  
+  try {
+    const response = await axios.get(`${commentsUrl}`, {
+      headers: {
+        Authorization: "Bearer " + Identity.GetIdentity().token
+      }});
+    
+    const commentList = response.data.items;
+    comments.push(...commentList);
+  }
+  catch (error) {
+    console.log(error);
+    return null;
+  }
+
+  comments.sort((a, b) => b.published - a.published);
+  return comments;
+}
+
+async function fetchAuthorObj(authorUrl) {
+  try {
+    const response = await axios.get(`${Identity.GetIdentity().id}`, {
+      headers: {
+        Authorization: "Bearer " + Identity.GetIdentity().token
+      }});
+    
+    return response.data;
+  }
+  catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+export { fetchAllPosts, fetchComments, fetchAuthorObj };

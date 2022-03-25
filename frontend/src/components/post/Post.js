@@ -19,7 +19,9 @@ import {
   VStack,
   StackDivider,
   AvatarBadge,
-  useToast
+  useToast,
+  InputGroup,
+  InputRightAddon
 } from "@chakra-ui/react";
 import { FaComment, FaThumbsUp } from "react-icons/fa";
 import Identity from "../../model/Identity";
@@ -29,6 +31,7 @@ import {AddIcon} from '@chakra-ui/icons';
 import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
 import {useParams } from "react-router-dom";
+import { fetchComments, fetchAuthorObj } from "../../model/util";
 const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 let identity = Identity.GetIdentity();
 
@@ -37,6 +40,7 @@ function Post({ postData }) {
   var current_user_id=identity.id
   const { isOpen: isEditOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isCommentOpen, onToggle } = useDisclosure();
+  const [ comments, setComments ] = useState([]);
   //const [id, setId] = useState();
   const {picture, setPic} = useState();
   const toast = useToast();
@@ -46,6 +50,14 @@ function Post({ postData }) {
       toastIdRef.current = toast(toast_data)
   }
   
+  useEffect(() => {
+    const getComments = async () => {
+      const data = await fetchComments(postData.comments);
+      setComments(data);
+    }
+    getComments();
+  }, [postData.comments])
+
   // TODO: check with userID to hide/show edit dialog button
   var [post_author_id, setPostAuthId] = useState(postData.author.id)
   const author = postData.author.display_name
@@ -172,7 +184,15 @@ function Post({ postData }) {
       </Stack>
       <Collapse in={isCommentOpen} animateOpacity>
         <Box my="2" mx="4">
-          <Input placeholder="Write a comment"/>
+          <InputGroup>
+            <Input placeholder="Write a comment"/>
+            <InputRightAddon>
+              <Button>
+                Submit
+              </Button>
+            </InputRightAddon>
+          </InputGroup>
+          
         </Box>
         <Divider borderColor="gray.300" width="90%0" mx="4" mb="2"/>
         <VStack 
@@ -181,8 +201,7 @@ function Post({ postData }) {
           ml="6"
           my="2"
         >
-          <Comment/>
-          <Comment/>
+          {comments.map((comment, i) => <Comment commentData={comment} key ={i}/>)}
         </VStack>
       </Collapse>
     </Flex>
