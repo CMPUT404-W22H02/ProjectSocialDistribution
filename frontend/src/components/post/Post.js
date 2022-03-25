@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import {
   Flex,
@@ -17,24 +17,131 @@ import {
   ButtonGroup,
   Divider,
   VStack,
-  StackDivider
+  StackDivider,
+  AvatarBadge,
+  useToast
 } from "@chakra-ui/react";
 import { FaComment, FaThumbsUp } from "react-icons/fa";
 import Identity from "../../model/Identity";
 import EditDialog from "../editDialog";
 import Comment from "../comment";
+import {AddIcon} from '@chakra-ui/icons';
+import {Refresh} from "../../../src/auth/Refresh"
+import jwt_decode from "jwt-decode";
+import {useParams } from "react-router-dom";
+const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+let identity = Identity.GetIdentity();
+
 
 function Post({ postData }) {
+  const current_user_id=identity.id
   const { isOpen: isEditOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isCommentOpen, onToggle } = useDisclosure();
+  //const [id, setId] = useState();
+  const {picture, setPic} = useState();
+  const toast = useToast();
+  const toastIdRef = useRef();
+  const [status , setStatus]= useState();
+  function addToast(toast_data) {
+      toastIdRef.current = toast(toast_data)
+  }
   
   // TODO: check with userID to hide/show edit dialog button
+  const [post_author_id, setPostAuthId] = useState(postData.author.id)
+  const [current_user , setCurrentUser] = useState()
+  const [values, setValue] = useState();
+  const author = postData.author.display_name
+  const getCurrentUser=(()=>{ 
+
+
+    axios.get(`${current_user_id}`,
+    {
+        headers: {
+        "Content-Type": "application/json",
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+
+        },
+    })
+    .then(res => { 
+    const info = res.data;
+    if(info.id){
+      setCurrentUser( info );
+    } 
+    else{
+      setCurrentUser(info.data[0])
+    }
+        
+    }).catch(e => {
+        console.log("error-----")
+        console.log(e)
+    })
+})
+  const sendFollow=((values, token)=>{
+    axios.post(base_url+`service/authors/07a6871b-8d80-444c-b5f4-e859d4666e42/followers/f6b64d92-01ad-4836-b533-a79cdba54eb9`,
+          values, {
+              headers: {
+              'Content-Type': 'application/json',
+              "Authorization" : `Bearer ${token}`
+              
+              }})
+          .then((data) => addToast({description: "send follow successfull",
+              status: 'success', isClosable: true, duration: 1000,}),
+          
+          ).catch((e)=>{
+              console.log(e.response.status)
+              setStatus(e.response.status)
+              addToast({description: "send follow not successfull",
+              status: 'error', isClosable: true, duration: 1000,})
+              
+          })
+
+
+
+  })
+  const onSubmit = () => {
+    getCurrentUser();
+    const follower = current_user.display_name
+    const values ={"type": "followers", 
+    "summary":`${follower} want to follow ${author}`, 
+    "actor": current_user,
+    "object": postData.author}
+    console.log("author", postData.author)
+    console.log("user", current_user)
+    console.log("CURR", current_user_id)
+    console.log(values)
+
+    let token = localStorage.getItem("token")
+    let decodedToken = jwt_decode(token);
+    let currentDate = new Date();
+
+    // JWT exp is in seconds
+    if (decodedToken.exp * 1000 < currentDate.getTime()) {
+        console.log("Token expired.");
+        Refresh.refreshToken().then(()=>{token = localStorage.getItem("token");
+          sendFollow(values, token)});
+        
+    } else {
+        console.log("Valid token");  
+        sendFollow(values, token) 
+    }
+    }
 
   return (
     <Flex width="50rem" minH="10rem" boxShadow="lg" py="2" alignContent="center" flexDirection="column">
       <Stack direction="column" spacing="3" px="4" justify="space-between">
         <HStack pt="4" ml="2" spacing="3">
-          <Avatar/>
+        <Avatar size="md" src={picture}>
+          <AvatarBadge
+            as={IconButton}
+            size="xs"
+            rounded="full"
+            bottom="-1px"
+            colorScheme="teal"
+            aria-label="remove Image"
+            icon={<AddIcon />}
+            onClick={()=>onSubmit()}
+          />
+        </Avatar>
           <Heading size="md">{postData.author.display_name}</Heading>
         </HStack>
         <Container fontWeight="medium" pt="4">
