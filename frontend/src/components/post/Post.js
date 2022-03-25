@@ -79,7 +79,6 @@ function Post({ postData }) {
   const sendFollow=((values, token)=>{
     post_author_id=post_author_id.slice(-36, post_author_id.length)
     current_user_id=current_user_id.slice(-36, current_user_id.length)
-    console.log("pp", post_author_id)
 
     axios.post(base_url+`authors/${post_author_id}/followers/${current_user_id}`,
           values, {
