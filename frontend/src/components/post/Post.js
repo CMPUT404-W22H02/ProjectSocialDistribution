@@ -29,7 +29,7 @@ import {AddIcon} from '@chakra-ui/icons';
 import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
 import {useParams } from "react-router-dom";
-const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000/';
 let identity = Identity.GetIdentity();
 
 
@@ -101,6 +101,23 @@ function Post({ postData }) {
               status: 'error', isClosable: true, duration: 1000,})
               
           })
+    axios.post(base_url+`authors/${post_author_id}/inbox`,
+          values, {
+              headers: {
+              'Content-Type': 'application/json',
+              "Authorization" : `Bearer ${token}`
+              
+              }})
+          .then((data) => addToast({description: "send follow successfull",
+              status: 'success', isClosable: true, duration: 1000,}),
+          
+          ).catch((e)=>{
+              console.log(e.response.status)
+              setStatus(e.response.status)
+              addToast({description: "send follow not successfull",
+              status: 'error', isClosable: true, duration: 1000,})
+              
+          })
 
 
 
@@ -108,7 +125,7 @@ function Post({ postData }) {
   
   const onsubmitValue = (current_user, follower) => {
     
-    const values ={"type": "followers", 
+    const values ={"type": "follow", 
     "summary":`${follower} want to follow ${author}`, 
     "actor": current_user,
     "object": postData.author}
