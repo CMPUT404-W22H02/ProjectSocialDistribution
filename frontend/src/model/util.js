@@ -63,7 +63,7 @@ async function fetchComments(commentsUrl) {
   return comments;
 }
 
-async function fetchAuthorObj(authorUrl) {
+async function fetchAuthorObj() {
   try {
     const response = await axios.get(`${Identity.GetIdentity().id}`, {
       headers: {

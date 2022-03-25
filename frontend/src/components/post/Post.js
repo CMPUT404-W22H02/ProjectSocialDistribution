@@ -40,7 +40,9 @@ function Post({ postData }) {
   var current_user_id=identity.id
   const { isOpen: isEditOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isCommentOpen, onToggle } = useDisclosure();
+  const [ commentInput, setCommentInput ] = useState();
   const [ comments, setComments ] = useState([]);
+  const [ authorObj, setAuthorObj ] = useState();
   //const [id, setId] = useState();
   const {picture, setPic} = useState();
   const toast = useToast();
@@ -49,21 +51,11 @@ function Post({ postData }) {
   function addToast(toast_data) {
       toastIdRef.current = toast(toast_data)
   }
-  
-  useEffect(() => {
-    const getComments = async () => {
-      const data = await fetchComments(postData.comments);
-      setComments(data);
-    }
-    getComments();
-  }, [postData.comments])
 
   // TODO: check with userID to hide/show edit dialog button
   var [post_author_id, setPostAuthId] = useState(postData.author.id)
   const author = postData.author.display_name
   const onSubmit = () =>{ 
-
-
     axios.get(`${current_user_id}`,
     {
         headers: {
@@ -130,9 +122,6 @@ function Post({ postData }) {
               status: 'error', isClosable: true, duration: 1000,})
               
           })
-
-
-
   })
   
   const onsubmitValue = (current_user, follower) => {
@@ -160,7 +149,44 @@ function Post({ postData }) {
         console.log("Valid token");  
         sendFollow(values, token) 
     }
+  }
+
+  useEffect(() => {
+    const getComments = async () => {
+      const data = await fetchComments(postData.comments);
+      setComments(data);
     }
+    getComments();
+
+    const getAuthor = async () => {
+      const data = await fetchAuthorObj();
+      setAuthorObj(data);
+    }
+    getAuthor();
+  }, [])
+
+  const handleCommentSubmit = async (comment) => {
+
+    try {
+      const response = await axios.post(postData.comments,
+        {
+          author: authorObj,
+          comment: comment
+        }, {
+          headers: {
+            Authorization: "Bearer " + Identity.GetIdentity().token
+        }});
+      
+      console.log(response);
+    }
+    catch (error) {
+      console.log(error);
+    }
+  }
+
+  const handleCommentInput = (event) => {
+    setCommentInput(event.target.value);
+  }
 
   return (
     <Flex width="50rem" minH="10rem" boxShadow="lg" py="2" alignContent="center" flexDirection="column">
@@ -202,9 +228,9 @@ function Post({ postData }) {
       <Collapse in={isCommentOpen} animateOpacity>
         <Box my="2" mx="4">
           <InputGroup>
-            <Input placeholder="Write a comment"/>
+            <Input placeholder="Write a comment" onChange={handleCommentInput}/>
             <InputRightAddon>
-              <Button>
+              <Button onClick={handleCommentSubmit(commentInput)}>
                 Submit
               </Button>
             </InputRightAddon>
