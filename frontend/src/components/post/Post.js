@@ -48,10 +48,8 @@ function Post({ postData }) {
   
   // TODO: check with userID to hide/show edit dialog button
   var [post_author_id, setPostAuthId] = useState(postData.author.id)
-  const [current_user , setCurrentUser] = useState()
-  const [values, setValue] = useState();
   const author = postData.author.display_name
-  const getCurrentUser=(()=>{ 
+  const onSubmit = () =>{ 
 
 
     axios.get(`${current_user_id}`,
@@ -65,22 +63,24 @@ function Post({ postData }) {
     .then(res => { 
     const info = res.data;
     if(info.id){
-      setCurrentUser( info );
+      var follower = info.display_name
+      onsubmitValue(info, follower);
     } 
     else{
-      setCurrentUser(info.data[0])
+      var follower = info.data[0].display_name
+      onsubmitValue(info.data[0], follower);
     }
         
     }).catch(e => {
         console.log("error-----")
         console.log(e)
     })
-})
+}
   const sendFollow=((values, token)=>{
     post_author_id=post_author_id.slice(-36, post_author_id.length)
     current_user_id=current_user_id.slice(-36, current_user_id.length)
 
-    axios.post(base_url+`authors/${post_author_id}/followers/${current_user_id}`,
+    axios.put(base_url+`authors/${post_author_id}/followers/${current_user_id}`,
           values, {
               headers: {
               'Content-Type': 'application/json',
@@ -101,16 +101,16 @@ function Post({ postData }) {
 
 
   })
-  const onSubmit = () => {
-    getCurrentUser();
-    const follower = current_user.display_name
+  
+  const onsubmitValue = (current_user, follower) => {
+    
     const values ={"type": "followers", 
     "summary":`${follower} want to follow ${author}`, 
     "actor": current_user,
     "object": postData.author}
-    console.log("author", postData.author)
-    console.log("user", current_user)
-    console.log("CURR", current_user_id)
+    // console.log("author", postData.author)
+    // console.log("user", current_user)
+    // console.log("CURR", current_user_id)
     console.log(values)
 
     let token = localStorage.getItem("token")
