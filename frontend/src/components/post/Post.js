@@ -23,7 +23,7 @@ import {
   InputGroup,
   InputRightAddon
 } from "@chakra-ui/react";
-import { FaComment, FaThumbsUp } from "react-icons/fa";
+import { FaComment, FaThumbsUp, FaShare } from "react-icons/fa";
 import Identity from "../../model/Identity";
 import EditDialog from "../editDialog";
 import Comment from "../comment";
@@ -61,6 +61,49 @@ function Post({ postData }) {
   // TODO: check with userID to hide/show edit dialog button
   var [post_author_id, setPostAuthId] = useState(postData.author.id)
   const author = postData.author.display_name
+  const onShare = () =>{ 
+
+
+    axios.get(`${current_user_id}`,
+    {
+        headers: {
+        "Content-Type": "application/json",
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+
+        },
+    })
+    .then(res => { 
+    let values = {}
+    values['title'] = postData.title;
+    values['source'] = postData.id;
+    values['description'] = postData.description;
+    values['categories'] = postData.categories;
+    values['visibility'] = postData.visibility;
+    values['unlisted'] = postData.unlisted;
+    current_user_id=current_user_id.slice(-36, current_user_id.length)
+    axios.post(base_url+`authors/${current_user_id}/posts/`,
+    values, {
+        headers: {
+        'Content-Type': 'application/json',
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+        
+        }})
+    .then((data) => addToast({description: "send follow successfull",
+        status: 'success', isClosable: true, duration: 1000,}),
+    
+    ).catch((e)=>{
+        console.log(e.response.status)
+        setStatus(e.response.status)
+        addToast({description: "send follow not successfull",
+        status: 'error', isClosable: true, duration: 1000,})
+        
+    })
+
+
+
+})
+  }
+  
   const onSubmitLike = () =>{ 
 
 
@@ -272,6 +315,9 @@ const onsubmitValueLike = (current_user, follower) => {
           <ButtonGroup isAttached>
             <Button onClick={onSubmitLike} leftIcon={<FaThumbsUp/>} variant="ghost">
               Likes
+            </Button>
+            <Button onClick={onShare} leftIcon={<FaShare />} colorScheme='teal' variant='outline'>
+            Share
             </Button>
             <Button leftIcon={<FaComment/>} variant="ghost" onClick={onToggle}>
               {postData.count} Comments
