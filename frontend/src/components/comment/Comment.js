@@ -12,10 +12,10 @@ function Comment({ commentData }) {
       <Avatar/>
       <VStack spacing="-0.25" align="left">
         <Heading size="sm">
-          Name
+          {commentData.author.display_name}
         </Heading>
         <Box>
-          sample comment
+          {commentData.comment}
         </Box>
       </VStack>
       
