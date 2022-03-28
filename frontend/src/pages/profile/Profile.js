@@ -31,8 +31,7 @@ let identity = Identity.GetIdentity();
   
 export default function Profile(props) {
 //const cookies = new Cookies();
-//const { token, setToken } = useState(identity.token);
-const { refreshToken, setRefreshToken } = useState(identity.refreshToken);
+const { token, setToken } = useToken(identity.token);
 const [ value, setValue] = useState({});
 const [picture, setPicture] = useState('');
 const [userName, setUserName] = useState(identity.username);
@@ -46,20 +45,18 @@ const toastIdRef = useRef()
 function addToast(toast_data) {
     toastIdRef.current = toast(toast_data)
   }
-const onChangePicture = e => {
-setPicture(URL.createObjectURL(e.target.files[0]));
-};
-//console.log(token,"---")
-//console.log(identity)
+  const onChangePicture = e => {
+    setPicture(URL.createObjectURL(e.target.files[0]));
+  };
+console.log(token,"---")
 const author_id =  identity.id
-const token = identity.token
-//console.log(author_id)
+console.log(author_id)
 useEffect(()=>{ 
     axios.get(`${author_id}`,
     {
         headers: {
         "Content-Type": "application/json",
-        "Authorization" : `Bearer ${token}`
+        //"Authorization" : `Bearer ${token}`
 
         },
     })
@@ -67,19 +64,16 @@ useEffect(()=>{
     const info = res.data;
     if(info.id){
         setValue( info );
-        //console.log(token)
 
     } 
     else{
         setValue(info.data[0])
     }
-    //console.log(res)
+    console.log(res)
     setUserName(info.username)
     setDisplay_name(info.display_name)
         
     }).catch(e => {
-        console.log("error-----")
-        //console.log(token)
         console.log(e)
     })
 },[])
@@ -87,8 +81,7 @@ useEffect(()=>{
 
 
 return (
-    <Box height="100vh"
-    margin="-20px">
+    <Box height="100vh">
       <Navbar/>
     <Flex
     minH={'100vh'}
