@@ -100,7 +100,6 @@ class RemoteAdapter():
         """Determines the type of object in the request and normalizes the type."""
         local_field = 'type'
         remote_fields = ()
-        breakpoint()
 
         try:
             obj[local_field]
