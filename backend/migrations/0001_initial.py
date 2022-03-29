@@ -1,3 +1,4 @@
+
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
@@ -69,7 +70,7 @@ class Migration(migrations.Migration):
                 ('count', models.IntegerField(default=0)),
                 ('comments', models.URLField(blank=True)),
                 ('comments_src', models.URLField(blank=True, null=True)),
-                ('published', models.DateTimeField(default='2022-03-28T23:59:45+00:00', editable=False)),
+                ('published', models.DateTimeField(default='2022-03-29T19:41:18+00:00', editable=False)),
                 ('visibility', models.CharField(choices=[('PUBLIC', 'PUBLIC'), ('FRIENDS', 'FRIENDS')], default='PUBLIC', max_length=255)),
                 ('unlisted', models.BooleanField(default=False)),
                 ('author', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='backend.author')),
@@ -106,7 +107,7 @@ class Migration(migrations.Migration):
             name='Comment',
             fields=[
                 ('comment', models.CharField(max_length=500)),
-                ('published', models.DateTimeField(default='2022-03-28T23:59:45+00:00', editable=False)),
+                ('published', models.DateTimeField(default='2022-03-29T19:41:18+00:00', editable=False)),
                 ('id', models.URLField(blank=True, primary_key=True, serialize=False)),
                 ('author', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='backend.author')),
                 ('post', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='backend.post')),
