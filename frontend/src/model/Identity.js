@@ -50,7 +50,7 @@ class Identity {
      * @constructor
      */
     StoreIdentity() {
-        if (this.username !== "") {
+        if (this.emailAddress !== "") {
             localStorage.setItem("token", this.token);
             localStorage.setItem("refreshToken", this.refreshToken);
 
@@ -71,13 +71,9 @@ class Identity {
         return this.token !== "" && this.token != null;
     }
 
-    static UpdateIdentity(token, refreshToken, username, id) {
-        localStorage.setItem("token", token);
-        localStorage.setItem("refreshToken",refreshToken);
-
-        localStorage.setItem("username", username);
-
-        localStorage.setItem("id", id);
+    static UpdateProfile(display_name, github) {
+        localStorage.setItem("display_name", display_name);
+        localStorage.setItem("github", github);
 
     }
 }

@@ -10,22 +10,10 @@ import {
   Stack,
   Center,
   Heading,
-  Text, 
-  IconButton,
-  Grid,
-  Link,
-  Button
-
-
+  Text
 } from '@chakra-ui/react';
-import { AddIcon, InfoIcon } from '@chakra-ui/icons';
-import { useState, } from "react";
-import Identity from "../../model/Identity";
-import React from 'react';
-let identity = Identity.GetIdentity();
-function Navbar() {
-  const [userName, setUserName] = useState(identity.username);
 
+function Navbar() {
   const signOut= () => {
     // clear identity
     window.localStorage.clear();
@@ -35,8 +23,7 @@ function Navbar() {
     // clear refresh timer
     clearTimeout();
 
-  }
-
+}
   return (
     <Flex 
       bg="teal.400"
@@ -53,11 +40,6 @@ function Navbar() {
         <Heading ><a href="/home" >Social Distribution</a></Heading>
       </Box>
       <Stack direction="row" spacing="7">
-      <Grid justify="flex-end" align="flex-end">
-       <a href="/create"> <IconButton style={{ bottom: -7, right: 3 }} size='sm' icon={<AddIcon />} > </IconButton>               </a>
-        
-      </Grid>
-          
         <Menu>
           <MenuButton>
             <Avatar size="md"/>
@@ -67,7 +49,7 @@ function Navbar() {
               <Avatar size="2xl"/>
             </Center>
             <Center py="2">
-              <Text>{userName}</Text>
+              <Text>Username</Text>
             </Center>
             <MenuDivider />
             <MenuItem>Your Servers</MenuItem>
