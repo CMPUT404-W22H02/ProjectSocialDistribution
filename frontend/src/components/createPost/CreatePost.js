@@ -42,6 +42,7 @@ export default function CreatePost () {
     const toast = useToast();
     const toastIdRef = useRef();
     const [status , setStatus]= useState();
+    const [values, setValues]= useState();
     function addToast(toast_data) {
         toastIdRef.current = toast(toast_data)
     }
@@ -231,6 +232,8 @@ export default function CreatePost () {
                             </ButtonGroup>
                             <Box as="pre" my={10}>
                                 <p>just for test , will delte in the future</p>
+                                {values['contentType']="text/plain"}
+                                {values['type']="post"}
                                 {JSON.stringify(values, 0, 2)}
                             </Box>
                         </Box>

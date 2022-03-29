@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, createRef } from "react";
 import axios from "axios";
 import {
   Flex,
@@ -38,11 +38,10 @@ let identity = Identity.GetIdentity();
 
 function Post({ postData }) {
   var current_user_id=identity.id
+  current_user_id=current_user_id.slice(-36, current_user_id.length)
   const { isOpen: isEditOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isCommentOpen, onToggle } = useDisclosure();
-  const [ commentInput, setCommentInput ] = useState();
   const [ comments, setComments ] = useState([]);
-  const [ authorObj, setAuthorObj ] = useState();
   //const [id, setId] = useState();
   const {picture, setPic} = useState();
   const toast = useToast();
@@ -51,14 +50,58 @@ function Post({ postData }) {
   function addToast(toast_data) {
       toastIdRef.current = toast(toast_data)
   }
+  
+  useEffect(() => {
+    const getComments = async () => {
+      const data = await fetchComments(postData.comments);
+      setComments(data);
+    }
+    getComments();
+  }, [postData.comments])
 
   // TODO: check with userID to hide/show edit dialog button
   var [post_author_id, setPostAuthId] = useState(postData.author.id)
   const author = postData.author.display_name
+  let inputComment = createRef();
+  const addComment = () =>{
+    axios.get(base_url+`authors/${current_user_id}`,
+    {
+        headers: {
+        "Content-Type": "application/json",
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+
+        },
+    })
+    .then(res => { 
+      const info = res.data;
+      let values = {}
+      values['type'] = "comment";
+      values['author'] = info;
+      values['comment'] = inputComment.current.value;
+      axios.post(`${postData.id}/comments`,
+      values, {
+          headers: {
+          'Content-Type': 'application/json',
+          "Authorization" : `Bearer ${localStorage.getItem("token")}`
+          
+          }})
+      .then((data) => addToast({description: "Comment added.",
+          status: 'success', isClosable: true, duration: 1000,}),
+      
+      ).catch((e)=>{
+          console.log(e.response.status)
+          setStatus(e.response.status)
+          addToast({description: "send follow not successfull",
+          status: 'error', isClosable: true, duration: 1000,})
+          
+      })
+  })
+}
+
   const onShare = () =>{ 
 
 
-    axios.get(`${current_user_id}`,
+    axios.get(base_url+`authors/${current_user_id}`,
     {
         headers: {
         "Content-Type": "application/json",
@@ -74,7 +117,6 @@ function Post({ postData }) {
     values['categories'] = postData.categories;
     values['visibility'] = postData.visibility;
     values['unlisted'] = postData.unlisted;
-    current_user_id=current_user_id.slice(-36, current_user_id.length)
     axios.post(base_url+`authors/${current_user_id}/posts/`,
     values, {
         headers: {
@@ -82,13 +124,13 @@ function Post({ postData }) {
         "Authorization" : `Bearer ${localStorage.getItem("token")}`
         
         }})
-    .then((data) => addToast({description: "send follow successfull",
+    .then((data) => addToast({description: "Shared!",
         status: 'success', isClosable: true, duration: 1000,}),
     
     ).catch((e)=>{
         console.log(e.response.status)
         setStatus(e.response.status)
-        addToast({description: "send follow not successfull",
+        addToast({description: "not successfull",
         status: 'error', isClosable: true, duration: 1000,})
         
     })
@@ -101,7 +143,7 @@ function Post({ postData }) {
   const onSubmitLike = () =>{ 
 
 
-    axios.get(`${current_user_id}`,
+    axios.get(base_url+`authors/${current_user_id}`,
     {
         headers: {
         "Content-Type": "application/json",
@@ -131,7 +173,6 @@ function Post({ postData }) {
 }
 const sendLike=((values, token)=>{
   post_author_id=post_author_id.slice(-36, post_author_id.length)
-  current_user_id=current_user_id.slice(-36, current_user_id.length)
 
   axios.post(base_url+`authors/${post_author_id}/inbox`,
         values, {
@@ -140,13 +181,13 @@ const sendLike=((values, token)=>{
             "Authorization" : `Bearer ${token}`
             
             }})
-        .then((data) => addToast({description: "send follow successfull",
+        .then((data) => addToast({description: "Liked!",
             status: 'success', isClosable: true, duration: 1000,}),
         
         ).catch((e)=>{
             console.log(e.response.status)
             setStatus(e.response.status)
-            addToast({description: "send follow not successfull",
+            addToast({description: "not successfull",
             status: 'error', isClosable: true, duration: 1000,})
             
         })
@@ -182,7 +223,9 @@ const onsubmitValueLike = (current_user, follower) => {
   }
   }
   const onSubmit = () =>{ 
-    axios.get(`${current_user_id}`,
+
+
+    axios.get(base_url+`authors/${current_user_id}`,
     {
         headers: {
         "Content-Type": "application/json",
@@ -212,7 +255,6 @@ const onsubmitValueLike = (current_user, follower) => {
 }
   const sendFollow=((values, token)=>{
     post_author_id=post_author_id.slice(-36, post_author_id.length)
-    current_user_id=current_user_id.slice(-36, current_user_id.length)
 
     axios.put(base_url+`authors/${post_author_id}/followers/${current_user_id}`,
           values, {
@@ -248,6 +290,9 @@ const onsubmitValueLike = (current_user, follower) => {
               status: 'error', isClosable: true, duration: 1000,})
               
           })
+
+
+
   })
   
   const onsubmitValue = (current_user, follower) => {
@@ -275,45 +320,7 @@ const onsubmitValueLike = (current_user, follower) => {
         console.log("Valid token");  
         sendFollow(values, token) 
     }
-  }
-
-  useEffect(() => {
-    const getComments = async () => {
-      const data = await fetchComments(postData.comments);
-      setComments(data);
     }
-    getComments();
-
-    const getAuthor = async () => {
-      const data = await fetchAuthorObj();
-      setAuthorObj(data);
-    }
-    getAuthor();
-  }, [])
-
-  const handleCommentSubmit = async (comment) => {
-
-    try {
-      const response = await axios.post(postData.comments,
-        {
-          author: authorObj,
-          comment: comment
-        }, {
-          headers: {
-            Authorization: "Bearer " + Identity.GetIdentity().token
-        }});
-      
-      console.log(response);
-    }
-    catch (error) {
-      console.log(error);
-    }
-  }
-
-  const handleCommentInput = (event) => {
-    setCommentInput(event.target.value);
-  }
-
   return (
     <Flex width="50rem" minH="10rem" boxShadow="lg" py="2" alignContent="center" flexDirection="column">
       <Stack direction="column" spacing="3" px="4" justify="space-between">
@@ -350,16 +357,16 @@ const onsubmitValueLike = (current_user, follower) => {
               {postData.count} Comments
             </Button>
           </ButtonGroup>
-          <Button variant="solid" onClick={onOpen} right="0">Edit</Button>
+          {current_user_id==post_author_id.slice(-36, post_author_id.length)?<Button variant="solid" onClick={onOpen} right="0">Edit</Button>:null}
           <EditDialog isOpen={isEditOpen} onClose={onClose}/>
         </HStack>
       </Stack>
       <Collapse in={isCommentOpen} animateOpacity>
         <Box my="2" mx="4">
           <InputGroup>
-            <Input placeholder="Write a comment" onChange={handleCommentInput}/>
+            <Input ref={inputComment} placeholder="Write a comment"/>
             <InputRightAddon>
-              <Button onClick={handleCommentSubmit(commentInput)}>
+              <Button onClick={addComment}>
                 Submit
               </Button>
             </InputRightAddon>

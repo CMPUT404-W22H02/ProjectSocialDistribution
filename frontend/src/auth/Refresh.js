@@ -1,5 +1,6 @@
 import Identity from "../model/Identity";
 import axios from "axios";
+import jwt_decode from "jwt-decode";
 const Refresh={
 Identity : Identity.GetIdentity(),
   async loginUser(credentials) {
@@ -17,7 +18,23 @@ Identity : Identity.GetIdentity(),
     console.log(e);
   }
   },
-
+  accessToken() {
+    try {
+      let decodedToken = jwt_decode(localStorage.getItem("token"));
+      let currentDate = new Date();
+      if (decodedToken.exp * 1000 < currentDate.getTime()) {
+        console.log("Token expired.");
+        return false;
+    } else {
+        console.log("Valid token");  
+        return true;
+        }
+      
+    }catch (e) {
+      console.log(e);
+      return false;
+    }
+    },
 
 async refreshToken(){
   console.log("refresh")
