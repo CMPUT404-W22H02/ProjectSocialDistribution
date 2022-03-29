@@ -23,7 +23,7 @@ import { useState, } from "react";
 import Identity from "../../model/Identity";
 import React from 'react';
 let identity = Identity.GetIdentity();
-function Navbar() {
+function NavbarAdd() {
   const [userName, setUserName] = useState(identity.username);
 
   const signOut= () => {
@@ -53,10 +53,6 @@ function Navbar() {
         <Heading ><a href="/home" >Social Distribution</a></Heading>
       </Box>
       <Stack direction="row" spacing="7">
-      <Grid justify="flex-end" align="flex-end">
-       <a href="/create"> <IconButton style={{ bottom: -7, right: 3 }} size='sm' icon={<AddIcon />} > </IconButton>               </a>
-        
-      </Grid>
           
         <Menu>
           <MenuButton>
@@ -80,4 +76,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default NavbarAdd;

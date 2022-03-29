@@ -16,25 +16,31 @@
 
 from uuid import uuid4
 
-from django.shortcuts import get_list_or_404, get_object_or_404
+from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from requests import get
+from requests.auth import HTTPBasicAuth
 from rest_framework import status
 from rest_framework.authentication import BasicAuthentication
 from rest_framework.generics import (CreateAPIView, ListAPIView,
                                      ListCreateAPIView, RetrieveUpdateAPIView,
-                                     RetrieveUpdateDestroyAPIView)
+                                     RetrieveUpdateDestroyAPIView,
+                                     UpdateAPIView)
+from rest_framework.mixins import DestroyModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
-from rest_framework.mixins import DestroyModelMixin
 
 from socialdisto.pagination import CustomPagination
 
-from .models import Author, Comment, Like, NodeUser, Post, Inbox
+from .adapters import RemoteAdapter
+from .models import Author, Comment, Inbox, Like, Node, NodeUser, Post
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
-                          CommentSerializer, FollowSerializer, InboxFollowSerializer, InboxLikeSerializer, InboxPostSerializer, LikeSerializer, PostCreationSerializer,
-                          PostDetailsSerializer, InboxCommentSerializer)
+                          CommentSerializer, InboxCommentSerializer,
+                          InboxFollowSerializer, InboxLikeSerializer,
+                          InboxPostSerializer, LikeSerializer,
+                          PostCreationSerializer, PostDetailsSerializer)
 
 
 class UtilityAPI(APIView):
@@ -60,6 +66,10 @@ class UtilityAPI(APIView):
     inbox_response_template = {
         rtype: "inbox",
         "author": "",
+        ritems: []
+    }
+    posts_response_template = {
+        rtype: "posts",
         ritems: []
     }
 
@@ -105,7 +115,7 @@ class AuthorsAPIView(ListAPIView, UtilityAPI):
     pagination_class = CustomPagination
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -133,7 +143,7 @@ class AuthorDetailAPIView(RetrieveUpdateAPIView, UtilityAPI):
     serializer_class = AuthorSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     local_methods = ['POST']
 
     http_method_names = ['get', 'post']
@@ -161,7 +171,7 @@ class FollowersAPIView(ListAPIView, UtilityAPI):
     serializer_class = AuthorSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -189,7 +199,7 @@ class FollowerDetailAPIView(RetrieveUpdateDestroyAPIView, UtilityAPI):
     serializer_class = AuthorSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     local_methods = ['PUT', 'DELETE']
 
     def get_queryset(self):
@@ -270,7 +280,7 @@ class PostsAPIView(ListCreateAPIView, UtilityAPI):
     pagination_class = CustomPagination
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     local_methods = ['POST']
 
     def get_queryset(self):
@@ -319,7 +329,7 @@ class PostDetailAPIView(RetrieveUpdateDestroyAPIView, CreateAPIView, UtilityAPI)
     serializer_class = PostDetailsSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     local_methods = ['PUT', 'POST', 'DELETE']
 
     def get_serializer_class(self):
@@ -478,7 +488,7 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
     """Get, send, and clear content from an author's inbox."""
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     local_only_methods = ['GET']
     http_method_names = ['get', 'post', 'delete', 'head', 'options'] 
 
@@ -568,7 +578,17 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         return Response(response)
     
     def create(self, request, *args, **kwargs):
-        response = super().create(request, args, kwargs)
+        object = self.request.data.copy()
+        adapter = RemoteAdapter(object)
+        adapted_object = adapter.adapt_data()
+        self.request.data.update(adapted_object)
+
+        serializer = self.get_serializer(data=adapted_object)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        response = Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         
         # Link the local copy to the inbox
         inbox = self.get_object()
@@ -583,3 +603,61 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         elif content_type == 'follow':
             pass
         return response
+
+class PublicFeedView(ListAPIView, UtilityAPI):
+    """Gathers public posts from all connected nodes."""
+
+    # authentication_classes = [JWTTokenUserAuthentication]
+    # permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        public_posts = self.posts_response_template
+        # Get all home content first
+        home_host = self.request.get_host()
+        queryset = Post.objects.filter(author__host=home_host, visibility='PUBLIC')
+        serializer = PostDetailsSerializer(queryset, many=True)
+        public_posts[self.ritems] += serializer.data
+
+        # Remote content
+        remote_nodes = Node.objects.all()
+        for node in remote_nodes:
+            api_domain = node.api_domain
+            api_prefix = node.api_prefix
+            username = node.username
+            password = node.password
+
+            try:
+                authors_url = f'{api_domain}authors/'
+                authors = get(authors_url, auth=HTTPBasicAuth(username, password)).json()
+                adapter = RemoteAdapter(authors)
+                adapted_authors = adapter.adapt_data()
+                
+                for author in adapted_authors['items']:
+                    author_url = author['url']
+                    # Need to interpolate the api prefix as not all ids and urls are saved with it
+                    slice_from = author_url.find('authors/')
+                    author_uri = author['url'][slice_from:]
+                    
+                    posts_url = f'{api_domain}{author_uri}/posts/'
+                    author_posts = get(posts_url, auth=HTTPBasicAuth(username, password)).json()
+                    adapter = RemoteAdapter(author_posts)
+                    adapted_posts = adapter.adapt_data()
+   
+                    public_posts[self.ritems] += adapted_posts['items']
+
+            except Exception as e:
+                print(e)
+            
+        return Response(data=public_posts)
+    
+class AdaptView(UpdateAPIView):
+    """PUT to this endpoint to run content through the adapter."""
+
+    authentication_classes = [JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def update(self, request, *args, **kwargs):
+        adapter = RemoteAdapter(request.data)
+        adapted_data = adapter.adapt_data()
+
+        return Response(adapted_data)

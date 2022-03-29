@@ -19,12 +19,18 @@ from datetime import datetime
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin
 from django.db.models import (CASCADE, BooleanField, CharField, DateTimeField,
-                              ForeignKey, IntegerField, ManyToManyField, Model,
-                              OneToOneField, URLField)
+                              ForeignKey, IntegerField, JSONField,
+                              ManyToManyField, Model, OneToOneField, URLField)
 from django.utils.timezone import now
 
 URL_MAX = 255
 CHAR_MAX = 255
+
+class Node(Model):
+    api_domain = URLField(primary_key=True)
+    api_prefix = CharField(max_length=255, blank=True, null=True)
+    username = CharField(max_length=255)
+    password = CharField(max_length=255)
 
 class NodeUserManager(BaseUserManager):
     """Create and assign an author to a user once created."""
@@ -69,6 +75,7 @@ class Author(Model):
     host = CharField(max_length=CHAR_MAX, blank=True)
     display_name = CharField(max_length=CHAR_MAX, blank=False)
     github = URLField(blank=True)
+    profile_image = URLField(blank=True)
 
     # TODO: profile image
 
@@ -101,11 +108,19 @@ class Post(Model):
     origin = URLField(blank=True)
     description = CharField(max_length=50, blank=True)
 
+    content_type = CharField(blank=True, max_length=255, null=True)
+    content = CharField(blank=True, max_length=5000, null=True)
+
     author = ForeignKey(Author, on_delete=CASCADE, null=True)
+
+    # SQLite does not support JSONField, so only enable for production
+    # categories = JSONField(default=list)
+    categories = CharField(max_length=255, blank=True, null=True)
 
     # Comment data
     count = IntegerField(default=0)
     comments = URLField(blank=True)
+    comments_src = URLField(blank=True, null=True)
 
     # Post meta-data
     published = DateTimeField(default=datetime.isoformat(now(), sep='T', timespec='seconds'), editable=False)

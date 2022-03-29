@@ -23,7 +23,7 @@ from rest_framework.status import (HTTP_200_OK, HTTP_201_CREATED,
                                    HTTP_404_NOT_FOUND)
 from rest_framework.test import APIRequestFactory, APITestCase
 
-from .models import Author, Follow, Like, Post, Comment
+from .models import Author, Comment, Follow, Like, Post
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 
@@ -98,11 +98,15 @@ class GenericTestCase(APITestCase):
             "origin": "",
             "author": "",
             "description": "",
+            "categories": "",
+            "comments_src": "",
             "count": 0,
+            "content": "",
             "comments": "",
             "published": "",
             "visibility": "PUBLIC",
-            "unlisted": False
+            "unlisted": False,
+            "content_type": ""
         }
         return post
     
@@ -442,9 +446,11 @@ class PostsAPITests(GenericTestCase):
             # "author": "", Nested field, test the foreign key relationship
             "description": "",
             "count": 0,
+            "content": "",
             # "comments": "", Same as id
             # "comment_src": [], Test comment_src content in CommentTests
             # "published": "", Authogenerated timestamp
+            "content_type": "",
             "visibility": "PUBLIC",
             "unlisted": False
         }
@@ -787,3 +793,43 @@ class InboxAPITests(GenericTestCase):
 
         # Check that author1 has the follow request pending
         Follow.objects.get(object=self.author1)
+
+class AdapterTestCases(GenericTestCase):
+    """Test remote object adapter."""
+    def setUp(self):
+        super().setUp()
+        self.mock_authors()
+        self.url = f'{self.host}adapt'
+    
+    def test_unadaptable(self):
+        """Bad content should just return nothing."""
+        author = {
+            "asdasd": "asdasd",
+            "id": self.author1.id,
+            "host": self.author1.host,
+            "displayName": self.author1.display_name,
+            "url": self.author1.url,
+            "github": self.author1.github,
+            "profileImage": ""
+        }
+        response = self.client.put(self.url, data=author)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data, {})
+    
+    def test_author_adapter(self):
+        author = {
+            "type": "AUTHOr",           # Should adapt to "author"
+            "id": self.author1.id,      # Do nothing
+            "host": self.author1.host,  # Do nothing
+            "displayName": self.author1.display_name,   # Should adapt to "display_name"
+            "url": self.author1.url,    # Do nothing
+            "github": self.author1.github,   # Do nothing
+            "profileImage": ""          # Should adapt to "profile_image"
+        }
+        response = self.client.put(self.url, data=author)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data['type'], 'author')
+        self.assertContains(response, 'display_name')
+        self.assertNotContains(response, 'displayName')
+        self.assertContains(response, 'profile_image')
+        self.assertNotContains(response, 'profileImage')
