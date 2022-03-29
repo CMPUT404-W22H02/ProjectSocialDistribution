@@ -26,7 +26,7 @@ import { SmallCloseIcon } from '@chakra-ui/icons';
 
 
 export default function JoinOurTeam() {
-  const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000/';
+  const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
   
   const [token, setToken]=useState("");
   const [refrensh, setRefrensh]=useState("");

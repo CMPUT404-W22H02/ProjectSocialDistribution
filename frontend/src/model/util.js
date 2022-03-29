@@ -17,7 +17,7 @@ async function fetchAllPosts() {
   }
   
   try {
-    const response = await axios.get(`http://localhost:8000/authors/`, {
+    const response = await axios.get(`https://psdt11.herokuapp.com/authors/`, {
       headers: {
         Authorization: "Bearer " + Identity.GetIdentity().token
       }});
