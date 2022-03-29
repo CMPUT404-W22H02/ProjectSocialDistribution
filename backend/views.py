@@ -115,7 +115,7 @@ class AuthorsAPIView(ListAPIView, UtilityAPI):
     pagination_class = CustomPagination
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -143,7 +143,7 @@ class AuthorDetailAPIView(RetrieveUpdateAPIView, UtilityAPI):
     serializer_class = AuthorSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     local_methods = ['POST']
 
     http_method_names = ['get', 'post']
@@ -171,7 +171,7 @@ class FollowersAPIView(ListAPIView, UtilityAPI):
     serializer_class = AuthorSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -199,7 +199,7 @@ class FollowerDetailAPIView(RetrieveUpdateDestroyAPIView, UtilityAPI):
     serializer_class = AuthorSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     local_methods = ['PUT', 'DELETE']
 
     def get_queryset(self):
@@ -280,7 +280,7 @@ class PostsAPIView(ListCreateAPIView, UtilityAPI):
     pagination_class = CustomPagination
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     local_methods = ['POST']
 
     def get_queryset(self):
@@ -329,7 +329,7 @@ class PostDetailAPIView(RetrieveUpdateDestroyAPIView, CreateAPIView, UtilityAPI)
     serializer_class = PostDetailsSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     local_methods = ['PUT', 'POST', 'DELETE']
 
     def get_serializer_class(self):
@@ -488,7 +488,7 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
     """Get, send, and clear content from an author's inbox."""
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    permission_classes = [IsAuthenticated]
+    #permission_classes = [IsAuthenticated]
     local_only_methods = ['GET']
     http_method_names = ['get', 'post', 'delete', 'head', 'options'] 
 
