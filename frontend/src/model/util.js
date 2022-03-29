@@ -17,7 +17,7 @@ async function fetchAllPosts() {
   }
   
   try {
-    const response = await axios.get(`http://localhost:8000/authors/`, {
+    const response = await axios.get(`https://psdt11.herokuapp.com/authors/`, {
       headers: {
         Authorization: "Bearer " + Identity.GetIdentity().token
       }});
@@ -25,6 +25,7 @@ async function fetchAllPosts() {
     const authorList = response.data.items;
 
     for (let author of authorList) {
+      if(author.id[4]=='s'){
       const response = await axios.get(`${author.id}/posts/`, {
         headers: {
           Authorization: "Bearer " + Identity.GetIdentity().token
@@ -32,6 +33,7 @@ async function fetchAllPosts() {
       const postList = response.data.items;
       posts.push(...postList);
     }
+  }
   }
   catch (error) {
     console.log(error);

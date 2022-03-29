@@ -24,7 +24,7 @@ import axios from "axios";
 import Navbar from "../../components/navbar";
 import useToken from "../../components/App/useToken";
 import Identity from '../../model/Identity';
-const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com';
 //import Cookies from "universal-cookie";
 
 let identity = Identity.GetIdentity();

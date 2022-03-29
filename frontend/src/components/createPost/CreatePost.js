@@ -28,7 +28,7 @@ import NavbarAdd from "../../components/navbar/NavbarAdd";
 import Identity from '../../model/Identity';
 import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
-const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000/';
+const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 //import Cookies from "universal-cookie";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let identity = Identity.GetIdentity();

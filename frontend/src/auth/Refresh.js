@@ -5,7 +5,7 @@ const Refresh={
 Identity : Identity.GetIdentity(),
   async loginUser(credentials) {
     try {
-    const data = await axios.post('http://localhost:8000/login/',
+    const data = await axios.post('https://psdt11.herokuapp.com/login/',
       credentials, {
       headers: {
         'Content-Type': 'application/json'
@@ -47,7 +47,7 @@ async refreshToken(){
         throw Error("Attempt to refresh access token without a refresh token")
         
     }
-    await axios.post('http://localhost:8000/refresh/',
+    await axios.post('http://psdt11.herokuapp.com/refresh/',
     {refresh: Refresh.Identity.refreshToken}, {
       headers: {
         'Content-Type': 'application/json'

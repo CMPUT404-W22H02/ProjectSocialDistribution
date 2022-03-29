@@ -32,7 +32,7 @@ import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
 import {useParams } from "react-router-dom";
 import { fetchComments, fetchAuthorObj } from "../../model/util";
-const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000/';
+const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 let identity = Identity.GetIdentity();
 
 
