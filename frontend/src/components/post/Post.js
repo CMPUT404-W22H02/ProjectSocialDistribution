@@ -274,7 +274,8 @@ const onsubmitValueLike = (current_user, follower) => {
               
           }) */
     //axios.post(base_url+`authors/${post_author_id}/inbox`,
-          axios.post(`${author_id_url}/inbox`,
+    const tt = 'http://localhost:8000/authors/487019af-a194-4169-abca-8c8d606c4271'
+          axios.post(`${tt}/inbox`,
           values, {
               headers: {
               'Content-Type': 'application/json',
