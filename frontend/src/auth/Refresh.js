@@ -1,11 +1,12 @@
 import Identity from "../model/Identity";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
+const base_url = process.env.REACT_APP_API_URL ;
 const Refresh={
 Identity : Identity.GetIdentity(),
   async loginUser(credentials) {
     try {
-    const data = await axios.post('https://psdt11.herokuapp.com/login/',
+    const data = await axios.post(`${base_url}login/`,
       credentials, {
       headers: {
         'Content-Type': 'application/json'
@@ -47,7 +48,7 @@ async refreshToken(){
         throw Error("Attempt to refresh access token without a refresh token")
         
     }
-    await axios.post('http://psdt11.herokuapp.com/refresh/',
+    await axios.post(`${base_url}refresh/`,
     {refresh: Refresh.Identity.refreshToken}, {
       headers: {
         'Content-Type': 'application/json'
