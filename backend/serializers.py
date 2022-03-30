@@ -197,6 +197,9 @@ class InboxFollowSerializer(ModelSerializer):
         exclude = ['actor', 'object']
     
     def create(self, validated_data):
+        print(validated_data)
+        print("-------")
+        print(self.context)
         validated_data['actor'] = self.context['actor']
         validated_data['object'] = self.context['object']
         return super().create(validated_data)

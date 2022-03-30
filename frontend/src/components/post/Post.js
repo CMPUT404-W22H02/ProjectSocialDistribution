@@ -45,6 +45,8 @@ function Post({ postData }) {
   const { isOpen: isEditOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isCommentOpen, onToggle } = useDisclosure();
   const [ comments, setComments ] = useState([]);
+  const [count, setCount]=useState(postData.count);
+  const [countRepeat, setCountRepeat]=useState(0);
   //const [id, setId] = useState();
   const {picture, setPic} = useState();
   const toast = useToast();
@@ -146,8 +148,29 @@ function Post({ postData }) {
   
   const onSubmitLike = () =>{ 
 
-
     axios.get(base_url+`authors/${current_user_id}`,
+    {
+        headers: {
+        "Content-Type": "application/json",
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+
+        },
+    })
+    .then(res => { 
+    const info = res.data;
+    console.log("=============", info);
+     var follower = info.display_name
+     onsubmitValueLike(info, follower);
+    
+        
+    }).catch(e => {
+        console.log("error---like--")
+        addToast({description: "Do not send again!",
+              status: 'info', isClosable: true, duration: 1000,})
+
+        console.log(e)
+    })
+    /* axios.get(base_url+`authors/${current_user_id}`,
     {
         headers: {
         "Content-Type": "application/json",
@@ -173,22 +196,25 @@ function Post({ postData }) {
               status: 'info', isClosable: true, duration: 1000,})
 
         console.log(e)
-    })
+    }) */
 }
 const sendLike=((values, token)=>{
   post_author_id=post_author_id.slice(-36, post_author_id.length)
 
-  axios.post(base_url+`authors/${post_author_id}/inbox`,
+  axios.post(`${author_id_url}/inbox`,
         values, {
             headers: {
             'Content-Type': 'application/json',
             "Authorization" : `Bearer ${token}`
             
             }})
-        .then((data) => addToast({description: "Liked!",
-            status: 'success', isClosable: true, duration: 1000,}),
-        
-        ).catch((e)=>{
+            .then((data) => {
+              console.log(data)
+              setCount(count+1)
+              addToast({description: "send like successfull",
+                status: 'success', isClosable: true, duration: 1000,})},
+            
+            ).catch((e)=>{
             console.log(e.response.status)
             setStatus(e.response.status)
             addToast({description: "not successfull",
@@ -204,7 +230,7 @@ const onsubmitValueLike = (current_user, follower) => {
   
   const values ={"type": "like", 
   "summary":`${follower} Likes your post.`, 
-  "author": postData.author,
+  "author": current_user,
   "object": postData.id}
   // console.log("author", postData.author)
   // console.log("user", current_user)
@@ -230,6 +256,20 @@ const onsubmitValueLike = (current_user, follower) => {
     console.log(postData)
 
     console.log("::;;", current_user_id)
+    let token = localStorage.getItem("token")
+    let decodedToken = jwt_decode(token);
+    let currentDate = new Date();
+
+    // JWT exp is in seconds
+    if (decodedToken.exp * 1000 < currentDate.getTime()) {
+        console.log("Token expired.");
+        Refresh.refreshToken();
+        
+    } else {
+        console.log("Valid token");  
+        
+    }
+    
     axios.get(base_url+`authors/${current_user_id}`,
     {
         headers: {
@@ -274,8 +314,8 @@ const onsubmitValueLike = (current_user, follower) => {
               
           }) */
     //axios.post(base_url+`authors/${post_author_id}/inbox`,
-    const tt = 'http://localhost:8000/authors/487019af-a194-4169-abca-8c8d606c4271'
-          axios.post(`${tt}/inbox`,
+    //const tt = 'http://localhost:8000/authors/487019af-a194-4169-abca-8c8d606c4271'
+          axios.post(`${author_id_url}/inbox`,
           values, {
               headers: {
               'Content-Type': 'application/json',
@@ -300,11 +340,14 @@ const onsubmitValueLike = (current_user, follower) => {
   })
   
   const onsubmitValue = (current_user, follower) => {
-    
+    console.log(current_user)
+    /* const local_user = {'type': 'author', 'id': 'http://localhost:8000/authors/487019af-a194-4169-abca-8c8d606c4271', 
+    'url': 'http://localhost:8000/authors/487019af-a194-4169-abca-8c8d606c4271', 
+    'host': 'http://localhost:8000/', 'display_name': 't11', 'github': '', 'profile_image': null} */
     const values ={"type": "follow", 
     "summary":`${follower} want to follow ${author}`, 
     "actor": current_user,
-    "object": postData.author}
+    "object":  postData.author}
     // console.log("author", postData.author)
     // console.log("user", current_user)
     // console.log("CURR", current_user_id)
@@ -352,7 +395,7 @@ const onsubmitValueLike = (current_user, follower) => {
         <HStack justify="space-between">
           <ButtonGroup isAttached>
             <Button onClick={onSubmitLike} leftIcon={<FaThumbsUp/>} variant="ghost">
-              Likes
+              Likes {count}
             </Button>
             <Button onClick={onShare} leftIcon={<FaShare />} colorScheme='teal' variant='outline'>
             Share
