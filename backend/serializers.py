@@ -82,7 +82,7 @@ class PostDetailsSerializer(ModelSerializer):
     def paginate_comment_src(self, obj):
         comments = Comment.objects.filter(post=obj)
         paginator = CommentPagination()
-        page = paginator.paginate_queryset(comments, self.context['request'])
+        page = paginator.paginate_queryset(comments)
         serializer = CommentSerializer(page, many=True)
         return serializer.data
     
