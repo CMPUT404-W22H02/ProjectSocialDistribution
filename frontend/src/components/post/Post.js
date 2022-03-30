@@ -187,8 +187,8 @@ function Post({ postData }) {
         
     }).catch(e => {
         console.log("error---like--")
-        addToast({description: "Do not send again!",
-              status: 'info', isClosable: true, duration: 1000,})
+        /* addToast({description: "Do not send again!",
+              status: 'info', isClosable: true, duration: 1000,}) */
 
         console.log(e)
     })
@@ -281,9 +281,9 @@ const onsubmitValueLike = (current_user, follower) => {
     
         
     }).catch(e => {
-        console.log("error-----")
-        addToast({description: "Do not send again!",
-              status: 'info', isClosable: true, duration: 1000,})
+        console.log("error-----follow")
+        /* addToast({description: "Do not send again!",
+              status: 'info', isClosable: true, duration: 1000,}) */
 
         console.log(e)
     })
