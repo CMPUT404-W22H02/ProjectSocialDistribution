@@ -39,6 +39,9 @@ let identity = Identity.GetIdentity();
 function Post({ postData }) {
   var current_user_id=identity.id
   current_user_id=current_user_id.slice(-36, current_user_id.length)
+  var author_id_url = postData.author.id
+  var author_id = author_id_url.slice(-36, author_id_url.length)
+  var follower = postData.author.display_name
   const { isOpen: isEditOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isCommentOpen, onToggle } = useDisclosure();
   const [ comments, setComments ] = useState([]);
@@ -62,6 +65,7 @@ function Post({ postData }) {
   // TODO: check with userID to hide/show edit dialog button
   var [post_author_id, setPostAuthId] = useState(postData.author.id)
   const author = postData.author.display_name
+  
   let inputComment = createRef();
   const addComment = () =>{
     axios.get(base_url+`authors/${current_user_id}`,
@@ -223,8 +227,9 @@ const onsubmitValueLike = (current_user, follower) => {
   }
   }
   const onSubmit = () =>{ 
+    console.log(postData)
 
-
+    console.log("::;;", current_user_id)
     axios.get(base_url+`authors/${current_user_id}`,
     {
         headers: {
@@ -235,15 +240,10 @@ const onsubmitValueLike = (current_user, follower) => {
     })
     .then(res => { 
     const info = res.data;
-    if(info.id){
-      var follower = info.display_name
+    console.log("=============", info);
+     var follower = info.display_name
       onsubmitValue(info, follower);
-    } 
-    else{
-      
-      var follower = info.data[0].display_name
-      onsubmitValue(info.data[0], follower);
-    }
+    
         
     }).catch(e => {
         console.log("error-----")
@@ -256,7 +256,7 @@ const onsubmitValueLike = (current_user, follower) => {
   const sendFollow=((values, token)=>{
     post_author_id=post_author_id.slice(-36, post_author_id.length)
 
-    axios.put(base_url+`authors/${post_author_id}/followers/${current_user_id}`,
+    /* axios.put(base_url+`authors/${post_author_id}/followers/${current_user_id}`,
           values, {
               headers: {
               'Content-Type': 'application/json',
@@ -272,16 +272,19 @@ const onsubmitValueLike = (current_user, follower) => {
               addToast({description: "send follow not successfull",
               status: 'error', isClosable: true, duration: 1000,})
               
-          })
-    axios.post(base_url+`authors/${post_author_id}/inbox`,
+          }) */
+    //axios.post(base_url+`authors/${post_author_id}/inbox`,
+          axios.post(`${author_id_url}/inbox`,
           values, {
               headers: {
               'Content-Type': 'application/json',
               "Authorization" : `Bearer ${token}`
               
               }})
-          .then((data) => addToast({description: "send follow successfull",
-              status: 'success', isClosable: true, duration: 1000,}),
+          .then((data) => {
+            console.log(data)
+            addToast({description: "send follow successfull",
+              status: 'success', isClosable: true, duration: 1000,})},
           
           ).catch((e)=>{
               console.log(e.response.status)
