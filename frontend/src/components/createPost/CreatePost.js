@@ -150,7 +150,7 @@ export default function CreatePost () {
               status: 'success', isClosable: true, duration: 1000,});
               console.log("post - ", data)
               values = data.data;
-              values['id'] = values['id'] + 'extra'
+              values['id'] = values['id']
               axios.get(`${id}`,
                           {
                               headers: {

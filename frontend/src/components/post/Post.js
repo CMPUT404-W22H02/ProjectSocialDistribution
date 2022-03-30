@@ -95,7 +95,7 @@ function Post({ postData }) {
             addToast({description: "comment added.",
               status: 'success', isClosable: true, duration: 1000,});
           console.log(data)
-          values['id'] = data.data.id+'extra';
+          values['id'] = data.data.id;
           axios.post(`${author_id_url}/inbox`,
           values, {
             headers: {
