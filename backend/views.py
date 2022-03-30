@@ -40,7 +40,7 @@ from .serializers import (AuthorSerializer, CommentCreationSerializer,
                           CommentSerializer, InboxCommentSerializer,
                           InboxFollowSerializer, InboxLikeSerializer,
                           InboxPostSerializer, LikeSerializer,
-                          PostCreationSerializer, PostDetailsSerializer)
+                          PostCreationSerializer, PostDetailsSerializer, PublicPostSerializer)
 
 
 class UtilityAPI(APIView):
@@ -633,7 +633,7 @@ class PublicFeedView(ListAPIView, UtilityAPI):
         # Get all home content first
         home_host = self.request.get_host()
         queryset = Post.objects.filter(author__host__icontains=home_host, visibility='PUBLIC')
-        serializer = PostDetailsSerializer(queryset, many=True)
+        serializer = PublicPostSerializer(queryset, many=True)
         public_posts[self.ritems] += serializer.data
 
         # Remote content
