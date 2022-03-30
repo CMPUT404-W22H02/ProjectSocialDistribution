@@ -47,15 +47,21 @@ function Login() {
   const handleLoginClick= async e=> {
     e.preventDefault();
     setLoading(true)
-    Refresh.loginUser({
+    const vaild = Refresh.loginUser({
       username,
       password
-    });
+    },
+    (data)=>{  console.log("-2-", data);  addToast({description: "success login",status: 'success', isClosable: true, duration: 1000,})},
+    (fail)=>{   console.log("-1-", fail);  addToast({description: "username/password is not correct",status: 'error', isClosable: true, duration: 1000,}); setLoading(false)}
+
+    
+    
+    )
     setUserName("")
     setPassword("")
+    console.log(vaild)
     //console.log("access---\n",data.data.access, "refresh---\n", data.data.refresh, "username---\n", data.data.user.username, data.data.user.id)
-    
-    addToast({description: "success login",status: 'success', isClosable: true, duration: 1000,})
+   
     //refreshToken()
     //setInterval(Refresh.refreshToken(), 2000)
     //window.location.assign("/home")
