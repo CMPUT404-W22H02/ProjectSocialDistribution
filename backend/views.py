@@ -632,7 +632,7 @@ class PublicFeedView(ListAPIView, UtilityAPI):
         public_posts = self.posts_response_template
         # Get all home content first
         home_host = self.request.get_host()
-        queryset = Post.objects.filter(author__host=home_host, visibility='PUBLIC')
+        queryset = Post.objects.filter(author__host__icontains=home_host, visibility='PUBLIC')
         serializer = PostDetailsSerializer(queryset, many=True)
         public_posts[self.ritems] += serializer.data
 
@@ -645,9 +645,8 @@ class PublicFeedView(ListAPIView, UtilityAPI):
             password = node.password
 
             try:
-                authors_url = f'{api_domain}authors/'
+                authors_url = f'{api_domain}/authors/'
                 authors = get(authors_url, auth=HTTPBasicAuth(username, password)).json()
-                breakpoint()
                 adapter = RemoteAdapter(authors)
                 adapted_authors = adapter.adapt_data()
                 
@@ -657,7 +656,7 @@ class PublicFeedView(ListAPIView, UtilityAPI):
                     slice_from = author_url.find('authors/')
                     author_uri = author['id'][slice_from:]
                     
-                    posts_url = f'{api_domain}{author_uri}/posts/'
+                    posts_url = f'{api_domain}/{author_uri}/posts/'
                     
                     author_posts = get(posts_url, auth=HTTPBasicAuth(username, password)).json()
                     
