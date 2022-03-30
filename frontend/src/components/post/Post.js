@@ -384,24 +384,30 @@ const onsubmitValueLike = (current_user, follower) => {
         <Container fontWeight="medium" pt="4">
           {postData.title}
         </Container>
+        <Container minH="10" minW="48rem" color={"grey"}>
+          Description - {postData.description}
+        </Container>
         <Container minH="10" minW="48rem">
-          {postData.description}
+          {postData.content}
         </Container>
         <HStack justify="space-between">
           <ButtonGroup isAttached>
             <Button onClick={onSubmitLike} leftIcon={<FaThumbsUp/>} variant="ghost">
-              Likes {count}
+            {count} Likes
             </Button>
             <Button onClick={onShare} leftIcon={<FaShare />} colorScheme='teal' variant='outline'>
             Share
             </Button>
             <Button leftIcon={<FaComment/>} variant="ghost" onClick={onToggle}>
-              {postData.count} Comments
+              Comments
             </Button>
           </ButtonGroup>
           {current_user_id==post_author_id.slice(-36, post_author_id.length)?<Button variant="solid" onClick={onOpen} right="0">Edit</Button>:null}
           <EditDialog isOpen={isEditOpen} onClose={onClose}/>
         </HStack>
+        <Container minH="10" minW="48rem" color={"grey"}>
+          Category - [{postData.categories}]
+          </Container>
       </Stack>
       <Collapse in={isCommentOpen} animateOpacity>
         <Box my="2" mx="4">
