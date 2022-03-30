@@ -91,10 +91,21 @@ function Post({ postData }) {
           "Authorization" : `Bearer ${localStorage.getItem("token")}`
           
           }})
-      .then((data) => addToast({description: "Comment added.",
-          status: 'success', isClosable: true, duration: 1000,}),
+          .then((data) => {
+            addToast({description: "comment added.",
+              status: 'success', isClosable: true, duration: 1000,});
+          console.log(data)
+          values['id'] = data.data.id+'extra';
+          axios.post(`${author_id_url}/inbox`,
+          values, {
+            headers: {
+              'Content-Type': 'application/json',
+              "Authorization" : `Bearer ${localStorage.getItem("token")}`
+              
+              }})
+              .then((data)=>console.log(data))
       
-      ).catch((e)=>{
+            }).catch((e)=>{
           console.log(e.response.status)
           setStatus(e.response.status)
           addToast({description: "send follow not successfull",
@@ -170,33 +181,6 @@ function Post({ postData }) {
 
         console.log(e)
     })
-    /* axios.get(base_url+`authors/${current_user_id}`,
-    {
-        headers: {
-        "Content-Type": "application/json",
-        "Authorization" : `Bearer ${localStorage.getItem("token")}`
-
-        },
-    })
-    .then(res => { 
-    const info = res.data;
-    if(info.id){
-      var follower = info.display_name
-      onsubmitValueLike(info, follower);
-    } 
-    else{
-      
-      var follower = info.data[0].display_name
-      onsubmitValueLike(info.data[0], follower);
-    }
-        
-    }).catch(e => {
-        console.log("error-----")
-        addToast({description: "Do not send again!",
-              status: 'info', isClosable: true, duration: 1000,})
-
-        console.log(e)
-    }) */
 }
 const sendLike=((values, token)=>{
   post_author_id=post_author_id.slice(-36, post_author_id.length)

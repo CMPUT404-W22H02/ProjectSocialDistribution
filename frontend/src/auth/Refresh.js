@@ -1,7 +1,7 @@
 import Identity from "../model/Identity";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
-const base_url = process.env.REACT_APP_API_URL ;
+const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/' ;
 
 
 

@@ -50,7 +50,7 @@ export default function CreatePost () {
         setPicture(URL.createObjectURL(e.target.files[0]));
     };
 
-    function getAllAuthors(id, values, token ){
+    function getAllAuthors(values, token ){
       axios.get(`${base_url}authors/`, {
               headers: {
               'Content-Type': 'application/json',
@@ -59,8 +59,6 @@ export default function CreatePost () {
               }})
           .then((data) => {
             console.log(data.data.items)
-            values['type']='post'
-            console.log("++++++++++++authos++++++++++++",values)
             for (let author of data.data.items) {
               console.log(author)
               const response = axios.post(`${author.id}/inbox`, 
@@ -71,9 +69,10 @@ export default function CreatePost () {
                   "Authorization" : `Bearer ${token}`
                   
                   }})
+                  .catch(e=>console.log(e))
             }
           }).catch((e)=>{
-              console.log(e.response.status)
+              console.log(e.response)
               setStatus(e.response.status)
               if (e.response.status===401){
                 /* window.location.assign("/")
@@ -138,18 +137,6 @@ export default function CreatePost () {
 
 
     function sendRequest(id, values, token){
-      axios.get(`${base_url}authors/d0aa87e9-a2ec-434d-b86d-1be18b9bfec5/inbox`,{
-        headers: {
-          'Content-Type': 'application/json',
-          "Authorization" : `Bearer ${token}`
-          
-          }
-      }).then((data)=> console.log("----get inboxc-----", data)).catch((e)=>{
-        console.log("------fff", e.response.status)
-        setStatus(e.response.status)
-
-
-      });
 
       axios.post(`${id}/posts/`,
           values, {
@@ -161,40 +148,30 @@ export default function CreatePost () {
           .then((data) => {
             addToast({description: "create post successfull",
               status: 'success', isClosable: true, duration: 1000,});
-              console.log("post---------------", data)
-              values['id'] = data.data.id+'ss"'
-              values['type']='post'
-              values['title']=""
-              values['source']=''
-              values['description']=""
-              values['content_type']=""
-              values['content']=""
-              values['categories']= ""
-              values['count']= 0
-              values['visibility']= "PUBLIC"
-              values['unlisted']= false
-              console.log("---------------pp", values)
-              if (values.visibility==="FRIENDS"){
-                console.log(id)
-                let id_uuid = id.slice(-36, id.length)
-                getAllFollowers(id_uuid, values, token)
-              }else{
-                let id_uuid = id.slice(-36, id.length)
-                getAllAuthors(id_uuid, values, token)
-              }
-
-
-
-
-            
-            
-            
-            
-            
-            }
+              console.log("post - ", data)
+              values = data.data;
+              values['id'] = values['id'] + 'extra'
+              axios.get(`${id}`,
+                          {
+                              headers: {
+                              "Content-Type": "application/json",
+                              "Authorization" : `Bearer ${token}`
+                      
+                              },
+                          })
+                          .then(res => { 
+                          values['author'] = res.data;
+                          console.log("values = ", values)
+                            if (values.visibility==="FRIENDS"){
+                              console.log(id)
+                              let id_uuid = id.slice(-36, id.length)
+                              getAllFollowers(id_uuid, values, token)
+                            }else{
+                              getAllAuthors(values, token)
+                            }
+                          }
           
-          ).catch((e)=>{
-            console.log("-erorororrcdcd--",e)
+          )}).catch((e)=>{
             console.log(e.response)
               console.log(e.response.status)
               setStatus(e.response.status)
@@ -202,6 +179,7 @@ export default function CreatePost () {
               status: 'error', isClosable: true, duration: 1000,})
               
           })
+          
 
     }
     const onSubmit = async values => {
@@ -213,18 +191,6 @@ export default function CreatePost () {
     console.log("-1-", refreshToken)
     let decodedToken = jwt_decode(token);
     let currentDate = new Date();
-    axios.get(`${base_url}authors/d0aa87e9-a2ec-434d-b86d-1be18b9bfec5/inbox`,{
-      headers: {
-        'Content-Type': 'application/json',
-        "Authorization" : `Bearer ${token}`
-        
-        }
-    }).then((data)=> console.log("----ccccc-----", data)).catch((e)=>{
-      console.log("------fff", e.response.status)
-      setStatus(e.response.status)
-
-
-    });
 
     var info;
     axios.get(`${id}`,
@@ -237,56 +203,19 @@ export default function CreatePost () {
       })
       .then(res => { 
       info = res.data;
-      //console.log("------2----author", info)
-      values['author']=info
-      //setValues(()=> [...values])
-      //setInfo(info)
-      //console.log("---------3-author", info)
+      //values['author']=info
+      values['content_type']='text/plain'
+      sendRequest(id, values, token)
       }).catch(e => {
           console.log("error-----")
           //console.log(token)
           console.log(e)
       })
 
-    //console.log("---", info)
-    //values['author1']=info
-    //setValues(()=> [...values])
-    console.log("0000000000", values)
-
     // JWT exp is in seconds
-    if (decodedToken.exp * 1000 < currentDate.getTime()) {
-        console.log("Token expired.");
-        Refresh.refreshToken().then(()=>{token = localStorage.getItem("token");
-        console.log(id)
-          sendRequest(id, values, token)});
-          console.log(values.visibility==="FRIENDS")
-          /* if (values.visibility==="FRIENDS"){
-            console.log(id)
-            let id_uuid = id.slice(-36, id.length)
-            getAllFollowers(id_uuid, values, token)
-          }else{
-            let id_uuid = id.slice(-36, id.length)
-            getAllAuthors(id_uuid, values, token)
-          } */
+  }
 
           
-        
-    } else {
-        console.log("Valid token");  
-        console.log(id)
-        sendRequest(id, values, token);
-        console.log(values.visibility==="FRIENDS")
-        /* if (values.visibility==="FRIENDS"){
-          console.log(id)
-          let id_uuid = id.slice(-36, id.length)
-        getAllFollowers(id_uuid, values, token)
-        }else{
-          let id_uuid = id.slice(-36, id.length)
-          getAllAuthors(id_uuid, values, token)
-        } */
-      
-    }
-    }
 
 
 
