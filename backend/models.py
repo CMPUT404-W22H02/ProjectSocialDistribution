@@ -172,6 +172,9 @@ class Follow(Model):
 class Inbox(Model):
     author  = OneToOneField(Author, on_delete=CASCADE, related_name='author_inbox')
     posts = ManyToManyField(Post, related_name='inbox_posts')
+    comments = ForeignKey(Comment, on_delete=CASCADE, null=True)
+    likes = ForeignKey(Like, on_delete=CASCADE, null=True)
+    follows = ForeignKey(Follow, on_delete=CASCADE, null=True)
 
     @property
     def type(self):

@@ -35,7 +35,7 @@ from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 from socialdisto.pagination import CustomPagination
 
 from .adapters import RemoteAdapter
-from .models import Author, Comment, Inbox, Like, Node, NodeUser, Post
+from .models import Author, Comment, Inbox, Like, Node, NodeUser, Post, Follow
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
                           CommentSerializer, InboxCommentSerializer,
                           InboxFollowSerializer, InboxLikeSerializer,
@@ -560,6 +560,9 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         inbox = self.get_object()
 
         inbox.posts.clear()
+        inbox.comments.clear()
+        inbox.likes.clear()
+        inbox.follows.clear()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     def list(self, request, *args, **kwargs):
@@ -581,27 +584,42 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         object = self.request.data.copy()
         adapter = RemoteAdapter(object)
         adapted_object = adapter.adapt_data()
-        self.request.data.update(adapted_object)
+        request.data.update(adapted_object)
+        content_type = request.data['type']
 
-        serializer = self.get_serializer(data=adapted_object)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
+        # If the object already exists on server, skip creation
+        serializer = self.get_serializer(data=request.data)
+        try:
+            if content_type == 'post':
+                obj = Post.objects.get(id=request.data['id'])
+            elif content_type == 'comment':
+                obj = Comment.objects.get(id=request.data['id'])
+            elif content_type == 'like':
+                obj = Like.objects.get(object=request.data['object'], author__id=request.data['author']['id'])
+            elif content_type == 'follow':
+                obj = Follow.objects.get(actor__id=request.data['actor']['id'], object__id=request.data['object']['id'])
+            response = Response(serializer.data, status=status.HTTP_201_CREATED)
+        except:
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
 
-        response = Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            response = Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         
         # Link the local copy to the inbox
         inbox = self.get_object()
-        content_type = self.request.data['type']
         if content_type == 'post':
             post = get_object_or_404(Post.objects.all(), id=response.data['id'])
             inbox.posts.add(post)
         elif content_type == 'like':
-            pass
+            like = get_object_or_404(Like.objects.all(), object=request.data['object'], author__id=request.data['author']['id'])
+            inbox.likes.add(like)
         elif content_type == 'comment':
-            pass
+            comment = get_object_or_404(Comment.objects.all(), id=request.data['id'])
+            inbox.comments.add(comment)
         elif content_type == 'follow':
-            pass
+            follow = get_object_or_404(Follow.objects.all(), actor__id=request.data['actor']['id'], object__id=request.data['object']['id'])
+            inbox.follows.add(follow)
         return response
 
 class PublicFeedView(ListAPIView, UtilityAPI):
@@ -629,17 +647,20 @@ class PublicFeedView(ListAPIView, UtilityAPI):
             try:
                 authors_url = f'{api_domain}authors/'
                 authors = get(authors_url, auth=HTTPBasicAuth(username, password)).json()
+                breakpoint()
                 adapter = RemoteAdapter(authors)
                 adapted_authors = adapter.adapt_data()
                 
                 for author in adapted_authors['items']:
-                    author_url = author['url']
+                    author_url = author['id']
                     # Need to interpolate the api prefix as not all ids and urls are saved with it
                     slice_from = author_url.find('authors/')
-                    author_uri = author['url'][slice_from:]
+                    author_uri = author['id'][slice_from:]
                     
                     posts_url = f'{api_domain}{author_uri}/posts/'
+                    
                     author_posts = get(posts_url, auth=HTTPBasicAuth(username, password)).json()
+                    
                     adapter = RemoteAdapter(author_posts)
                     adapted_posts = adapter.adapt_data()
    
