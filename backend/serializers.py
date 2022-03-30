@@ -93,7 +93,7 @@ class PublicPostSerializer(ModelSerializer):
 
     class Meta:
         model = Post
-        exclude = ['comment_src']
+        fields = '__all__'
     
 class PostCreationSerializer(ModelSerializer):
     type = ReadOnlyField(default=str(Post.type))
