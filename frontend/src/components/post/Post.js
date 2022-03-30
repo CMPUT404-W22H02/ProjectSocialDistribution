@@ -381,6 +381,12 @@ const onsubmitValueLike = (current_user, follower) => {
         </Avatar>
           <Heading size="md">{postData.author.display_name}</Heading>
         </HStack>
+        {postData.author.host == 'https://psdt11.herokuapp.com/' ?
+        <Container fontWeight="medium" pt="4" color={'blue'}>
+          Host - {postData.author.host}
+        </Container> : <Container fontWeight="medium" pt="4" color={'green'}>
+          Host - {postData.author.host}
+        </Container>}
         <Container fontWeight="medium" pt="4">
           {postData.title}
         </Container>
