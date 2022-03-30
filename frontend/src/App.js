@@ -12,6 +12,7 @@ import NotFound404 from "./pages/NotFound";
 import useToken from "./components/App/useToken"
 import PleaseSignIn from "./pages/NotFound/PleaseSinIn"
 import CreatePost from './components/createPost';
+import Admin from './pages/admin'
 function App() {
 
   return (
@@ -33,6 +34,9 @@ function App() {
           <Route path='/user/:id' element={<User/>} />
           <Route exact path='/create' element={<PrivateRoute/>}>
               <Route path="/create" element={<CreatePost />} />
+          </Route>
+          <Route exact path='/admin' element={<PrivateRoute/>}>
+              <Route path="/admin" element={<Admin />} />
           </Route>
 
           {/* <Route path="*" element={<NotFound404 />} /> */}
