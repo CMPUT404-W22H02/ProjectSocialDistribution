@@ -358,7 +358,7 @@ const onsubmitValueLike = (current_user, follower) => {
             </Button>
           </ButtonGroup>
           {current_user_id==post_author_id.slice(-36, post_author_id.length)?<Button variant="solid" onClick={onOpen} right="0">Edit</Button>:null}
-          <EditDialog isOpen={isEditOpen} onClose={onClose}/>
+          <EditDialog post={postData} isOpen={isEditOpen} onClose={onClose}/>
         </HStack>
       </Stack>
       <Collapse in={isCommentOpen} animateOpacity>

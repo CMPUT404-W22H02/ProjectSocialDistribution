@@ -2,6 +2,7 @@ import axios from "axios";
 import Identity from "./Identity";
 import {Refresh} from "../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
+
 async function fetchAllPosts() {
   const posts = [];
   let decodedToken = jwt_decode( localStorage.getItem("token"));
