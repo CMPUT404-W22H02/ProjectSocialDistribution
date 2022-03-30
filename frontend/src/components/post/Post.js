@@ -147,7 +147,19 @@ function Post({ postData }) {
   }
   
   const onSubmitLike = () =>{ 
+    let token = localStorage.getItem("token")
+    let decodedToken = jwt_decode(token);
+    let currentDate = new Date();
 
+    // JWT exp is in seconds
+    if (decodedToken.exp * 1000 < currentDate.getTime()) {
+        console.log("Token expired.");
+        Refresh.refreshToken()
+        
+    } else {
+        console.log("Valid token");  
+        sendFollow(values, token) 
+    }
     axios.get(base_url+`authors/${current_user_id}`,
     {
         headers: {
