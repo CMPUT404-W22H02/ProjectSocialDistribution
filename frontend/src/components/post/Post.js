@@ -158,7 +158,6 @@ function Post({ postData }) {
         
     } else {
         console.log("Valid token");  
-        sendFollow(values, token) 
     }
     axios.get(base_url+`authors/${current_user_id}`,
     {
