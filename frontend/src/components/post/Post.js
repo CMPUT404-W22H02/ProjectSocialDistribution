@@ -385,7 +385,7 @@ const onsubmitValueLike = (current_user, follower) => {
           {postData.title}
         </Container>
         <Container minH="10" minW="48rem" color={"grey"}>
-          Description - {postData.description}
+          Description - {postData.description} Categories - [{postData.categories}]
         </Container>
         <Container minH="10" minW="48rem">
           {postData.content}
@@ -403,11 +403,8 @@ const onsubmitValueLike = (current_user, follower) => {
             </Button>
           </ButtonGroup>
           {current_user_id==post_author_id.slice(-36, post_author_id.length)?<Button variant="solid" onClick={onOpen} right="0">Edit</Button>:null}
-          <EditDialog isOpen={isEditOpen} onClose={onClose}/>
+          <EditDialog post={postData} isOpen={isEditOpen} onClose={onClose}/>
         </HStack>
-        <Container minH="10" minW="48rem" color={"grey"}>
-          Category - [{postData.categories}]
-          </Container>
       </Stack>
       <Collapse in={isCommentOpen} animateOpacity>
         <Box my="2" mx="4">
