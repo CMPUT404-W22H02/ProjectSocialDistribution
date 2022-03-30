@@ -609,7 +609,7 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         # Link the local copy to the inbox
         inbox = self.get_object()
         if content_type == 'post':
-            post = get_object_or_404(Post.objects.all(), id=response.data['id'])
+            post = get_object_or_404(Post.objects.all(), id=request.data['id'])
             inbox.posts.add(post)
         elif content_type == 'like':
             like = get_object_or_404(Like.objects.all(), object=request.data['object'], author__id=request.data['author']['id'])
