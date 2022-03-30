@@ -19,8 +19,12 @@ import {
   InputRightAddon
 } from "@chakra-ui/react";
 
-function Author(author){
+const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000/';
 
+function Author(author){
+    const onRemove=()=>{
+        
+    }
 
     return(
         <Flex width="50rem" minH="10rem" boxShadow="lg" py="2" alignContent="center" flexDirection="column">
@@ -39,28 +43,6 @@ function Author(author){
                 </ButtonGroup>
                 </HStack>
             </Stack>
-            <Collapse in={isCommentOpen} animateOpacity>
-                <Box my="2" mx="4">
-                <InputGroup>
-                    <Input ref={inputComment} placeholder="Write a comment"/>
-                    <InputRightAddon>
-                    <Button onClick={addComment}>
-                        Submit
-                    </Button>
-                    </InputRightAddon>
-                </InputGroup>
-                
-                </Box>
-                <Divider borderColor="gray.300" width="90%0" mx="4" mb="2"/>
-                <VStack 
-                divider={<StackDivider width="95%" justify="center"/>}
-                align="left"
-                ml="6"
-                my="2"
-                >
-                {comments.map((comment, i) => <Comment commentData={comment} key ={i}/>)}
-                </VStack>
-            </Collapse>
         </Flex>
     );
 }
