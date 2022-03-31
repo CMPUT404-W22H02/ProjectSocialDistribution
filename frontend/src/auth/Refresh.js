@@ -1,19 +1,40 @@
 import Identity from "../model/Identity";
 import axios from "axios";
 import jwt_decode from "jwt-decode";
+const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/' ;
+
+
+
+
 const Refresh={
 Identity : Identity.GetIdentity(),
-  async loginUser(credentials) {
+ async loginUser(credentials, success=()=>{}, fail = ()=>{}) {
     try {
-    const data = await axios.post('http://localhost:8000/login/',
+    await axios.post(`${base_url}login/`,
       credentials, {
       headers: {
         'Content-Type': 'application/json'
       }
-    });
-    Refresh.Identity = new Identity(data.data.access, data.data.refresh, data.data.user.username, data.data.user.id);
-    Refresh.Identity.StoreIdentity();
-    window.location.assign("/home");
+    }).then((data) => 
+    {
+      console.log(typeof data !=="undefiend")
+      Refresh.Identity = new Identity(data.data.access, data.data.refresh, data.data.user.username, data.data.user.id);
+      Refresh.Identity.StoreIdentity();
+
+      window.location.assign("/home");
+      
+      if (typeof data !=="undefiend"){
+        success(data)
+      }
+      
+
+    }).catch((error)=>{
+      fail(error)
+      console.log("=",error)
+
+
+    })
+    
   } catch (e) {
     console.log(e);
   }
@@ -47,7 +68,7 @@ async refreshToken(){
         throw Error("Attempt to refresh access token without a refresh token")
         
     }
-    await axios.post('http://localhost:8000/refresh/',
+    await axios.post(`${base_url}refresh/`,
     {refresh: Refresh.Identity.refreshToken}, {
       headers: {
         'Content-Type': 'application/json'

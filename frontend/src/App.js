@@ -13,6 +13,7 @@ import useToken from "./components/App/useToken"
 import PleaseSignIn from "./pages/NotFound/PleaseSinIn"
 import CreatePost from './components/createPost';
 import Admin from './pages/admin'
+import Inbox from './pages/inbox'
 function App() {
 
   return (
@@ -38,6 +39,11 @@ function App() {
           <Route exact path='/admin' element={<PrivateRoute/>}>
               <Route path="/admin" element={<Admin />} />
           </Route>
+          <Route exact path='/inbox' element={<PrivateRoute/>}>
+              <Route path="/inbox" element={<Inbox />} />
+          </Route>
+
+          {/* <Route path="*" element={<NotFound404 />} /> */}
         </Routes>
       </BrowserRouter>
     </div>

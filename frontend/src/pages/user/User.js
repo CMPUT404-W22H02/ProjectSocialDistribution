@@ -23,7 +23,7 @@ import { useState } from 'react';
     const [github, setGH] = useState("");
     console.log(id);
     console.log(token);
-    axios.get('http://localhost:8000/authors/'+`${id}`,
+    axios.get('https://psdt11.herokuapp.com/authors/'+`${id}`,
     {
         headers: {
         "Content-Type": "application/json",
