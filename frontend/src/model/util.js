@@ -17,11 +17,14 @@ async function fetchAllPosts() {
   }
   
   try {
-      const response = await axios.get(`https://psdt11.herokuapp.com/publicposts`, {
+    //https://psdt11.herokuapp.com/publicposts
+    //http://127.0.0.1:8000/publicposts
+      const response = await axios.get(`http://localhost:8000/publicposts/`, {
         headers: {
           Authorization: "Bearer " + Identity.GetIdentity().token
         }});
       const postList = response.data.items;
+      console.log(postList)
       posts.push(...postList);
   }
   catch (error) {
