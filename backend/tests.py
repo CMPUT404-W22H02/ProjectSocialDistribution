@@ -650,6 +650,7 @@ class InboxAPITests(GenericTestCase):
         super().setUp()
         self.mock_authors()
         self.url = f'{self.author1.id}/inbox'
+        self.likesurl = f'{self.author1.id}/inboxlikes'
 
         # External post not already on the server
         self.post = {
@@ -786,6 +787,12 @@ class InboxAPITests(GenericTestCase):
         self.assertEqual(response.status_code, HTTP_201_CREATED)
         response = self.client.post(self.url, self.comment_like)
         self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Verify the likes are now in the inbox using the inboxlikes uri
+        response = self.client.get(self.likesurl)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        # Comment+Post Like
+        self.assertEqual(len(response.data), 2)
     
     def test_inbox_post_follower(self):
         response = self.client.post(self.url, data=self.follow_request)

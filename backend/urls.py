@@ -22,7 +22,7 @@ from .views import (AdaptView, AuthorDetailAPIView, AuthorLikedAPIView,
                     AuthorsAPIView, CommentLikesAPIView, CommentsAPIView,
                     FollowerDetailAPIView, FollowersAPIView, InboxAPIView,
                     PostDetailAPIView, PostLikesAPIView, PostsAPIView,
-                    PublicFeedView)
+                    PublicFeedView, InboxLikesAPIView)
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 router = DefaultRouter()
@@ -44,7 +44,9 @@ urlpatterns = [
     path('authors/<str:author_id>/posts/<str:post_id>/comments/<str:comment_id>/likes', CommentLikesAPIView.as_view(), name='api_comment_likes'),
     path('authors/<str:author_id>/liked', AuthorLikedAPIView.as_view(), name='api_author_liked'),
     
+    # Inbox
     path('authors/<str:author_id>/inbox', InboxAPIView.as_view(), name='api_inbox'),
+    path('authors/<str:author_id>/inboxlikes', InboxLikesAPIView.as_view(), name='api_inbox_likes'),
 
     # Public feed
     path('publicposts/', PublicFeedView.as_view(), name='public_posts'),

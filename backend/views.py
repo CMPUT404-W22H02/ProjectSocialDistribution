@@ -513,8 +513,14 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
 
             if content_type == 'post' or content_type == 'comment' or content_type == 'like':
                 author_id = self.request.data['author']['id']
-                author, created = Author.objects.get_or_create(id=author_id)
-                context['author'] = author
+                try:
+                    author = Author.objects.get(id=author_id)
+                except:
+                    serializer = AuthorSerializer(data=self.request.data['author'])
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                    author = Author.objects.get(id=author_id)
+                context['author'] = author    
             
             if content_type == 'comment':
                 comment_id = self.request.data['id']
@@ -685,3 +691,29 @@ class AdaptView(UpdateAPIView):
         adapted_data = adapter.adapt_data()
 
         return Response(adapted_data)
+
+class InboxLikesAPIView(ListAPIView, UtilityAPI):
+    """GET to this endpoint to get the likes in the inbox."""
+    queryset = Inbox.objects.all()
+
+    serializer_class = LikeSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        queryset = self.get_queryset()
+
+        inbox = get_object_or_404(queryset, author__id=self.get_author_id())
+
+        return inbox
+
+    def list(self, request, *args, **kwargs):
+        """Omit pagination."""
+        inbox = self.get_object()
+
+        likes = inbox.likes.all()
+
+        serializer = self.get_serializer(likes, many=True)
+
+        return Response(serializer.data)
