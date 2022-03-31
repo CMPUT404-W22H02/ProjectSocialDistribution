@@ -8,8 +8,10 @@ const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com'
 let identity = Identity.GetIdentity();
 const Inbox = () => {
 let identity = Identity.GetIdentity();
-  const [followList, setFollowList] =useState();
-  const [likeList, setLikeList] =useState();
+  const [followList, setFollowList] =useState([]);
+  const [likeList, setLikeList] =useState([]);
+  const [likeListLength, setLikeListLength] =useState(0);
+  const [followListLength, setFollowListLength] =useState(0);
   console.log(identity.id)
 
   useEffect(()=>{
@@ -23,8 +25,11 @@ let identity = Identity.GetIdentity();
         .then((data) => {
           console.log(data)
           console.log(data.data.items)
+          
 
           setFollowList(data.data.items)
+          
+           
           
         }
         ).catch((e)=>{
@@ -41,7 +46,10 @@ let identity = Identity.GetIdentity();
         }})
         .then((data) => {
           console.log(data)
+          
           setLikeList(data.data.items)
+          
+            
           
         }
         ).catch((e)=>{
@@ -69,9 +77,20 @@ let identity = Identity.GetIdentity();
 
 }
 
-
+/* 
+if (typeof likeList !="undefined" ){
+    setLikeListLength(likeList.length)
+}
+if (typeof followList !="undefined" ){
+    setFollowListLength(followList.length)
+} */
+   
   console.log("followlist", followList)
   console.log("likeList", likeList)
+  console.log(followListLength)
+  console.log(likeListLength)
+  console.log(likeListLength)
+  console.log(followListLength)
   
   return (
     <><Navbar /><Flex
@@ -88,18 +107,20 @@ let identity = Identity.GetIdentity();
               >
                   <Heading color="white">Book List</Heading>
               </Box>
-              <Stack spacing={4} direction='row' >
-              <Box rounded="md" bg="purple.500" color="white" px="15px" py="15px">
-                  <Stack spacing={8}>
-                      {followList?  
-                      followList.map((follow, i) => <><div key={i} > {follow.actor.display_name} want to follow you </div>
+              <Stack spacing={6} direction='row' >
+              <Box rounded="md" bg="purple.300" color="white" px="15px" py="15px">
+                  <Stack spacing={3}>
+                      {typeof followList !="undefined" & followList.length!=0?  
+                      followList.map((follow, i) => <Box rounded="md" bg="purple.400" color="white" px="15px" py="15px">
+                          <div key={i} > {follow.actor.display_name} want to follow you </div>
 
                       <Stack spacing={4} direction='row' align='center'>
 
                        <Button paddingX="3rem" size='xs' colorScheme='red'onClick={rejectfunction}>Reject</Button>
                       <Button paddingX="3rem" size='xs' colorScheme='teal' onClick={agreefunction} >Accept</Button>   
                       </Stack>
-                      </>
+                      <p>-----------------------------------------</p>
+                      </Box>
                       )
 
                       
@@ -107,15 +128,16 @@ let identity = Identity.GetIdentity();
 
                   </Stack>
               </Box>
-              <Box rounded="md" bg="teal.500" color="white" px="15px" py="15px">
-                  <Stack spacing={8}>
-                      {likeList?  
-                      likeList.map((follow, i) => <><div  key={i} > {follow.author.display_name} like your post</div>
+              <Box rounded="md" bg="teal.300" color="white" px="15px" py="15px">
+                  <Stack spacing={2}>
+                      {typeof likeList !="undefined" & likeList.length!=0? 
+                      likeList.map((follow, i) => <Box rounded="md" bg="teal.400" color="white" px="15px" py="15px">
+                          <div  key={i} > {follow.author.display_name} like your post</div>
 
-                      <Stack spacing={4} direction='row' align='center'>
+                      <Stack spacing={2} direction='row' align='center'>
   
                       </Stack>
-                      </>
+                      </Box>
                       )
 
                       
