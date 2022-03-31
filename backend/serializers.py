@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from email.policy import default
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import update_last_login
 from django.shortcuts import get_object_or_404
@@ -85,6 +86,14 @@ class PostDetailsSerializer(ModelSerializer):
         page = paginator.paginate_queryset(comments, self.context['request'])
         serializer = CommentSerializer(page, many=True)
         return serializer.data
+
+class PublicPostSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Post.type))
+    author = AuthorSerializer(read_only=True)
+
+    class Meta:
+        model = Post
+        fields = '__all__'
     
 class PostCreationSerializer(ModelSerializer):
     type = ReadOnlyField(default=str(Post.type))
