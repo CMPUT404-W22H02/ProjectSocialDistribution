@@ -20,10 +20,9 @@ import {
 import Identity from '../../model/Identity';
 
 function EditDialog({ post, isOpen, onClose }) {
-  // once they pass post data then you just set post.title in each useState
-  //example: const [title, setTitle] = useState(post.title);
-  //post.title is get data after we click post, then it will justdisplay tehm in the input filed
-  const [title, setTitle] = useState(`${post.title}`);
+    // TODO: checking unlist removes edit button
+
+  const [title, setTitle] = useState(post.title);
   const [desc, setDesc] = useState(post.description);
   const [content, setContent] = useState(post.content);
   const [categories, setCategories] = useState(post.categories);
@@ -34,7 +33,9 @@ function EditDialog({ post, isOpen, onClose }) {
     try {
       const response = await axios.post(post.id, {
         title: title,
-        description: desc
+        description: desc,
+        content: content,
+        categories: categories,
       }, {
         headers: {
           Authorization: "Bearer " + Identity.GetIdentity().token
@@ -68,6 +69,20 @@ function EditDialog({ post, isOpen, onClose }) {
               setDesc(event.target.value);
             }}/>
           </FormControl>
+
+          <FormControl>
+            <FormLabel>Content</FormLabel>
+            <Input value={content} onChange={(event) => {
+              setContent(event.target.value);
+            }}/>
+          </FormControl>
+
+          <FormControl>
+            <FormLabel>Category</FormLabel>
+            <Input value={categories} onChange={(event) => {
+              setCategories(event.target.value);
+            }}/>
+          </FormControl>
           
           <FormControl>
             <FormLabel>Visibility</FormLabel>
@@ -82,7 +97,7 @@ function EditDialog({ post, isOpen, onClose }) {
             <FormLabel>Unlisted</FormLabel>
             <Stack spacing={5} direction='row'>
               <Checkbox defaultChecked isChecked ={unlisted}  onChange={(e)=>setUnlisted(e.target.checked)}>
-              Unlisted
+                Unlisted
               </Checkbox>
             </Stack>
           </FormControl>

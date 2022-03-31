@@ -45,9 +45,11 @@ function Post({ postData }) {
   const { isOpen: isEditOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isCommentOpen, onToggle } = useDisclosure();
   const [ comments, setComments ] = useState([]);
+
+  // TODO: postData.count is count for # of comments, atm it is tracking # of likes
   const [count, setCount]=useState(postData.count);
+
   const [countRepeat, setCountRepeat]=useState(0);
-  //const [id, setId] = useState();
   const {picture, setPic} = useState();
   const toast = useToast();
   const toastIdRef = useRef();
@@ -64,7 +66,6 @@ function Post({ postData }) {
     getComments();
   }, [postData.comments])
 
-  // TODO: check with userID to hide/show edit dialog button
   var [post_author_id, setPostAuthId] = useState(postData.author.id)
   const author = postData.author.display_name
   
@@ -227,9 +228,6 @@ const onsubmitValueLike = (current_user, follower) => {
   "summary":`${follower} Likes your post.`, 
   "author": current_user,
   "object": postData.id}
-  // console.log("author", postData.author)
-  // console.log("user", current_user)
-  // console.log("CURR", current_user_id)
   console.log(values)
 
   let token = localStorage.getItem("token")
@@ -365,7 +363,7 @@ const onsubmitValueLike = (current_user, follower) => {
     }
   return (
     <Flex width="50rem" minH="10rem" boxShadow="lg" py="2" alignContent="center" flexDirection="column">
-      <Stack direction="column" spacing="3" px="4" justify="space-between">
+      <Stack direction="column" spacing="2.5" px="4" justify="space-between">
         <HStack pt="4" ml="2" spacing="3">
         <Avatar size="md" src={picture}>
           <AvatarBadge
@@ -381,31 +379,37 @@ const onsubmitValueLike = (current_user, follower) => {
         </Avatar>
           <Heading size="md">{postData.author.display_name}</Heading>
         </HStack>
+
         {postData.author.host == 'https://psdt11.herokuapp.com/' ?
         <Container fontWeight="medium" pt="4" color={'blue'}>
           Host - {postData.author.host}
         </Container> : <Container fontWeight="medium" pt="4" color={'green'}>
           Host - {postData.author.host}
         </Container>}
-        <Container fontWeight="medium" pt="4">
+        <Container fontWeight="bold" pt="4" fontSize="xl">
           {postData.title}
         </Container>
-        <Container minH="10" minW="48rem" color={"grey"}>
-          Description - {postData.description} Categories - [{postData.categories}]
+        <Container minW="48rem">
+          {postData.description}
         </Container>
-        <Container minH="10" minW="48rem">
-          {postData.content}
+        <Container minW="48rem">
+          <Text fontSize="lg">{postData.content}</Text>
+          <HStack mt="1">
+            <Text fontWeight="medium">Categories: </Text>
+            <Text>{postData.categories}</Text>
+          </HStack>
+          
         </Container>
         <HStack justify="space-between">
           <ButtonGroup isAttached>
             <Button onClick={onSubmitLike} leftIcon={<FaThumbsUp/>} variant="ghost">
             {count} Likes
             </Button>
-            <Button onClick={onShare} leftIcon={<FaShare />} colorScheme='teal' variant='outline'>
-            Share
-            </Button>
             <Button leftIcon={<FaComment/>} variant="ghost" onClick={onToggle}>
               Comments
+            </Button>
+            <Button onClick={onShare} leftIcon={<FaShare />} colorScheme='teal' variant='ghost'>
+              Share
             </Button>
           </ButtonGroup>
           {current_user_id==post_author_id.slice(-36, post_author_id.length)?<Button variant="solid" onClick={onOpen} right="0">Edit</Button>:null}
