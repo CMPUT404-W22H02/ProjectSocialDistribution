@@ -18,21 +18,15 @@ async function fetchAllPosts() {
   }
   
   try {
-    const response = await axios.get(`http://localhost:8000/authors/`, {
-      headers: {
-        Authorization: "Bearer " + Identity.GetIdentity().token
-      }});
-    
-    const authorList = response.data.items;
-
-    for (let author of authorList) {
-      const response = await axios.get(`${author.id}/posts/`, {
+    //https://psdt11.herokuapp.com/publicposts
+    //http://127.0.0.1:8000/publicposts
+      const response = await axios.get(`http://localhost:8000/publicposts/`, {
         headers: {
           Authorization: "Bearer " + Identity.GetIdentity().token
         }});
       const postList = response.data.items;
+      console.log(postList)
       posts.push(...postList);
-    }
   }
   catch (error) {
     console.log(error);
@@ -57,7 +51,7 @@ async function fetchComments(commentsUrl) {
   }
   catch (error) {
     console.log(error);
-    return null;
+    return [];
   }
 
   comments.sort((a, b) => b.published - a.published);

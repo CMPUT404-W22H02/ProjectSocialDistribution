@@ -26,7 +26,7 @@ import { SmallCloseIcon } from '@chakra-ui/icons';
 
 
 export default function JoinOurTeam() {
-  const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000/';
+  const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
   
   const [token, setToken]=useState("");
   const [refrensh, setRefrensh]=useState("");
@@ -57,7 +57,11 @@ export default function JoinOurTeam() {
     if (password1 !== password2) {
         addToast({description: "The 2 passwords your provided does not match",
                   status: 'error', isClosable: true, duration: 1000,})
-    }else{
+    }else if (!userName){
+      addToast({description: "username is required",
+      status: 'error', isClosable: true, duration: 1000,})
+    }
+    else{
       //uploadImage()
       submit()
 

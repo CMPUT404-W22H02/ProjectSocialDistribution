@@ -24,7 +24,7 @@ import axios from "axios";
 import Navbar from "../../components/navbar";
 import useToken from "../../components/App/useToken";
 import Identity from '../../model/Identity';
-const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000';
+const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com';
 //import Cookies from "universal-cookie";
 
 let identity = Identity.GetIdentity();
@@ -41,11 +41,34 @@ const [github, setGithub] = useState("");
 const [emailAddress, setEmailAddress] = useState("");
 const [password1, setPassword1] = useState("");
 const toast = useToast()
+var values = {}
 const toastIdRef = useRef()
 //const  author_id = props?.location?.state?.author_id
 function addToast(toast_data) {
     toastIdRef.current = toast(toast_data)
   }
+
+const updateProfile = () => {
+    console.log(userName)
+    console.log(display_name)
+    console.log(github)
+    values['type']='author';
+    values['id']=author_id;
+    values['url']=author_id;
+    values['github'] = github;
+    values['display_name'] = display_name;
+    values['host'] = 'https://psdt11.herokuapp.com/';
+    axios.post(`${author_id}`,
+    values,
+    {
+        headers: {
+        "Content-Type": "application/json",
+        "Authorization" : `Bearer ${token}`
+
+        },
+    })
+
+}
 const onChangePicture = e => {
 setPicture(URL.createObjectURL(e.target.files[0]));
 };
@@ -76,6 +99,7 @@ useEffect(()=>{
     //console.log(res)
     setUserName(info.username)
     setDisplay_name(info.display_name)
+    setGithub(info.github)
         
     }).catch(e => {
         console.log("error-----")
@@ -147,13 +171,16 @@ return (
             onChange={(e)=>setDisplay_name(e.target.value)}
         />
         </FormControl>
+
         
-        <FormControl id="github" isRequired>
+        <FormControl id="github">
         <FormLabel>Github</FormLabel>
         <Input
             placeholder="github"
             _placeholder={{ color: 'gray.500' }}
-            type="password"
+            type="text"
+            value={github}
+            onChange={(e)=>setGithub(e.target.value)}
         />
         </FormControl>
         <FormControl id="password" isRequired>
@@ -175,6 +202,7 @@ return (
             Cancel
         </Button>
         <Button
+        onClick={updateProfile}
             bg={'teal.400'}
             color={'white'}
             w="full"

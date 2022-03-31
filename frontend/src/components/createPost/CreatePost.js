@@ -28,7 +28,7 @@ import NavbarAdd from "../../components/navbar/NavbarAdd";
 import Identity from '../../model/Identity';
 import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
-const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000/';
+const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 //import Cookies from "universal-cookie";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 let identity = Identity.GetIdentity();
@@ -49,7 +49,8 @@ export default function CreatePost () {
     const onChangePicture = e => {
         setPicture(URL.createObjectURL(e.target.files[0]));
     };
-    function getAllFollowers(id, values, token ){
+
+    function getAllAuthors(values, token ){
       axios.get(`${base_url}authors/`, {
               headers: {
               'Content-Type': 'application/json',
@@ -58,7 +59,47 @@ export default function CreatePost () {
               }})
           .then((data) => {
             console.log(data.data.items)
-            values['type']='post'
+            for (let author of data.data.items) {
+              console.log(author)
+              const response = axios.post(`${author.id}/inbox`, 
+              values,
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                  "Authorization" : `Bearer ${token}`
+                  
+                  }})
+                  .catch(e=>console.log(e))
+            }
+          }).catch((e)=>{
+              console.log(e.response)
+              setStatus(e.response.status)
+              if (e.response.status===401){
+                /* window.location.assign("/")
+                window.localStorage.clear();
+                window.sessionStorage.clear(); */
+                
+              }
+              addToast({description: "create post not successfull",
+              status: 'error', isClosable: true, duration: 1000,})
+              
+          })
+
+
+
+
+    }
+    function getAllFollowers(id, values, token ){
+      axios.get(`${base_url}authors/${id}/followers`, {
+              headers: {
+              'Content-Type': 'application/json',
+              "Authorization" : `Bearer ${token}`
+              
+              }})
+          .then((data) => {
+            console.log(data.data.items)
+            
+            console.log("++++++++++++followers++++++++++++",values)
             for (let author of data.data.items) {
               console.log(author)
               const response = axios.post(`${author.id}/inbox`, 
@@ -96,6 +137,7 @@ export default function CreatePost () {
 
 
     function sendRequest(id, values, token){
+
       axios.post(`${id}/posts/`,
           values, {
               headers: {
@@ -103,16 +145,41 @@ export default function CreatePost () {
               "Authorization" : `Bearer ${token}`
               
               }})
-          .then((data) => addToast({description: "create post successfull",
-              status: 'success', isClosable: true, duration: 1000,}),
+          .then((data) => {
+            addToast({description: "create post successfull",
+              status: 'success', isClosable: true, duration: 1000,});
+              console.log("post - ", data)
+              values = data.data;
+              values['id'] = values['id']
+              axios.get(`${id}`,
+                          {
+                              headers: {
+                              "Content-Type": "application/json",
+                              "Authorization" : `Bearer ${token}`
+                      
+                              },
+                          })
+                          .then(res => { 
+                          values['author'] = res.data;
+                          console.log("values = ", values)
+                            if (values.visibility==="FRIENDS"){
+                              console.log(id)
+                              let id_uuid = id.slice(-36, id.length)
+                              getAllFollowers(id_uuid, values, token)
+                            }else{
+                              getAllAuthors(values, token)
+                            }
+                          }
           
-          ).catch((e)=>{
+          )}).catch((e)=>{
+            console.log(e.response)
               console.log(e.response.status)
               setStatus(e.response.status)
               addToast({description: "create post not successfull",
               status: 'error', isClosable: true, duration: 1000,})
               
           })
+          
 
     }
     const onSubmit = async values => {
@@ -125,32 +192,30 @@ export default function CreatePost () {
     let decodedToken = jwt_decode(token);
     let currentDate = new Date();
 
+    var info;
+    axios.get(`${id}`,
+      {
+          headers: {
+          "Content-Type": "application/json",
+          "Authorization" : `Bearer ${token}`
+  
+          },
+      })
+      .then(res => { 
+      info = res.data;
+      //values['author']=info
+      values['content_type']='text/plain'
+      sendRequest(id, values, token)
+      }).catch(e => {
+          console.log("error-----")
+          //console.log(token)
+          console.log(e)
+      })
+
     // JWT exp is in seconds
-    if (decodedToken.exp * 1000 < currentDate.getTime()) {
-        console.log("Token expired.");
-        Refresh.refreshToken().then(()=>{token = localStorage.getItem("token");
-        console.log(id)
-          sendRequest(id, values, token)});
-          console.log(values.visibility==="FRIENDS")
-          if (values.visibility==="FRIENDS"){
-            console.log(id)
-            let id_uuid = id.slice(-36, id.length)
-          getAllFollowers(id_uuid, values, token)
-          }
+  }
 
           
-        
-    } else {
-        console.log("Valid token");  
-        sendRequest(id, values, token) ;
-        console.log(values.visibility==="FRIENDS")
-        /*if (values.visibility==="FRIENDS"){
-          console.log(id)*/
-          let id_uuid = id.slice(-36, id.length)
-          getAllFollowers(id_uuid, values, token)
-        
-    }
-    }
 
 
 

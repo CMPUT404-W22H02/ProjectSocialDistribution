@@ -18,7 +18,7 @@ import {
 
 
 } from '@chakra-ui/react';
-import { AddIcon, InfoIcon } from '@chakra-ui/icons';
+import { AddIcon, EmailIcon } from '@chakra-ui/icons';
 import { useState, } from "react";
 import Identity from "../../model/Identity";
 import React from 'react';
@@ -53,6 +53,10 @@ function Navbar() {
         <Heading ><a href="/home" >Social Distribution</a></Heading>
       </Box>
       <Stack direction="row" spacing="7">
+      <Grid justify="flex-end" align="flex-end">
+       <a href="/inbox"> <IconButton style={{ bottom: -7, right: 3 }} size='sm' icon={<EmailIcon />} > </IconButton>               </a>
+        
+      </Grid>
       <Grid justify="flex-end" align="flex-end">
        <a href="/create"> <IconButton style={{ bottom: -7, right: 3 }} size='sm' icon={<AddIcon />} > </IconButton>               </a>
         

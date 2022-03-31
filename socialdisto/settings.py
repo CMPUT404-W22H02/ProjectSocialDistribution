@@ -151,7 +151,8 @@ REST_FRAMEWORK = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://peaceful-reef-99261.herokuapp.com"
 ]
 
 CORS_ORIGIN_WHITELIST= [
@@ -188,7 +189,8 @@ django_on_heroku.settings(locals(), test_runner=False)
 AUTH_USER_MODEL = 'backend.NodeUser'
 
 CORS_ALLOWED_ORIGINS = [    
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'https://peaceful-reef-99261.herokuapp.com'
 ]
 
 SWAGGER_SETTINGS = {

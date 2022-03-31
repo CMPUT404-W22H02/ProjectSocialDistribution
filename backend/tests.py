@@ -650,6 +650,9 @@ class InboxAPITests(GenericTestCase):
         super().setUp()
         self.mock_authors()
         self.url = f'{self.author1.id}/inbox'
+        self.likesurl = f'{self.author1.id}/inboxlikes'
+        self.followsurl = f'{self.author1.id}/inboxfollows'
+        self.commentsurl = f'{self.author1.id}/inboxcomments'
 
         # External post not already on the server
         self.post = {
@@ -772,6 +775,11 @@ class InboxAPITests(GenericTestCase):
         post_from_comment = Comment.objects.get(id='http://127.0.0.1:5454/authors/1/posts/1/comments/1').post
         self.assertEqual(post, post_from_comment)
 
+        # Verify the comment is now in the inbox
+        response = self.client.get(self.commentsurl)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(response.data['items']), 1)
+
     def test_inbox_post_like(self):
         # Have the post already on server to comment on
         response = self.client.post(self.url, data=self.post)
@@ -786,6 +794,12 @@ class InboxAPITests(GenericTestCase):
         self.assertEqual(response.status_code, HTTP_201_CREATED)
         response = self.client.post(self.url, self.comment_like)
         self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+        # Verify the likes are now in the inbox using the inboxlikes uri
+        response = self.client.get(self.likesurl)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        # Comment+Post Like
+        self.assertEqual(len(response.data['items']), 2)
     
     def test_inbox_post_follower(self):
         response = self.client.post(self.url, data=self.follow_request)
@@ -793,6 +807,11 @@ class InboxAPITests(GenericTestCase):
 
         # Check that author1 has the follow request pending
         Follow.objects.get(object=self.author1)
+
+        # Verify the follow is now in the inbox
+        response = self.client.get(self.followsurl)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(response.data['items']), 1)
 
 class AdapterTestCases(GenericTestCase):
     """Test remote object adapter."""

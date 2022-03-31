@@ -4,7 +4,9 @@ import {
   Avatar,
   VStack,
   Heading,
+  Button
 } from "@chakra-ui/react";
+import {FaThumbsUp} from "react-icons/fa";
 
 function Comment({ commentData }) {
   return (
@@ -18,7 +20,7 @@ function Comment({ commentData }) {
           {commentData.comment}
         </Box>
       </VStack>
-      
+      <Button rightIcon={<FaThumbsUp/>} variant="ghost" />
     </HStack>
   );
 }

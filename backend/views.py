@@ -35,12 +35,12 @@ from rest_framework_simplejwt.authentication import JWTTokenUserAuthentication
 from socialdisto.pagination import CustomPagination
 
 from .adapters import RemoteAdapter
-from .models import Author, Comment, Inbox, Like, Node, NodeUser, Post
+from .models import Author, Comment, Inbox, Like, Node, NodeUser, Post, Follow
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
-                          CommentSerializer, InboxCommentSerializer,
+                          CommentSerializer, FollowSerializer, InboxCommentSerializer,
                           InboxFollowSerializer, InboxLikeSerializer,
                           InboxPostSerializer, LikeSerializer,
-                          PostCreationSerializer, PostDetailsSerializer)
+                          PostCreationSerializer, PostDetailsSerializer, PublicPostSerializer)
 
 
 class UtilityAPI(APIView):
@@ -115,7 +115,7 @@ class AuthorsAPIView(ListAPIView, UtilityAPI):
     pagination_class = CustomPagination
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -143,7 +143,7 @@ class AuthorDetailAPIView(RetrieveUpdateAPIView, UtilityAPI):
     serializer_class = AuthorSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     local_methods = ['POST']
 
     http_method_names = ['get', 'post']
@@ -171,7 +171,7 @@ class FollowersAPIView(ListAPIView, UtilityAPI):
     serializer_class = AuthorSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -199,7 +199,7 @@ class FollowerDetailAPIView(RetrieveUpdateDestroyAPIView, UtilityAPI):
     serializer_class = AuthorSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     local_methods = ['PUT', 'DELETE']
 
     def get_queryset(self):
@@ -280,7 +280,7 @@ class PostsAPIView(ListCreateAPIView, UtilityAPI):
     pagination_class = CustomPagination
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     local_methods = ['POST']
 
     def get_queryset(self):
@@ -329,7 +329,7 @@ class PostDetailAPIView(RetrieveUpdateDestroyAPIView, CreateAPIView, UtilityAPI)
     serializer_class = PostDetailsSerializer
 
     authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    #permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     local_methods = ['PUT', 'POST', 'DELETE']
 
     def get_serializer_class(self):
@@ -487,7 +487,7 @@ class AuthorLikedAPIView(ListAPIView, UtilityAPI):
 class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
     """Get, send, and clear content from an author's inbox."""
 
-    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    #authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
     #permission_classes = [IsAuthenticated]
     local_only_methods = ['GET']
     http_method_names = ['get', 'post', 'delete', 'head', 'options'] 
@@ -513,8 +513,14 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
 
             if content_type == 'post' or content_type == 'comment' or content_type == 'like':
                 author_id = self.request.data['author']['id']
-                author, created = Author.objects.get_or_create(id=author_id)
-                context['author'] = author
+                try:
+                    author = Author.objects.get(id=author_id)
+                except:
+                    serializer = AuthorSerializer(data=self.request.data['author'])
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                    author = Author.objects.get(id=author_id)
+                context['author'] = author    
             
             if content_type == 'comment':
                 comment_id = self.request.data['id']
@@ -524,7 +530,14 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         
             if content_type == 'follow':
                 actor_id = self.request.data['actor']['id']
-                actor, created = Author.objects.get_or_create(id=actor_id)
+                try:
+                    actor = Author.objects.get(id=actor_id)
+                except:
+                    serializer = AuthorSerializer(data=self.request.data['actor'])
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                    actor = Author.objects.get(id=actor_id)
+                # actor, created = Author.objects.get_or_create(id=actor_id)
                 context['actor'] = actor
 
                 object_id = self.request.data['object']['id']
@@ -560,6 +573,9 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         inbox = self.get_object()
 
         inbox.posts.clear()
+        inbox.comments.clear()
+        inbox.likes.clear()
+        inbox.follows.clear()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     def list(self, request, *args, **kwargs):
@@ -578,45 +594,71 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         return Response(response)
     
     def create(self, request, *args, **kwargs):
+        print("11111111")
         object = self.request.data.copy()
+        print("11111111")
         adapter = RemoteAdapter(object)
+        print("11111111")
         adapted_object = adapter.adapt_data()
-        self.request.data.update(adapted_object)
+        print("11111111")
+        request.data.update(adapted_object)
+        print("11111111")
+        content_type = request.data['type']
+        print("11111111")
+        print(request.data)
+        # If the object already exists on server, skip creation
+        serializer = self.get_serializer(data=request.data)
+        #print(serializer.errors)
+        print("11111111")
+        try:
+            if content_type == 'post':
+                obj = Post.objects.get(id=request.data['id'])
+            elif content_type == 'comment':
+                obj = Comment.objects.get(id=request.data['id'])
+            elif content_type == 'like':
+                obj = Like.objects.get(object=request.data['object'], author__id=request.data['author']['id'])
+            elif content_type == 'follow':
+                print("3333333333")
+                obj = Follow.objects.get(actor__id=request.data['actor']['id'], object__id=request.data['object']['id'])
+            response = Response(serializer.data, status=status.HTTP_201_CREATED)
+        except:
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            headers = self.get_success_headers(serializer.data)
 
-        serializer = self.get_serializer(data=adapted_object)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-
-        response = Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            response = Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         
         # Link the local copy to the inbox
         inbox = self.get_object()
-        content_type = self.request.data['type']
         if content_type == 'post':
-            post = get_object_or_404(Post.objects.all(), id=response.data['id'])
+            post = get_object_or_404(Post.objects.all(), id=request.data['id'])
             inbox.posts.add(post)
         elif content_type == 'like':
-            pass
+            like = get_object_or_404(Like.objects.all(), object=request.data['object'], author__id=request.data['author']['id'])
+            inbox.likes.add(like)
         elif content_type == 'comment':
-            pass
+            comment = get_object_or_404(Comment.objects.all(), id=request.data['id'])
+            inbox.comments.add(comment)
         elif content_type == 'follow':
-            pass
+            follow = get_object_or_404(Follow.objects.all(), actor__id=request.data['actor']['id'], object__id=request.data['object']['id'])
+            inbox.follows.add(follow)
         return response
 
 class PublicFeedView(ListAPIView, UtilityAPI):
     """Gathers public posts from all connected nodes."""
 
-    # authentication_classes = [JWTTokenUserAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         public_posts = self.posts_response_template
         # Get all home content first
         home_host = self.request.get_host()
-        queryset = Post.objects.filter(author__host=home_host, visibility='PUBLIC')
-        serializer = PostDetailsSerializer(queryset, many=True)
-        public_posts[self.ritems] += serializer.data
+        queryset = Post.objects.filter(author__host__icontains=home_host, visibility='PUBLIC')
+        serializer = PublicPostSerializer(queryset, many=True)
+        posts = []
+        posts += serializer.data
+        # public_posts[self.ritems] += serializer.data
 
         # Remote content
         remote_nodes = Node.objects.all()
@@ -633,21 +675,25 @@ class PublicFeedView(ListAPIView, UtilityAPI):
                 adapted_authors = adapter.adapt_data()
                 
                 for author in adapted_authors['items']:
-                    author_url = author['url']
+                    author_url = author['id']
                     # Need to interpolate the api prefix as not all ids and urls are saved with it
                     slice_from = author_url.find('authors/')
-                    author_uri = author['url'][slice_from:]
+                    author_uri = author['id'][slice_from:]
                     
                     posts_url = f'{api_domain}{author_uri}/posts/'
+                    
                     author_posts = get(posts_url, auth=HTTPBasicAuth(username, password)).json()
+                    
                     adapter = RemoteAdapter(author_posts)
                     adapted_posts = adapter.adapt_data()
    
-                    public_posts[self.ritems] += adapted_posts['items']
+                    # public_posts[self.ritems] += adapted_posts['items']
+                    posts += adapted_posts['items']
 
             except Exception as e:
                 print(e)
-            
+        
+        public_posts[self.ritems] = posts
         return Response(data=public_posts)
     
 class AdaptView(UpdateAPIView):
@@ -661,3 +707,87 @@ class AdaptView(UpdateAPIView):
         adapted_data = adapter.adapt_data()
 
         return Response(adapted_data)
+
+class InboxLikesAPIView(ListAPIView, UtilityAPI):
+    """GET to this endpoint to get the likes in the inbox."""
+    queryset = Inbox.objects.all()
+
+    serializer_class = LikeSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        queryset = self.get_queryset()
+
+        inbox = get_object_or_404(queryset, author__id=self.get_author_id())
+
+        return inbox
+
+    def list(self, request, *args, **kwargs):
+        """Omit pagination."""
+        response = self.inbox_response_template
+        inbox = self.get_object()
+
+        likes = inbox.likes.all()
+
+        serializer = self.get_serializer(likes, many=True)
+        response[self.ritems] = serializer.data
+
+        return Response(response)
+
+class InboxFollowsAPIView(ListAPIView, UtilityAPI):
+    """GET to this endpoint to get the follows in the inbox."""
+    queryset = Inbox.objects.all()
+
+    serializer_class = FollowSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        queryset = self.get_queryset()
+
+        inbox = get_object_or_404(queryset, author__id=self.get_author_id())
+
+        return inbox
+
+    def list(self, request, *args, **kwargs):
+        """Omit pagination."""
+        response = self.inbox_response_template
+        inbox = self.get_object()
+
+        follows = inbox.follows.all()
+
+        serializer = self.get_serializer(follows, many=True)
+        response[self.ritems] = serializer.data
+
+        return Response(response)
+
+class InboxCommentsAPIView(ListAPIView, UtilityAPI):
+    """GET to this endpoint to get the comments in the inbox."""
+    queryset = Inbox.objects.all()
+
+    serializer_class = CommentSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        queryset = self.get_queryset()
+
+        inbox = get_object_or_404(queryset, author__id=self.get_author_id())
+
+        return inbox
+
+    def list(self, request, *args, **kwargs):
+        """Omit pagination."""
+        response = self.inbox_response_template
+        inbox = self.get_object()
+
+        comments = inbox.comments.all()
+
+        serializer = self.get_serializer(comments, many=True)
+        response[self.ritems] = serializer.data
+
+        return Response(response)

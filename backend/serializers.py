@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from email.policy import default
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import update_last_login
 from django.shortcuts import get_object_or_404
@@ -49,6 +50,9 @@ class LoginSerializer(TokenObtainPairSerializer):
         data['user'] = RegistrationSerializer(self.user).data
         data['refresh'] = str(refresh)
         data['access'] = str(refresh.access_token)
+
+        if api_settings.UPDATE_LAST_LOGIN:
+            update_last_login(None, self.user)
         
         return data
 
@@ -82,6 +86,14 @@ class PostDetailsSerializer(ModelSerializer):
         page = paginator.paginate_queryset(comments, self.context['request'])
         serializer = CommentSerializer(page, many=True)
         return serializer.data
+
+class PublicPostSerializer(ModelSerializer):
+    type = ReadOnlyField(default=str(Post.type))
+    author = AuthorSerializer(read_only=True)
+
+    class Meta:
+        model = Post
+        fields = '__all__'
     
 class PostCreationSerializer(ModelSerializer):
     type = ReadOnlyField(default=str(Post.type))
@@ -136,15 +148,15 @@ class LikeSerializer(ModelSerializer):
 class FollowSerializer(ModelSerializer):
     """Object and author may already exist on the server."""
     type = ReadOnlyField(default=str(Follow.type))
-    author = AuthorSerializer()
+    actor = AuthorSerializer()
     object = AuthorSerializer()
 
     class Meta:
         model = Follow
+        fields = '__all__'
     
     def create(self, validated_data):
         # Check to see if the author exists on server before creating
-        breakpoint()
         try:
             author = Author.objects.get(validated_data['id'])
             return author
@@ -156,6 +168,7 @@ class InboxPostSerializer(ModelSerializer):
 
     class Meta:
         model = Post
+
         exclude = ['author']
     
     def create(self, validated_data):
@@ -193,6 +206,9 @@ class InboxFollowSerializer(ModelSerializer):
         exclude = ['actor', 'object']
     
     def create(self, validated_data):
+        print(validated_data)
+        print("-------")
+        print(self.context)
         validated_data['actor'] = self.context['actor']
         validated_data['object'] = self.context['object']
         return super().create(validated_data)
