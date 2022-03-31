@@ -634,7 +634,9 @@ class PublicFeedView(ListAPIView, UtilityAPI):
         home_host = self.request.get_host()
         queryset = Post.objects.filter(author__host__icontains=home_host, visibility='PUBLIC')
         serializer = PublicPostSerializer(queryset, many=True)
-        public_posts[self.ritems] += serializer.data
+        posts = []
+        posts += serializer.data
+        # public_posts[self.ritems] += serializer.data
 
         # Remote content
         remote_nodes = Node.objects.all()
@@ -645,7 +647,7 @@ class PublicFeedView(ListAPIView, UtilityAPI):
             password = node.password
 
             try:
-                authors_url = f'{api_domain}/authors/'
+                authors_url = f'{api_domain}authors/'
                 authors = get(authors_url, auth=HTTPBasicAuth(username, password)).json()
                 adapter = RemoteAdapter(authors)
                 adapted_authors = adapter.adapt_data()
@@ -656,18 +658,20 @@ class PublicFeedView(ListAPIView, UtilityAPI):
                     slice_from = author_url.find('authors/')
                     author_uri = author['id'][slice_from:]
                     
-                    posts_url = f'{api_domain}/{author_uri}/posts/'
+                    posts_url = f'{api_domain}{author_uri}/posts/'
                     
                     author_posts = get(posts_url, auth=HTTPBasicAuth(username, password)).json()
                     
                     adapter = RemoteAdapter(author_posts)
                     adapted_posts = adapter.adapt_data()
    
-                    public_posts[self.ritems] += adapted_posts['items']
+                    # public_posts[self.ritems] += adapted_posts['items']
+                    posts += adapted_posts['items']
 
             except Exception as e:
                 print(e)
-            
+        
+        public_posts[self.ritems] = posts
         return Response(data=public_posts)
     
 class AdaptView(UpdateAPIView):
