@@ -638,8 +638,8 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
 class PublicFeedView(ListAPIView, UtilityAPI):
     """Gathers public posts from all connected nodes."""
 
-    # authentication_classes = [JWTTokenUserAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         public_posts = self.posts_response_template
@@ -748,9 +748,37 @@ class InboxFollowsAPIView(ListAPIView, UtilityAPI):
         response = self.inbox_response_template
         inbox = self.get_object()
 
-        likes = inbox.follows.all()
+        follows = inbox.follows.all()
 
-        serializer = self.get_serializer(likes, many=True)
+        serializer = self.get_serializer(follows, many=True)
+        response[self.ritems] = serializer.data
+
+        return Response(response)
+
+class InboxCommentsAPIView(ListAPIView, UtilityAPI):
+    """GET to this endpoint to get the comments in the inbox."""
+    queryset = Inbox.objects.all()
+
+    serializer_class = CommentSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        queryset = self.get_queryset()
+
+        inbox = get_object_or_404(queryset, author__id=self.get_author_id())
+
+        return inbox
+
+    def list(self, request, *args, **kwargs):
+        """Omit pagination."""
+        response = self.inbox_response_template
+        inbox = self.get_object()
+
+        comments = inbox.comments.all()
+
+        serializer = self.get_serializer(comments, many=True)
         response[self.ritems] = serializer.data
 
         return Response(response)

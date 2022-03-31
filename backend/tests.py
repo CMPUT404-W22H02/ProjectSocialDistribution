@@ -652,6 +652,7 @@ class InboxAPITests(GenericTestCase):
         self.url = f'{self.author1.id}/inbox'
         self.likesurl = f'{self.author1.id}/inboxlikes'
         self.followsurl = f'{self.author1.id}/inboxfollows'
+        self.commentsurl = f'{self.author1.id}/inboxcomments'
 
         # External post not already on the server
         self.post = {
@@ -773,6 +774,11 @@ class InboxAPITests(GenericTestCase):
         post = Post.objects.get(id='http://127.0.0.1:5454/authors/1/posts/1')
         post_from_comment = Comment.objects.get(id='http://127.0.0.1:5454/authors/1/posts/1/comments/1').post
         self.assertEqual(post, post_from_comment)
+
+        # Verify the comment is now in the inbox
+        response = self.client.get(self.commentsurl)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(response.data['items']), 1)
 
     def test_inbox_post_like(self):
         # Have the post already on server to comment on
