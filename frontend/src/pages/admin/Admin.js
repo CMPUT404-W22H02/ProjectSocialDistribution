@@ -49,6 +49,15 @@ import {
           </chakra.h1>
           
         </Box>
+
+        <Stack direction="column" spacing="3" px="4" justify="space-between">
+          <HStack pt="4" ml="2" spacing="3">
+            <Button colorScheme='blue'>
+              <a href="/authors">View All Authors</a>
+            </Button>
+          </HStack>
+        </Stack>
+
         <SimpleGrid
           columns={{ base: 1, xl: 2 }}
           spacing={'20'}

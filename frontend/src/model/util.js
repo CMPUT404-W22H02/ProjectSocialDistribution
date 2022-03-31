@@ -78,4 +78,21 @@ async function fetchAuthorObj() {
   }
 }
 
-export { fetchAllPosts, fetchComments, fetchAuthorObj };
+async function fetchAllAuthors(){
+  try {
+    const response = await axios.get(`http://localhost:8000/authors/`, {
+      headers: {
+        Authorization: "Bearer " + Identity.GetIdentity().token
+    }});
+    
+    const authorList = response.data.items;
+
+    return authorList;
+  }
+  catch (error) {
+    console.log(error);
+    return null;
+  }
+}
+
+export { fetchAllPosts, fetchComments, fetchAuthorObj, fetchAllAuthors};

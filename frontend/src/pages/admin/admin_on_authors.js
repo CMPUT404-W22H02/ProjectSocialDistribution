@@ -5,15 +5,15 @@ import {
   Box,
   VStack
 } from "@chakra-ui/react";
-import { fetchAllAuthors as fetchAll } from "../../model/util";
+import {fetchAllAuthors} from "../../model/util";
 import Author from "../../components/author";
 
-function admin_on_authors(){
+function Admin_on_authors(){
     const [authors,setAuthors] = useState([])
 
     useEffect(() => {
         const getData = async () => {
-          const data = await fetchAll();
+          const data = await fetchAllAuthors();
           setAuthors(data);
         }
         getData();

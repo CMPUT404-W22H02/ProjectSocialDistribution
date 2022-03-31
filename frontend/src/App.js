@@ -38,8 +38,6 @@ function App() {
           <Route exact path='/admin' element={<PrivateRoute/>}>
               <Route path="/admin" element={<Admin />} />
           </Route>
-
-          {/* <Route path="*" element={<NotFound404 />} /> */}
         </Routes>
       </BrowserRouter>
     </div>
