@@ -115,7 +115,7 @@ if (typeof followList !="undefined" ){
                        <Button paddingX="3rem" size='xs' colorScheme='red'onClick={rejectfunction}>Reject</Button>
                       <Button paddingX="3rem" size='xs' colorScheme='teal' onClick={agreefunction} >Accept</Button>   
                       </Stack>
-                      <p>-----------------------------------------</p>
+                      
                       </Box>
                       )
 
