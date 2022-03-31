@@ -37,7 +37,7 @@ from socialdisto.pagination import CustomPagination
 from .adapters import RemoteAdapter
 from .models import Author, Comment, Inbox, Like, Node, NodeUser, Post, Follow
 from .serializers import (AuthorSerializer, CommentCreationSerializer,
-                          CommentSerializer, InboxCommentSerializer,
+                          CommentSerializer, FollowSerializer, InboxCommentSerializer,
                           InboxFollowSerializer, InboxLikeSerializer,
                           InboxPostSerializer, LikeSerializer,
                           PostCreationSerializer, PostDetailsSerializer, PublicPostSerializer)
@@ -530,7 +530,14 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         
             if content_type == 'follow':
                 actor_id = self.request.data['actor']['id']
-                actor, created = Author.objects.get_or_create(id=actor_id)
+                try:
+                    actor = Author.objects.get(id=actor_id)
+                except:
+                    serializer = AuthorSerializer(data=self.request.data['actor'])
+                    serializer.is_valid(raise_exception=True)
+                    serializer.save()
+                    actor = Author.objects.get(id=actor_id)
+                # actor, created = Author.objects.get_or_create(id=actor_id)
                 context['actor'] = actor
 
                 object_id = self.request.data['object']['id']
@@ -710,10 +717,40 @@ class InboxLikesAPIView(ListAPIView, UtilityAPI):
 
     def list(self, request, *args, **kwargs):
         """Omit pagination."""
+        response = self.inbox_response_template
         inbox = self.get_object()
 
         likes = inbox.likes.all()
 
         serializer = self.get_serializer(likes, many=True)
+        response[self.ritems] = serializer.data
 
-        return Response(serializer.data)
+        return Response(response)
+
+class InboxFollowsAPIView(ListAPIView, UtilityAPI):
+    """GET to this endpoint to get the follows in the inbox."""
+    queryset = Inbox.objects.all()
+
+    serializer_class = FollowSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get_object(self):
+        queryset = self.get_queryset()
+
+        inbox = get_object_or_404(queryset, author__id=self.get_author_id())
+
+        return inbox
+
+    def list(self, request, *args, **kwargs):
+        """Omit pagination."""
+        response = self.inbox_response_template
+        inbox = self.get_object()
+
+        likes = inbox.follows.all()
+
+        serializer = self.get_serializer(likes, many=True)
+        response[self.ritems] = serializer.data
+
+        return Response(response)

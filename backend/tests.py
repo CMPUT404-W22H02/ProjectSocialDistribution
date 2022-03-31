@@ -651,6 +651,7 @@ class InboxAPITests(GenericTestCase):
         self.mock_authors()
         self.url = f'{self.author1.id}/inbox'
         self.likesurl = f'{self.author1.id}/inboxlikes'
+        self.followsurl = f'{self.author1.id}/inboxfollows'
 
         # External post not already on the server
         self.post = {
@@ -792,7 +793,7 @@ class InboxAPITests(GenericTestCase):
         response = self.client.get(self.likesurl)
         self.assertEqual(response.status_code, HTTP_200_OK)
         # Comment+Post Like
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data['items']), 2)
     
     def test_inbox_post_follower(self):
         response = self.client.post(self.url, data=self.follow_request)
@@ -800,6 +801,11 @@ class InboxAPITests(GenericTestCase):
 
         # Check that author1 has the follow request pending
         Follow.objects.get(object=self.author1)
+
+        # Verify the follow is now in the inbox
+        response = self.client.get(self.followsurl)
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(response.data['items']), 1)
 
 class AdapterTestCases(GenericTestCase):
     """Test remote object adapter."""

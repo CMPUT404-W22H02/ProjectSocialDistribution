@@ -148,15 +148,15 @@ class LikeSerializer(ModelSerializer):
 class FollowSerializer(ModelSerializer):
     """Object and author may already exist on the server."""
     type = ReadOnlyField(default=str(Follow.type))
-    author = AuthorSerializer()
+    actor = AuthorSerializer()
     object = AuthorSerializer()
 
     class Meta:
         model = Follow
+        fields = '__all__'
     
     def create(self, validated_data):
         # Check to see if the author exists on server before creating
-        breakpoint()
         try:
             author = Author.objects.get(validated_data['id'])
             return author
