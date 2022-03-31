@@ -26,16 +26,34 @@ function Author(author){
     const toast = useToast();
     const toastIdRef = useRef();
 
-    let inputDisplayName=createRef();
-    let inputID=createRef();
+    const [DisplayName, setDisplayName] = useState(author.displayName);
+    const [ID, setID] = useState(author.id);
+    
     let authorID=author.id.slice(-36,author.id.length);
 
     function addToast(toast_data) {
         toastIdRef.current = toast(toast_data)
     }
 
-    const [comments,setComments] = useState([]);
-    
+    useEffect(()=>{ 
+        axios.get(`${authorID}`,
+        {
+            headers: {
+            "Content-Type": "application/json",
+            "Authorization" : `Bearer ${token}`
+            },
+        })
+        .then(res => { 
+            //console.log(res)
+            setDisplayName(info.display_name)
+            setID(info.id)
+        })
+        .catch(e => {
+            console.log("error-----")
+            //console.log(token)
+            console.log(e)
+        })
+    },[])
 
     const onRemove=()=>{
         axios.delete(base_url+`authors/${authorID}`,{
@@ -54,8 +72,11 @@ function Author(author){
         })
     }
 
-    const onModify=((modified_author)=>{
-        axios.patch(base_url+`authors/${authorID}`,{
+    const onModify=()=>{
+        author.displayName=DisplayName;
+        author.id=ID;
+
+        axios.patch(base_url+`authors/${authorID}`,author, {
             headers: {
                 "Content-Type": "application/json",
                 "Authorization" : `Bearer ${localStorage.getItem("token")}`
@@ -74,15 +95,27 @@ function Author(author){
     return(
         <Flex width="50rem" minH="10rem" boxShadow="lg" py="2" alignContent="center" flexDirection="column">
             <Stack direction="column" spacing="3" px="4" justify="space-between">
-                <HStack pt="4" ml="2" spacing="3">
+                <Input
+                    placeholder="displayName"
+                    _placeholder={{ color: 'gray.500' }}
+                    type="text"
+                    value={author.displayName}
+                    onChange={(e)=>setDisplayName(e.target.value)}
+                />
+                <Input
+                    placeholder="author ID"
+                    _placeholder={{ color: 'gray.500' }}
+                    type="text"
+                    value={author.id}
+                    onChange={(e)=>setID(e.target.value)}
+                />
                 <Heading size="md">{author.displayName}</Heading>
-                </HStack>
                 <HStack justify="space-between">
                 <ButtonGroup isAttached>
-                    <Button onClick={onRemove} leftIcon={<FaThumbsUp/>} variant="ghost">
+                    <Button onClick={onRemove} colorScheme='blue' variant="ghost">
                     Remove
                     </Button>
-                    <Button onClick={onModify} leftIcon={<FaShare />} colorScheme='teal' variant='outline'>
+                    <Button onClick={onModify} colorScheme='blue' variant='outline'>
                     Modify
                     </Button>
                 </ButtonGroup>

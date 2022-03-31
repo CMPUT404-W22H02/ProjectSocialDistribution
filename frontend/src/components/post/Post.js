@@ -214,11 +214,7 @@ const sendLike=((values, token)=>{
             setStatus(e.response.status)
             addToast({description: "not successfull",
             status: 'error', isClosable: true, duration: 1000,})
-            
         })
-
-
-
 })
 
 const onsubmitValueLike = (current_user, follower) => {
