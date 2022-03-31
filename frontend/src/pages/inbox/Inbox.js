@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Stack } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Stack, Badge } from '@chakra-ui/react';
 import axios from "axios";
 import { Link, useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -99,16 +99,12 @@ if (typeof followList !="undefined" ){
           flexDirection="column"
       >
           <Box width="100%">
-              <Box
-                  d="flex"
-                  flexDirection="row"
-                  justifyContent="space-between"
-                  marginBottom="20px"
-              >
-                  <Heading color="white">Book List</Heading>
-              </Box>
+              
               <Stack spacing={6} direction='row' >
               <Box rounded="md" bg="purple.300" color="white" px="15px" py="15px">
+              <Badge variant='subtle' colorScheme='green'>
+                    Follow
+                </Badge>
                   <Stack spacing={3}>
                       {typeof followList !="undefined" & followList.length!=0?  
                       followList.map((follow, i) => <Box rounded="md" bg="purple.400" color="white" px="15px" py="15px">
@@ -129,6 +125,9 @@ if (typeof followList !="undefined" ){
                   </Stack>
               </Box>
               <Box rounded="md" bg="teal.300" color="white" px="15px" py="15px">
+              <Badge center variant='subtle' colorScheme='green'>
+                    Like
+                </Badge>
                   <Stack spacing={2}>
                       {typeof likeList !="undefined" & likeList.length!=0? 
                       likeList.map((follow, i) => <Box rounded="md" bg="teal.400" color="white" px="15px" py="15px">
