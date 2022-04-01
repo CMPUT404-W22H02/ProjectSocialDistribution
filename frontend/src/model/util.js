@@ -9,7 +9,7 @@ async function fetchAllPosts(success=()=>{}, fail = ()=>{}) {
     await  Refresh.refreshToken().then(axios.get(`http://localhost:8000/publicposts/`, 
     {
       headers: {
-        Authorization: "Bearer " + Identity.GetIdentity().token
+        Authorization: "Bearer " + localStorage.getItem("token")
       }}).then((response) => 
   {
     const postList = response.data.items;
