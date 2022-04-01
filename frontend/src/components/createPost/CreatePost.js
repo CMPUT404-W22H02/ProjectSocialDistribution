@@ -23,7 +23,6 @@ import {
 } from "@chakra-ui/react";
 import { Select } from '@chakra-ui/react'
 import axios from "axios";
-import CreatableSelect from 'react-select/creatable';
 import { Form, Field, useField, useForm } from "react-final-form";
 import validate from "./validate";
 import NavbarAdd from "../../components/navbar/NavbarAdd";
