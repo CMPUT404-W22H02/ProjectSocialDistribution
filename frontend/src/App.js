@@ -42,9 +42,9 @@ function App() {
           <Route exact path='/inbox' element={<PrivateRoute/>}>
               <Route path="/inbox" element={<Inbox />} />
           </Route>
-          <Route exact path='/authors' element={<PrivateRoute/>}>
+          {/* <Route exact path='/authors' element={<PrivateRoute/>}>
               <Route path="authors" element={<Admin_on_Authors/>} />
-          </Route>
+              </Route> */}
 
           {/* <Route path="*" element={<NotFound404 />} /> */}
         </Routes>

@@ -2,7 +2,7 @@ import { Box, Button, Flex, Heading, Stack, Badge } from '@chakra-ui/react';
 import axios from "axios";
 import { useToast } from '@chakra-ui/react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Identity from '../../model/Identity';
 import Navbar from "../../components/navbar";
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com';
@@ -77,7 +77,7 @@ let identity = Identity.GetIdentity();
       }})
       .then(
         addToast({description: "Added "+ actor.displayName+ " as your follower",
-          status: 'error', isClosable: true, duration: 1000,})
+          status: 'success', isClosable: true, duration: 1000,})
       )
       .catch((error)=>{
         console.log(error.response.staus)
@@ -86,14 +86,25 @@ let identity = Identity.GetIdentity();
       })
   })
 
-  const rejectfunction=()=>{
+  const rejectfunction=(actor)=>{
     console.log("you click reject")
 
-
-
-
-
-}
+    axios.delete(`${identity.id}/inboxfollows/${actor.id}`, {headers:{
+      'Content-Type': 'application/json',
+      "Authorization" : `Bearer ${localStorage.getItem("token")}`
+    }}
+    )
+    .then(
+      addToast({description: "successfully rejected",
+          status: 'success', isClosable: true, duration: 1000,})
+    )
+    .catch(((error)=>{
+      console.log(error.response.status)
+      addToast({description: "Unsuccessful",
+      status: 'error', isClosable: true, duration: 1000,})
+    }))
+    }
+  
 
 /* 
 if (typeof likeList !="undefined" ){
@@ -130,7 +141,7 @@ if (typeof followList !="undefined" ){
 
                       <Stack spacing={4} direction='row' align='center'>
 
-                       <Button paddingX="3rem" size='xs' colorScheme='red'onClick={rejectfunction}>Reject</Button>
+                       <Button paddingX="3rem" size='xs' colorScheme='red'onClick={rejectfunction(follow.actor)}>Reject</Button>
                       <Button paddingX="3rem" size='xs' colorScheme='teal' onClick={agreefunction(follow.actor)} >Accept</Button>   
                       </Stack>
                       
