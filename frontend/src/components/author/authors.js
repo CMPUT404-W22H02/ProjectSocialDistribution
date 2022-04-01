@@ -66,7 +66,6 @@ function Author(author){
         status: 'success', isClosable: true, duration: 1000,},))
         .catch((e)=>{
             console.log(e.response.status)
-            setStatus(e.response.status)
             addToast({description: "Author Not Removed",
             status: 'error', isClosable: true, duration: 1000,})
         })
@@ -86,7 +85,6 @@ function Author(author){
         status: 'success', isClosable: true, duration: 1000,})
         .catch((e)=>{
             console.log(e.response.status)
-            setStatus(e.response.status)
             addToast({description: "author not modified",
             status: 'error', isClosable: true, duration: 1000,})
         })

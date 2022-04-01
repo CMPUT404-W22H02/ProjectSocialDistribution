@@ -26,7 +26,7 @@ function Admin_on_authors(){
             height="100vh">
             <Flex flexDirection="column" align="center">
                 <VStack spacing="4">
-                {authors.map((author, i) => <Author author={author} key ={i}/>)}
+                    {authors.map((author, i) => <Author author={author} key ={i}/>)}
                 </VStack>
             </Flex>
         </Box>
