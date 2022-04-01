@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Stack, Badge, Toast, useToast } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Stack, Badge, Toast, useToast, SimpleGrid } from '@chakra-ui/react';
 
 import axios from "axios";
 import { Link, useSearchParams } from 'react-router-dom';
@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react';
 import Identity from '../../model/Identity';
 import Navbar from "../../components/navbar";
 import { Refresh } from '../../auth/Refresh';
+import Post from "../../components/post";
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com';
 let identity =Identity.GetIdentity();
 function Inbox () {
@@ -109,7 +110,12 @@ function Inbox () {
             .then((data) => {
             console.log(data)
             
-            setFollowerPostList(data.data.items)
+            for (let each of data.data.items){
+                if (each.visibility=="FRIENDS"){
+                    setFollowerPostList(prevArray => [...prevArray, each])
+                }
+
+            }
             
                 
             
@@ -170,8 +176,8 @@ function Inbox () {
           flexDirection="column"
       >
           <Box width="100%">
-              
-              <Stack spacing={8} direction='row' >
+          
+            <SimpleGrid columns={2} spacingX='40px' spacingY='20px'>
               <Box rounded="md" bg="purple.300" color="white" px="15px" py="15px">
               <Badge variant='subtle' colorScheme='green'>
                     Follow
@@ -235,15 +241,15 @@ function Inbox () {
 
                   </Stack>
               </Box>
-              <Box rounded="md" bg="green.300" color="white" px="15px" py="15px">
-              <Badge  variant='subtle' colorScheme='green'>
+              <Box rounded="md" bg="green.300" color="balck" px="15px" py="15px">
+              <Badge  variant='subtle' >
                   Friend Post
                 </Badge>
                   <Stack spacing={2}>
                       {typeof folowerPostList !="undefined" & folowerPostList.length!=0? 
-                      folowerPostList .map((post, i) => <Box rounded="md" bg="green.400" color="white" px="15px" py="15px">
-                          <div  key={i} > {post.author.display_name} public a post</div>
-
+                      folowerPostList .map((post, i) => <Box rounded="md" bg="white" color="balck" px="15px" py="15px">
+                          <div  key={i} > {post.author.display_name} public a post {post.title}</div>
+                        <Post postData={post} key ={post.id}/>
                       <Stack spacing={2} direction='row' align='center'>
   
                       </Stack>
@@ -255,7 +261,7 @@ function Inbox () {
 
                   </Stack>
               </Box>
-              </Stack>
+            </SimpleGrid>
           </Box>
       </Flex>
      </>
