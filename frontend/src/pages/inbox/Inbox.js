@@ -7,7 +7,6 @@ import Navbar from "../../components/navbar";
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com';
 let identity = Identity.GetIdentity();
 const Inbox = () => {
-let identity = Identity.GetIdentity();
   const [followList, setFollowList] =useState([]);
   const [likeList, setLikeList] =useState([]);
   const [likeListLength, setLikeListLength] =useState(0);
@@ -125,7 +124,7 @@ if (typeof followList !="undefined" ){
                   </Stack>
               </Box>
               <Box rounded="md" bg="teal.300" color="white" px="15px" py="15px">
-              <Badge center variant='subtle' colorScheme='green'>
+              <Badge  variant='subtle' colorScheme='green'>
                     Like
                 </Badge>
                   <Stack spacing={2}>

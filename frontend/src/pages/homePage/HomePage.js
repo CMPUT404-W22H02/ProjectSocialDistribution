@@ -13,13 +13,11 @@ function HomePage() {
   const [posts, setPosts] = useState([])
 
   useEffect(() => {
-    const getData = async () => {
-      const data = await fetchAll();
-      setPosts(data);
-    }
-    getData();
-  }, []);
+    fetchAll((data)=>setPosts(data), (fail)=>{console.log("_-----------fail")});
+      
+    }, []);
 
+//console.log("---", posts)
   return (
     <Box 
     margin="-20px"
