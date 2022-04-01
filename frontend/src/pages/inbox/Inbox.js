@@ -167,7 +167,7 @@ if (typeof followList !="undefined" ){
               </Box>
               <Box rounded="md" bg="blue.300" color="white" px="15px" py="15px">
               <Badge  variant='subtle' colorScheme='green'>
-                    Post
+                    Public Post
                 </Badge>
                   <Stack spacing={2}>
                       {typeof postList !="undefined" & postList.length!=0? 
@@ -187,7 +187,7 @@ if (typeof followList !="undefined" ){
               </Box>
               <Box rounded="md" bg="green.300" color="white" px="15px" py="15px">
               <Badge  variant='subtle' colorScheme='green'>
-                    Post
+                  Friend Post
                 </Badge>
                   <Stack spacing={2}>
                       {typeof folowerPostList !="undefined" & folowerPostList.length!=0? 
