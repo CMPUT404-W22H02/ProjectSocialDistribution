@@ -30,83 +30,87 @@ const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com'
 let identity = Identity.GetIdentity();
   
 export default function Profile(props) {
-//const cookies = new Cookies();
-//const { token, setToken } = useState(identity.token);
-const { refreshToken, setRefreshToken } = useState(identity.refreshToken);
-const [ value, setValue] = useState({});
-const [picture, setPicture] = useState('');
-const [userName, setUserName] = useState(identity.username);
-const [display_name, setDisplay_name] = useState("");
-const [github, setGithub] = useState("");
-const [emailAddress, setEmailAddress] = useState("");
-const [password1, setPassword1] = useState("");
-const toast = useToast()
-var values = {}
-const toastIdRef = useRef()
-//const  author_id = props?.location?.state?.author_id
-function addToast(toast_data) {
-    toastIdRef.current = toast(toast_data)
-  }
-
-const updateProfile = () => {
-    console.log(userName)
-    console.log(display_name)
-    console.log(github)
-    values['type']='author';
-    values['id']=author_id;
-    values['url']=author_id;
-    values['github'] = github;
-    values['display_name'] = display_name;
-    values['host'] = 'https://psdt11.herokuapp.com/';
-    axios.post(`${author_id}`,
-    values,
-    {
-        headers: {
-        "Content-Type": "application/json",
-        "Authorization" : `Bearer ${token}`
-
-        },
-    })
-
-}
-const onChangePicture = e => {
-setPicture(URL.createObjectURL(e.target.files[0]));
-};
-//console.log(token,"---")
-//console.log(identity)
-const author_id =  identity.id
-const token = identity.token
-//console.log(author_id)
-useEffect(()=>{ 
-    axios.get(`${author_id}`,
-    {
-        headers: {
-        "Content-Type": "application/json",
-        "Authorization" : `Bearer ${token}`
-
-        },
-    })
-    .then(res => { 
-    const info = res.data;
-    if(info.id){
-        setValue( info );
-        //console.log(token)
-
-    } 
-    else{
-        setValue(info.data[0])
+    const author_id = identity.id
+    const token = identity.token
+    //const cookies = new Cookies();
+    //const { token, setToken } = useState(identity.token);
+    //const { author_id, setId } = useState(identity.id);
+    const { refreshToken, setRefreshToken } = useState(identity.refreshToken);
+    const [ value, setValue] = useState({});
+    const [picture, setPicture] = useState('');
+    const [userName, setUserName] = useState(identity.username);
+    const [display_name, setDisplay_name] = useState("");
+    const [github, setGithub] = useState("");
+    const [emailAddress, setEmailAddress] = useState("");
+    const [password1, setPassword1] = useState("");
+    const toast = useToast()
+    var values = {}
+    const toastIdRef = useRef()
+    //const  author_id = props?.location?.state?.author_id
+    function addToast(toast_data) {
+        toastIdRef.current = toast(toast_data)
     }
-    //console.log(res)
-    setUserName(info.username)
-    setDisplay_name(info.display_name)
-    setGithub(info.github)
-        
-    }).catch(e => {
-        console.log("error-----")
-        //console.log(token)
-        console.log(e)
-    })
-},[])
+    console.log(author_id)
+    console.log(identity.id)
+    const updateProfile = () => {
+        console.log(userName)
+        console.log(display_name)
+        console.log(github)
+        values['type']='author';
+        values['id']=author_id;
+        values['url']=author_id;
+        values['github'] = github;
+        values['display_name'] = display_name;
+        values['host'] = 'https://psdt11.herokuapp.com/';
+        axios.post(`${author_id}`,
+        values,
+        {
+            headers: {
+            "Content-Type": "application/json",
+            "Authorization" : `Bearer ${token}`
+
+            },
+        }).then((data)=>{console.log(data)}
+        ).catch((error)=>{console.log(error)})
+
+    }
+    const onChangePicture = e => {
+    setPicture(URL.createObjectURL(e.target.files[0]));
+    };
+    //console.log(token,"---")
+    //console.log(identity)
+
+    //console.log(author_id)
+    useEffect(()=>{ 
+        axios.get(`${author_id}`,
+        {
+            headers: {
+            "Content-Type": "application/json",
+            "Authorization" : `Bearer ${token}`
+
+            },
+        })
+        .then(res => { 
+        const info = res.data;
+        if(info.id){
+            setValue( info );
+            //console.log(token)
+
+        } 
+        else{
+            setValue(info.data[0])
+        }
+        //console.log(res)
+        setUserName(info.username)
+        setDisplay_name(info.display_name)
+        setGithub(info.github)
+            
+        }).catch(e => {
+            console.log("error-----")
+            //console.log(token)
+            console.log(e)
+        })
+    },[])
 
 
 
@@ -153,6 +157,7 @@ return (
         <FormControl id="userName" isRequired>
         <FormLabel>username</FormLabel>
         <Input
+        readOnly
             placeholder="UserName"
             _placeholder={{ color: 'gray.500' }}
             type="text"
@@ -183,14 +188,14 @@ return (
             onChange={(e)=>setGithub(e.target.value)}
         />
         </FormControl>
-        <FormControl id="password" isRequired>
+        {/* <FormControl id="password" isRequired>
         <FormLabel>Password</FormLabel>
         <Input
             placeholder="password"
             _placeholder={{ color: 'gray.500' }}
             type="password"
         />
-        </FormControl>
+        </FormControl> */}
         <Stack spacing={6} direction={['column', 'row']}>
         <Button
             bg={'red.400'}
