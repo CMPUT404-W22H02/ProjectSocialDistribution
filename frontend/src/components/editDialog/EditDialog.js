@@ -10,6 +10,7 @@ import {
   ModalCloseButton,
   FormLabel,
   Input,
+  Textarea,
   FormControl,
   Button,
   Stack,
@@ -51,7 +52,7 @@ function EditDialog({ post, isOpen, onClose }) {
   return (
     <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay/>
-      <ModalContent>
+      <ModalContent minW="45em">
         <ModalHeader>Edit your post</ModalHeader>
         <ModalCloseButton/>
 
@@ -65,14 +66,14 @@ function EditDialog({ post, isOpen, onClose }) {
           
           <FormControl>
             <FormLabel>Description</FormLabel>
-            <Input value={desc} onChange={(event) => {
+            <Textarea value={desc} onChange={(event) => {
               setDesc(event.target.value);
             }}/>
           </FormControl>
 
           <FormControl>
             <FormLabel>Content</FormLabel>
-            <Input value={content} onChange={(event) => {
+            <Textarea minH="10em" value={content} onChange={(event) => {
               setContent(event.target.value);
             }}/>
           </FormControl>
