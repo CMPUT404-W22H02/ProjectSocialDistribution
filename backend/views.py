@@ -599,7 +599,6 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         adapted_object = adapter.adapt_data()
         request.data.update(adapted_object)
         content_type = request.data['type']
-        print(request.data)
         # If the object already exists on server, skip creation
         serializer = self.get_serializer(data=request.data)
         #print(serializer.errors)
