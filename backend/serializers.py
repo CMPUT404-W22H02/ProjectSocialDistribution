@@ -168,7 +168,6 @@ class InboxPostSerializer(ModelSerializer):
 
     class Meta:
         model = Post
-
         exclude = ['author']
     
     def create(self, validated_data):
