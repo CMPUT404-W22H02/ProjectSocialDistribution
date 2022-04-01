@@ -22,11 +22,12 @@ function HomePage() {
 
   return (
     <Box 
-    margin="-20px"
-    height="100vh">
+      margin="-20px"
+      height="100vh"
+    >
       <Navbar/>
       <Flex flexDirection="column" align="center">
-        <VStack spacing="4">
+        <VStack spacing="4" my="5">
           {posts.map((post, i) => <Post postData={post} key ={i}/>)}
         </VStack>
       </Flex>
