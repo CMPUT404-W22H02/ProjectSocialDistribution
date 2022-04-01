@@ -20,11 +20,16 @@ from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import BaseUserManager, PermissionsMixin
 from django.db.models import (CASCADE, BooleanField, CharField, DateTimeField,
                               ForeignKey, IntegerField, JSONField,
-                              ManyToManyField, Model, OneToOneField, URLField)
+                              ManyToManyField, Model, OneToOneField, URLField, ImageField)
 from django.utils.timezone import now
 
 URL_MAX = 255
 CHAR_MAX = 255
+
+def upload_to(instance, filename):
+    id = instance.id.split("/")[-1]
+    fileExtension = filename.split(".")[-1]
+    return 'profile/{user}/{filename}'.format(user=id, filename="profile."+fileExtension)
 
 class Node(Model):
     api_domain = URLField(primary_key=True)
@@ -75,7 +80,8 @@ class Author(Model):
     host = CharField(max_length=CHAR_MAX, blank=True)
     display_name = CharField(max_length=CHAR_MAX, blank=False)
     github = URLField(blank=True)
-    profile_image = URLField(blank=True)
+    # profile_image = URLField(blank=True)
+    profile_image = ImageField(upload_to=upload_to, blank=True, null=True)
 
     # TODO: profile image
 

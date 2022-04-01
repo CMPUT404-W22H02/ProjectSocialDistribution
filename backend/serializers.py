@@ -38,7 +38,7 @@ class AuthorSerializer(ModelSerializer):
 
     class Meta:
         model = Author
-        fields = ['type', 'id', 'url', 'host', 'display_name', 'github']
+        fields = ['type', 'id', 'url', 'host', 'display_name', 'github', 'profile_image']
 
 class LoginSerializer(TokenObtainPairSerializer):
 
