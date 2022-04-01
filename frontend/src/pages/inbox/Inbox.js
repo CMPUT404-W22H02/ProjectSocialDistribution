@@ -81,22 +81,42 @@ const Inbox = () => {
 
   }, [])
 
-  const agreefunction=()=>{
-        console.log("you click agree")
-
-
-
-
-
-  }
-  const rejectfunction=()=>{
+  const agreefunction=((actor)=>{
     console.log("you click agree")
 
+    axios.post(`${identity.id}/followers`, actor, {headers:{
+      'Content-Type': 'application/json',
+      "Authorization" : `Bearer ${localStorage.getItem("token")}`
+    }})
+    .then(
+      addToast({description: "Added "+ actor.displayName+ " as your follower",
+        status: 'success', isClosable: true, duration: 1000,})
+    )
+    .catch((error)=>{
+      console.log(error.response.staus)
+      addToast({description: "Unsuccessful",
+        status: 'error', isClosable: true, duration: 1000,})
+    })
+  })
 
+  const rejectfunction=(actor)=>{
+    console.log("you click reject")
 
-
-
-}
+    axios.delete(`${identity.id}/inboxfollows/${actor.id}`, {headers:{
+      'Content-Type': 'application/json',
+      "Authorization" : `Bearer ${localStorage.getItem("token")}`
+    }}
+    )
+    .then(
+      addToast({description: "successfully rejected",
+          status: 'success', isClosable: true, duration: 1000,})
+    )
+    .catch(((error)=>{
+      console.log(error.response.status)
+      addToast({description: "Unsuccessful",
+      status: 'error', isClosable: true, duration: 1000,})
+    }))
+    }
 
 /* 
 if (typeof likeList !="undefined" ){
@@ -133,8 +153,8 @@ if (typeof followList !="undefined" ){
 
                       <Stack spacing={4} direction='row' align='center'>
 
-                       <Button paddingX="3rem" size='xs' colorScheme='red'onClick={rejectfunction}>Reject</Button>
-                      <Button paddingX="3rem" size='xs' colorScheme='teal' onClick={agreefunction} >Accept</Button>   
+                       <Button paddingX="3rem" size='xs' colorScheme='red'onClick={rejectfunction(follow.actor)}>Reject</Button>
+                      <Button paddingX="3rem" size='xs' colorScheme='teal' onClick={agreefunction(follow.actor)} >Accept</Button>   
                       </Stack>
                       
                       </Box>
