@@ -31,6 +31,7 @@ import Identity from '../../model/Identity';
 import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
 import {  AddIcon, MinusIcon } from '@chakra-ui/icons'
+
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 //import Cookies from "universal-cookie";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -81,7 +82,8 @@ export default function CreatePost () {
             console.log(data.data.items)
             for (let author of data.data.items) {
               console.log(author)
-              const response = axios.post(`${author.id}/inbox`, 
+              if (author.id != identity.id){
+              axios.post(`${author.id}/inbox`, 
               values,
               {
                 headers: {
@@ -94,6 +96,10 @@ export default function CreatePost () {
                 }
                   )
                   .catch(e=>console.log(e))
+
+
+              }
+              
             }
           }).catch((e)=>{
               console.log(e.response)
@@ -123,17 +129,26 @@ export default function CreatePost () {
           .then((data) => {
             console.log(data.data.items)
             
-            console.log("++++++++++++followers++++++++++++",values)
+            console.log("++++++++++++followers++++++++++++",data.data)
             for (let author of data.data.items) {
-              console.log(author)
-              const response = axios.post(`${author.id}/inbox`, 
+              console.log(author.id)
+              console.log(identity.id)
+              if (author.id != identity.id){
+                console.log("------------------")
+                axios.post(`${author.id}/inbox`, 
               values,
               {
                 headers: {
                   'Content-Type': 'application/json',
                   "Authorization" : `Bearer ${token}`
                   
-                  }})
+                  }}).then((data)=>{
+                    console.log("success indox", data)
+                  })
+
+
+              }
+              
             }
           }).catch((e)=>{
               console.log(e.response.status)

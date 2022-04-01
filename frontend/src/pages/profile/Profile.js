@@ -18,6 +18,7 @@ import {
     Grid,
     ButtonGroup,
     Box,
+    SimpleGrid,
   } from '@chakra-ui/react';
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
@@ -32,9 +33,6 @@ let identity = Identity.GetIdentity();
 export default function Profile(props) {
     const author_id = identity.id
     const token = identity.token
-    //const cookies = new Cookies();
-    //const { token, setToken } = useState(identity.token);
-    //const { author_id, setId } = useState(identity.id);
     const { refreshToken, setRefreshToken } = useState(identity.refreshToken);
     const [ value, setValue] = useState({});
     const [picture, setPicture] = useState('');
@@ -43,6 +41,7 @@ export default function Profile(props) {
     const [github, setGithub] = useState("");
     const [emailAddress, setEmailAddress] = useState("");
     const [password1, setPassword1] = useState("");
+    const [folowerList, setFollowerList] =useState([]);
     const toast = useToast()
     var values = {}
     const toastIdRef = useRef()
@@ -110,115 +109,172 @@ export default function Profile(props) {
             //console.log(token)
             console.log(e)
         })
-    },[])
 
+        let author_id_= author_id.slice(-36, author_id.length)
+        axios.get(`${base_url}authors/${author_id_}/followers`, {
+                headers: {
+                'Content-Type': 'application/json',
+                "Authorization" : `Bearer ${token}`
+                
+                }})
+            .then((data) => {
+              console.log(data.data)
+              setFollowerList(data.data.items)
+              console.log("++++++++++++followers++++++++++++",data.data.items)
+            }).catch((e)=>{
+                console.log(e.response.status)
+                if (e.response.status===401){
+                  /* window.location.assign("/")
+                  window.localStorage.clear();
+                  window.sessionStorage.clear(); */
+                  
+                }
+                addToast({description: "create post not successfull",
+                status: 'error', isClosable: true, duration: 1000,})
+                
+            })
+
+
+
+
+
+
+
+
+
+
+    },[])
+    console.log(folowerList)
+        
+  
+  
+  
+  
+      
 
 
 return (
-    <Box height="100vh"
-    margin="-20px">
-      <Navbar/>
-    <Flex
-    minH={'100vh'}
-    align={'center'}
-    justify={'center'}
-    bg={useColorModeValue('gray.50', 'gray.800')}>
-    <Stack
-        spacing={4}
-        w={'full'}
-        maxW={'md'}
-        bg={useColorModeValue('white', 'gray.700')}
-        rounded={'xl'}
-        boxShadow={'lg'}
-        p={6}
-        my={12}>
-        <Heading lineHeight={1.1} fontSize={{ base: '2xl', sm: '3xl' }}>
-        User Profile Edit
-        </Heading>
-        <FormControl id="userName">
-            <Center>
-                <Avatar size="xl" src={picture}>
-                </Avatar>
-            </Center>
-             
-        </FormControl>
-        <ButtonGroup size='sm' isAttached variant='outline'>
-            <input
-              type="file"
-              name="myImage"
-              onChange={onChangePicture}
-            />
-            <Button variant='outline' onClick={()=>(setPicture(""))}>Remove</Button>
-        </ButtonGroup>
-        
 
-            
-            
-        <FormControl id="userName" isRequired>
-        <FormLabel>username</FormLabel>
-        <Input
-        readOnly
-            placeholder="UserName"
-            _placeholder={{ color: 'gray.500' }}
-            type="text"
-            value={userName}
-            onChange={(e)=>setUserName(e.target.value)}
-        />
-        </FormControl>
-        <FormControl id="Display_name" isRequired>
-        <FormLabel>Display name</FormLabel>
+      <><Navbar /><SimpleGrid row={2} spacingX='40px' spacingY='20px'>
 
-        <Input
-            placeholder="Display name"
-            _placeholder={{ color: 'gray.500' }}
-            type="text"
-            value={display_name}
-            onChange={(e)=>setDisplay_name(e.target.value)}
-        />
-        </FormControl>
+        <Flex
+            minH={'auto'}
+            justify={'center'}
+            bg={useColorModeValue('gray.50', 'gray.800')}>
+            <Stack
+                spacing={4}
+                w={'full'}
+                bg={useColorModeValue('white', 'gray.700')}
+                rounded={'xl'}
+                boxShadow={'lg'}
+                p={6}>
+                <Heading lineHeight={1.1} fontSize={{ base: '2xl', sm: '3xl' }}>
+                    User Profile Edit
+                </Heading>
+                <FormControl id="userName">
+                    <Center>
+                        <Avatar size="xl" src={picture}>
+                        </Avatar>
+                    </Center>
 
-        
-        <FormControl id="github">
-        <FormLabel>Github</FormLabel>
-        <Input
-            placeholder="github"
-            _placeholder={{ color: 'gray.500' }}
-            type="text"
-            value={github}
-            onChange={(e)=>setGithub(e.target.value)}
-        />
-        </FormControl>
-        {/* <FormControl id="password" isRequired>
-        <FormLabel>Password</FormLabel>
-        <Input
-            placeholder="password"
-            _placeholder={{ color: 'gray.500' }}
-            type="password"
-        />
-        </FormControl> */}
-        <Stack spacing={6} direction={['column', 'row']}>
-        <Button
-            bg={'red.400'}
-            color={'white'}
-            w="full"
-            _hover={{
-            bg: 'red.500',
-            }}>
-            Cancel
-        </Button>
-        <Button
-        onClick={updateProfile}
-            bg={'teal.400'}
-            color={'white'}
-            w="full"
-            _hover={{
-            bg: 'teal.500',
-            }}>
-            Submit
-        </Button>
-        </Stack>
-    </Stack>
-    </Flex>
-    </Box>
+                </FormControl>
+                <ButtonGroup size='sm' isAttached variant='outline'>
+                    <input
+                        type="file"
+                        name="myImage"
+                        onChange={onChangePicture} />
+                    <Button variant='outline' onClick={() => (setPicture(""))}>Remove</Button>
+                </ButtonGroup>
+
+
+
+
+                <FormControl id="userName" isRequired>
+                    <FormLabel>username</FormLabel>
+                    <Input
+                        readOnly
+                        placeholder="UserName"
+                        _placeholder={{ color: 'gray.500' }}
+                        type="text"
+                        value={userName}
+                        onChange={(e) => setUserName(e.target.value)} />
+                </FormControl>
+                <FormControl id="Display_name" isRequired>
+                    <FormLabel>Display name</FormLabel>
+
+                    <Input
+                        placeholder="Display name"
+                        _placeholder={{ color: 'gray.500' }}
+                        type="text"
+                        value={display_name}
+                        onChange={(e) => setDisplay_name(e.target.value)} />
+                </FormControl>
+
+
+                <FormControl id="github">
+                    <FormLabel>Github</FormLabel>
+                    <Input
+                        placeholder="github"
+                        _placeholder={{ color: 'gray.500' }}
+                        type="text"
+                        value={github}
+                        onChange={(e) => setGithub(e.target.value)} />
+                </FormControl>
+                <Stack spacing={6} direction={['column', 'row']}>
+                    <Button
+                        bg={'red.400'}
+                        color={'white'}
+                        w="10%"
+                        _hover={{
+                            bg: 'red.500',
+                        }}>
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={updateProfile}
+                        bg={'teal.400'}
+                        color={'white'}
+                        w="10%"
+                        _hover={{
+                            bg: 'teal.500',
+                        }}>
+                        Submit
+                    </Button>
+                </Stack>
+            </Stack>
+        </Flex>
+        <Flex minH={'100vh'}
+            justify={'center'}
+            bg={useColorModeValue('gray.50', 'gray.800')}>
+            <Stack
+                spacing={4}
+                w={'full'}
+                bg={useColorModeValue('white', 'gray.700')}
+                rounded={'xl'}
+                boxShadow={'lg'}
+                p={6}>
+                <Heading lineHeight={1.1} fontSize={{ base: '2xl', sm: '3xl' }}>
+                    Fllower list
+                </Heading>
+                {typeof folowerList !="undefined" & folowerList.length!=0?  
+                      folowerList.map((follow, i) => <Box rounded="md" bg="purple.400" color="white" px="15px" py="15px">
+                          <div key={i} > {follow.display_name} </div>
+
+                      <Stack spacing={4} direction='row' align='center'>
+
+                      </Stack>
+                      
+                      </Box>
+                      )
+
+                      
+                      :<p>   This is no follower list  yet     </p>}
+                
+               
+            </Stack>
+
+        </Flex>
+    </SimpleGrid></>
+
 );
 }

@@ -1,7 +1,8 @@
-import { Box, Button, Flex, Heading, Stack, Badge } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Stack, Badge, Toast, useToast } from '@chakra-ui/react';
+
 import axios from "axios";
 import { Link, useSearchParams } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Identity from '../../model/Identity';
 import Navbar from "../../components/navbar";
 import { Refresh } from '../../auth/Refresh';
@@ -15,6 +16,13 @@ function Inbox () {
     const [folowerPostList, setFollowerPostList] =useState([]);
     const [likeListLength, setLikeListLength] =useState(0);
     const [followListLength, setFollowListLength] =useState(0);
+    const [follow, setFollow] =useState({});
+    const toast = useToast();
+    const toastIdRef = useRef();
+    const [status , setStatus]= useState();
+    function addToast(toast_data) {
+      toastIdRef.current = toast(toast_data)
+  }
     console.log(identity.id)
 
     useEffect(()=>{
@@ -80,12 +88,55 @@ function Inbox () {
             
             
         })
+        axios.get(`${id}/inbox`,
+        {
+            headers: {
+            'Content-Type': 'application/json',
+            "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            
+            }})
+            .then((data) => {
+            console.log(data)
+            
+            setPostList(data.data.items)
+            
+                
+            
+            }
+            ).catch((e)=>{
+            console.log(e.response.status)
+            
+            
+        })
 
     }, [])
 
-    const agreefunction=()=>{
+    const agreefunction=(follow)=>{
+    
+            let foreign_id =follow.actor.id.slice(-36, follow.actor.id.length)
+            console.log(foreign_id)
+            console.log(follow)
             console.log("you click agree")
+            axios.put(`${identity.id}/followers/${foreign_id}`, follow, {headers:{
+                'Content-Type': 'application/json',
+                "Authorization" : `Bearer ${localStorage.getItem("token")}`
+              }})
+              .then((data)=>{
+                  console.log(data)
+                addToast({description: "add user successfull",
+                status: 'success', isClosable: true, duration: 1000,});
+                const events_ = [...followList];
+                const idx = events_.indexOf(follow);
+                events_.splice(idx, 1);
+                setFollowList(() => [...events_]);
 
+
+
+              })
+              .catch((error)=>{
+                console.log(error.response.staus)
+                
+              })
 
 
 
@@ -100,20 +151,6 @@ function Inbox () {
 
 }
 
-/* 
-if (typeof likeList !="undefined" ){
-    setLikeListLength(likeList.length)
-}
-if (typeof followList !="undefined" ){
-    setFollowListLength(followList.length)
-} */
-   
-  console.log("followlist", followList)
-  console.log("likeList", likeList)
-  console.log(followListLength)
-  console.log(likeListLength)
-  console.log(likeListLength)
-  console.log(followListLength)
   
   return (
     <><Navbar /><Flex
@@ -136,7 +173,7 @@ if (typeof followList !="undefined" ){
                       <Stack spacing={4} direction='row' align='center'>
 
                        <Button paddingX="3rem" size='xs' colorScheme='red'onClick={rejectfunction}>Reject</Button>
-                      <Button paddingX="3rem" size='xs' colorScheme='teal' onClick={agreefunction} >Accept</Button>   
+                      <Button paddingX="3rem" size='xs' colorScheme='teal' onClick={()=>agreefunction(follow)} >Accept</Button>   
                       </Stack>
                       
                       </Box>
@@ -209,7 +246,8 @@ if (typeof followList !="undefined" ){
               </Box>
               </Stack>
           </Box>
-      </Flex></>
+      </Flex>
+     </>
   );
 };
 
