@@ -88,6 +88,16 @@ function Inbox () {
             
             
         })
+
+        //#####TODO
+        //NEED FIRST get a list of follower for current user, then load them to inbox
+        //for now, just get all public post
+        //i just find a get method to check , but is not good 
+        //URL: ://service/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
+        //GET [local, remote] check if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID
+        //so we need first get all authors? then get all followers for each authors, then check if each followers is equal current user id
+        //then load the post
+        
         axios.get(`${id}/inbox`,
         {
             headers: {
@@ -98,7 +108,7 @@ function Inbox () {
             .then((data) => {
             console.log(data)
             
-            setPostList(data.data.items)
+            setFollowerPostList(data.data.items)
             
                 
             
