@@ -31,6 +31,8 @@ import {AddIcon} from '@chakra-ui/icons';
 import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
 import {useParams } from "react-router-dom";
+import ReactMarkdown from 'react-markdown';
+import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
 import { fetchComments, fetchAuthorObj } from "../../model/util";
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 let identity = Identity.GetIdentity();
@@ -393,7 +395,8 @@ const onsubmitValueLike = (current_user, follower) => {
           {postData.description}
         </Container>
         <Container minW="48rem">
-          <Text fontSize="lg">{postData.content}</Text>
+          {/* <Text fontSize="lg">{postData.content}</Text> */}
+          <ReactMarkdown components={ChakraUIRenderer()} children={postData.content}/>
           <HStack mt="1">
             <Text fontWeight="medium">Categories: </Text>
             <Text>{postData.categories}</Text>

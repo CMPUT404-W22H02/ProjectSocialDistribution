@@ -73,7 +73,7 @@ function EditDialog({ post, isOpen, onClose }) {
 
           <FormControl>
             <FormLabel>Content</FormLabel>
-            <Textarea minH="10em" value={content} onChange={(event) => {
+            <Textarea minH="20em" value={content} onChange={(event) => {
               setContent(event.target.value);
             }}/>
           </FormControl>
