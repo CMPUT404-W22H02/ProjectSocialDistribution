@@ -34,10 +34,9 @@ import {  AddIcon, MinusIcon } from '@chakra-ui/icons'
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 //import Cookies from "universal-cookie";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-let identity = Identity.GetIdentity();
+let identity =Identity.GetIdentity();
 
 export default function CreatePost () {
-    //const { id, setId } = useState(identity.id);
     //const { token, setToken } = useState(localStorage.getItem("token"));
     //const { refreshToken, setRefreshToken } = useState(localStorage.getItem("refreshToken"));
     const [picture, setPicture] = useState('');

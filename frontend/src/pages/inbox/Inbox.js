@@ -4,93 +4,95 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Identity from '../../model/Identity';
 import Navbar from "../../components/navbar";
+import { Refresh } from '../../auth/Refresh';
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com';
-let identity = Identity.GetIdentity();
-const Inbox = () => {
-  const [followList, setFollowList] =useState([]);
-  const [likeList, setLikeList] =useState([]);
-  const [postList, setPostList] =useState([]);
-  const [folowerPostList, setFollowerPostList] =useState([]);
-  const [likeListLength, setLikeListLength] =useState(0);
-  const [followListLength, setFollowListLength] =useState(0);
-  console.log(identity.id)
+let identity =Identity.GetIdentity();
+function Inbox () {
+    const [id, setId] = useState(identity.id);
+    const [followList, setFollowList] =useState([]);
+    const [likeList, setLikeList] =useState([]);
+    const [postList, setPostList] =useState([]);
+    const [folowerPostList, setFollowerPostList] =useState([]);
+    const [likeListLength, setLikeListLength] =useState(0);
+    const [followListLength, setFollowListLength] =useState(0);
+    console.log(identity.id)
 
-  useEffect(()=>{
-    axios.get(`${identity.id}/inboxfollows`,
-    {
-        headers: {
-        'Content-Type': 'application/json',
-        "Authorization" : `Bearer ${localStorage.getItem("token")}`
-        
-        }})
-        .then((data) => {
-          console.log(data)
-          console.log(data.data.items)
-          
-
-          setFollowList(data.data.items)
-          
-           
-          
-        }
-        ).catch((e)=>{
-        console.log(e.response.status)
-        
-        
-    })
-    axios.get(`${identity.id}/inboxlikes`,
-    {
-        headers: {
-        'Content-Type': 'application/json',
-        "Authorization" : `Bearer ${localStorage.getItem("token")}`
-        
-        }})
-        .then((data) => {
-          console.log(data)
-          
-          setLikeList(data.data.items)
-          
+    useEffect(()=>{
+        axios.get(`${id}/inboxfollows`,
+        {
+            headers: {
+            'Content-Type': 'application/json',
+            "Authorization" : `Bearer ${localStorage.getItem("token")}`
             
-          
-        }
-        ).catch((e)=>{
-        console.log(e.response.status)
-        
-        
-    })
-    axios.get(`${identity.id}/inbox`,
-    {
-        headers: {
-        'Content-Type': 'application/json',
-        "Authorization" : `Bearer ${localStorage.getItem("token")}`
-        
-        }})
-        .then((data) => {
-          console.log(data)
-          
-          setPostList(data.data.items)
-          
+            }})
+            .then((data) => {
+            console.log(data)
+            console.log(data.data.items)
             
-          
-        }
-        ).catch((e)=>{
-        console.log(e.response.status)
-        
-        
-    })
 
-  }, [])
+            setFollowList(data.data.items)
+            
+            
+            
+            }
+            ).catch((e)=>{
+            console.log(e.response.status)
+            
+            
+        })
+        axios.get(`${id}/inboxlikes`,
+        {
+            headers: {
+            'Content-Type': 'application/json',
+            "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            
+            }})
+            .then((data) => {
+            console.log(data)
+            
+            setLikeList(data.data.items)
+            
+                
+            
+            }
+            ).catch((e)=>{
+            console.log(e.response.status)
+            
+            
+        })
+        axios.get(`${id}/inbox`,
+        {
+            headers: {
+            'Content-Type': 'application/json',
+            "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            
+            }})
+            .then((data) => {
+            console.log(data)
+            
+            setPostList(data.data.items)
+            
+                
+            
+            }
+            ).catch((e)=>{
+            console.log(e.response.status)
+            
+            
+        })
 
-  const agreefunction=()=>{
+    }, [])
+
+    const agreefunction=()=>{
+            console.log("you click agree")
+
+
+
+
+
+    }
+    const rejectfunction=()=>{
         console.log("you click agree")
-
-
-
-
-
-  }
-  const rejectfunction=()=>{
-    console.log("you click agree")
 
 
 

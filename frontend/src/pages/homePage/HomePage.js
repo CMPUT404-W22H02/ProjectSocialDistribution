@@ -13,7 +13,9 @@ function HomePage() {
   const [posts, setPosts] = useState([])
 
   useEffect(() => {
-    fetchAll((data)=>setPosts(data), (fail)=>{console.log("_-----------fail")});
+    fetchAll(
+      (data)=>setPosts(data), 
+      (fail)=>{console.log("_-----------fail")});
       
     }, []);
 

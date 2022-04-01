@@ -6,8 +6,7 @@ import jwt_decode from "jwt-decode";
 
 async function fetchAllPosts(success=()=>{}, fail = ()=>{}) {
   const posts = [];
-
-    await axios.get(`http://localhost:8000/publicposts/`, 
+    await  Refresh.refreshToken().then(axios.get(`http://localhost:8000/publicposts/`, 
     {
       headers: {
         Authorization: "Bearer " + Identity.GetIdentity().token
@@ -28,7 +27,7 @@ async function fetchAllPosts(success=()=>{}, fail = ()=>{}) {
     console.log("=",error);
 
 
-  })
+  }))
 
 }
 /* async function fetchAllPosts() {
