@@ -594,22 +594,15 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         return Response(response)
     
     def create(self, request, *args, **kwargs):
-        print("11111111")
         object = self.request.data.copy()
-        print("11111111")
         adapter = RemoteAdapter(object)
-        print("11111111")
         adapted_object = adapter.adapt_data()
-        print("11111111")
         request.data.update(adapted_object)
-        print("11111111")
         content_type = request.data['type']
-        print("11111111")
         print(request.data)
         # If the object already exists on server, skip creation
         serializer = self.get_serializer(data=request.data)
         #print(serializer.errors)
-        print("11111111")
         try:
             if content_type == 'post':
                 obj = Post.objects.get(id=request.data['id'])
@@ -620,7 +613,7 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
             elif content_type == 'follow':
                 print("3333333333")
                 obj = Follow.objects.get(actor__id=request.data['actor']['id'], object__id=request.data['object']['id'])
-            response = Response(serializer.data, status=status.HTTP_201_CREATED)
+            response = Response(status=status.HTTP_201_CREATED)
         except:
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
