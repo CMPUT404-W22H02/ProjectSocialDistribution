@@ -8,9 +8,10 @@ import Navbar from "../../components/navbar";
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com';
 let identity = Identity.GetIdentity();
 const Inbox = () => {
-let identity = Identity.GetIdentity();
   const [followList, setFollowList] =useState([]);
   const [likeList, setLikeList] =useState([]);
+  const [postList, setPostList] =useState([]);
+  const [folowerPostList, setFollowerPostList] =useState([]);
   const [likeListLength, setLikeListLength] =useState(0);
   const [followListLength, setFollowListLength] =useState(0);
   console.log(identity.id)
@@ -56,6 +57,26 @@ let identity = Identity.GetIdentity();
           console.log(data)
           
           setLikeList(data.data.items)
+          
+            
+          
+        }
+        ).catch((e)=>{
+        console.log(e.response.status)
+        
+        
+    })
+    axios.get(`${identity.id}/inbox`,
+    {
+        headers: {
+        'Content-Type': 'application/json',
+        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+        
+        }})
+        .then((data) => {
+          console.log(data)
+          
+          setPostList(data.data.items)
           
             
           
@@ -129,7 +150,7 @@ if (typeof followList !="undefined" ){
       >
           <Box width="100%">
               
-              <Stack spacing={6} direction='row' >
+              <Stack spacing={8} direction='row' >
               <Box rounded="md" bg="purple.300" color="white" px="15px" py="15px">
               <Badge variant='subtle' colorScheme='green'>
                     Follow
@@ -154,7 +175,7 @@ if (typeof followList !="undefined" ){
                   </Stack>
               </Box>
               <Box rounded="md" bg="teal.300" color="white" px="15px" py="15px">
-              <Badge center variant='subtle' colorScheme='green'>
+              <Badge  variant='subtle' colorScheme='green'>
                     Like
                 </Badge>
                   <Stack spacing={2}>
@@ -169,7 +190,47 @@ if (typeof followList !="undefined" ){
                       )
 
                       
-                      :<p>   This is no follower list  yet     </p>}
+                      :<p>   This is no post list  yet     </p>}
+
+                  </Stack>
+              </Box>
+              <Box rounded="md" bg="blue.300" color="white" px="15px" py="15px">
+              <Badge  variant='subtle' colorScheme='green'>
+                    Public Post
+                </Badge>
+                  <Stack spacing={2}>
+                      {typeof postList !="undefined" & postList.length!=0? 
+                      postList.map((post, i) => <Box rounded="md" bg="blue.400" color="white" px="15px" py="15px">
+                          <div  key={i} > {post.author.display_name} public a post</div>
+
+                      <Stack spacing={2} direction='row' align='center'>
+  
+                      </Stack>
+                      </Box>
+                      )
+
+                      
+                      :<p>   This is no public post list  yet     </p>}
+
+                  </Stack>
+              </Box>
+              <Box rounded="md" bg="green.300" color="white" px="15px" py="15px">
+              <Badge  variant='subtle' colorScheme='green'>
+                  Friend Post
+                </Badge>
+                  <Stack spacing={2}>
+                      {typeof folowerPostList !="undefined" & folowerPostList.length!=0? 
+                      folowerPostList .map((post, i) => <Box rounded="md" bg="green.400" color="white" px="15px" py="15px">
+                          <div  key={i} > {post.author.display_name} public a post</div>
+
+                      <Stack spacing={2} direction='row' align='center'>
+  
+                      </Stack>
+                      </Box>
+                      )
+
+                      
+                      :<p>   This is no follower post list  yet     </p>}
 
                   </Stack>
               </Box>
