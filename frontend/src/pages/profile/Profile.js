@@ -69,7 +69,11 @@ export default function Profile(props) {
             "Authorization" : `Bearer ${token}`
 
             },
-        }).then((data)=>{console.log(data)}
+        }).then((data)=>{
+            console.log(data);
+        
+        
+        }
         ).catch((error)=>{console.log(error)})
 
     }

@@ -90,6 +90,7 @@ function Inbox () {
         })
 
         //#####TODO
+        
         //NEED FIRST get a list of follower for current user, then load them to inbox
         //for now, just get all public post
         //i just find a get method to check , but is not good 
@@ -97,7 +98,7 @@ function Inbox () {
         //GET [local, remote] check if FOREIGN_AUTHOR_ID is a follower of AUTHOR_ID
         //so we need first get all authors? then get all followers for each authors, then check if each followers is equal current user id
         //then load the post
-        
+
         axios.get(`${id}/inbox`,
         {
             headers: {
@@ -123,11 +124,11 @@ function Inbox () {
 
     const agreefunction=(follow)=>{
     
-            let foreign_id =follow.actor.id.slice(-36, follow.actor.id.length)
-            console.log(foreign_id)
+            //let foreign_id =follow.actor.id.slice(-36, follow.actor.id.length)
+//console.log(foreign_id)
             console.log(follow)
             console.log("you click agree")
-            axios.put(`${identity.id}/followers/${foreign_id}`, follow, {headers:{
+            axios.put(`${identity.id}/followers/${follow.actor.id}`, follow, {headers:{
                 'Content-Type': 'application/json',
                 "Authorization" : `Bearer ${localStorage.getItem("token")}`
               }})

@@ -22,10 +22,12 @@ import { AddIcon, EmailIcon } from '@chakra-ui/icons';
 import { useState, } from "react";
 import Identity from "../../model/Identity";
 import React from 'react';
+import axios from 'axios';
+import { useEffect } from 'react';
 let identity = Identity.GetIdentity();
 function Navbar() {
   const [userName, setUserName] = useState(identity.username);
-
+  const [dispaly_name, setdispalyName] = useState('');
   const signOut= () => {
     // clear identity
     window.localStorage.clear();
@@ -36,6 +38,27 @@ function Navbar() {
     clearTimeout();
 
   }
+  useEffect((()=>{
+    axios.get(`${identity.id}`,
+        {
+            headers: {
+            "Content-Type": "application/json",
+            "Authorization" : `Bearer ${identity.token}`
+
+            },
+        })
+        .then(res => { 
+        const info = res.data;
+        //console.log(res)
+        setdispalyName(info.display_name)
+            
+        }).catch(e => {
+            console.log("error-----")
+            //console.log(token)
+            console.log(e)
+        })
+
+  }))
 
   return (
     <Flex 
@@ -70,9 +93,14 @@ function Navbar() {
             <Center>
               <Avatar size="2xl"/>
             </Center>
-            <Center py="2">
+            <Center py="1">
               <Text>{userName}</Text>
+              
             </Center>
+            <Center py="1">
+              <Text>{dispaly_name}</Text>
+            </Center>
+            
             <MenuDivider />
             <MenuItem>Your Servers</MenuItem>
             <MenuItem><a href="/profile">Profile Settings</a></MenuItem>
