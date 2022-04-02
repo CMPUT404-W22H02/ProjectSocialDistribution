@@ -632,7 +632,7 @@ class PublicFeedView(ListAPIView, UtilityAPI):
         public_posts = self.posts_response_template
         # Get all home content first
         home_host = self.request.get_host()
-        queryset = Post.objects.filter(author__host__icontains=home_host, visibility='PUBLIC')
+        queryset = Post.objects.filter(author__host__icontains=home_host, visibility='PUBLIC', unlisted=False)
         serializer = PublicPostSerializer(queryset, many=True)
         public_posts[self.ritems] += serializer.data
 

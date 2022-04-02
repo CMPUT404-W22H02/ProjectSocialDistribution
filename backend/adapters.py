@@ -231,6 +231,7 @@ class RemoteAdapter():
         for field in remote_fields:
             try:
                 obj[local_field] = obj.pop(field)
+                return
             except Exception as e:
                 pass
         
