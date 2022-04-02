@@ -20,6 +20,7 @@ Identity : Identity.GetIdentity(),
       console.log(typeof data !=="undefiend")
       Refresh.Identity = new Identity(data.data.access, data.data.refresh, data.data.user.username, data.data.user.id);
       Refresh.Identity.StoreIdentity();
+      console.log("--", Refresh.Identity)
 
       window.location.assign("/home");
       
@@ -45,15 +46,13 @@ Identity : Identity.GetIdentity(),
       let currentDate = new Date();
       if (decodedToken.exp * 1000 < currentDate.getTime()) {
         console.log("Token expired.");
-        return false;
+        Refresh.refreshToken();
     } else {
         console.log("Valid token");  
-        return true;
         }
       
     }catch (e) {
       console.log(e);
-      return false;
     }
     },
 
@@ -77,7 +76,9 @@ async refreshToken(){
     .then((data) => 
     {
       console.log(data.data)
-      Identity.UpdateIdentity(data.data.access, Refresh.Identity.refreshToken, data.data.username, data.data.id)
+      console.log("-resfesgh-", Refresh.Identity.id)
+      Identity.UpdateIdentity(data.data.access, Refresh.Identity.refreshToken,Refresh.Identity.username,Refresh.Identity.id)
+      localStorage.setItem("id", Refresh.Identity.id);
       localStorage.setItem("token", data.data.access);
       localStorage.setItem("refreshToken",  Refresh.Identity.refreshToken)},
     

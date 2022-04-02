@@ -111,8 +111,8 @@ function Post({ postData }) {
             }).catch((e)=>{
           console.log(e.response.status)
           setStatus(e.response.status)
-          addToast({description: "send follow not successfull",
-          status: 'error', isClosable: true, duration: 1000,})
+          /* addToast({description: "send follow not successfull",
+          status: 'error', isClosable: true, duration: 1000,}) */
           
       })
   })
