@@ -153,7 +153,7 @@ class RemoteAdapter():
             "count": (),
             "comments": (),
             "comments_src": ("commentsSrc",),
-            "published": (),
+            "published": ("publishedDate"),
             "visibility": (),
             "unlisted": ()
         }
