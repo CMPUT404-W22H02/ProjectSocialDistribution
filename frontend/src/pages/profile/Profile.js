@@ -60,7 +60,7 @@ export default function Profile(props) {
         values['url']=author_id;
         values['github'] = github;
         values['display_name'] = display_name;
-        values['host'] = 'https://psdt11.herokuapp.com/';
+        //values['host'] = 'https://psdt11.herokuapp.com/';
         axios.post(`${author_id}`,
         values,
         {
@@ -80,6 +80,7 @@ export default function Profile(props) {
     const onChangePicture = e => {
     setPicture(URL.createObjectURL(e.target.files[0]));
     };
+    console.log("----------", picture)
     //console.log(token,"---")
     //console.log(identity)
 
