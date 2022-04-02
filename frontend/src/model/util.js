@@ -3,6 +3,7 @@ import Identity from "./Identity";
 import {Refresh} from "../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
 
+
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 async function fetchAllPosts(success=()=>{}, fail = ()=>{}) {
   const posts = [];
@@ -31,6 +32,7 @@ async function fetchAllPosts(success=()=>{}, fail = ()=>{}) {
 
 }
 /* async function fetchAllPosts() {
+
   const posts = [];
   let decodedToken = jwt_decode( localStorage.getItem("token"));
   let currentDate = new Date();

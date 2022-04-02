@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import Identity from '../../model/Identity';
+import axios from 'axios';
 import {
   Modal,
   ModalOverlay,
@@ -10,91 +10,79 @@ import {
   ModalCloseButton,
   FormLabel,
   Input,
+  Textarea,
   FormControl,
   Button,
   Stack,
-  Checkbox
+  Checkbox,
+  Radio,
+  RadioGroup
 } from '@chakra-ui/react';
-import { Radio, RadioGroup } from '@chakra-ui/react'
-import axios from 'axios';
-let identity = Identity.GetIdentity();
-const author_id =  identity.id;
-const token = identity.token;
-var values = {};
-
-function putPost(post, title, description, content, categories){
-values['title'] = title;
-values['description'] = description;
-values['content'] = content;
-values['categories'] = categories;
-console.log(post.id)
-axios.put(`${post.id}`, values,
-{
-  headers: {
-  'Content-Type': 'application/json',
-  "Authorization" : `Bearer ${localStorage.getItem("token")}`
-  }})
-  .then(res => console.log(res))
-}
+import Identity from '../../model/Identity';
 
 function EditDialog({ post, isOpen, onClose }) {
-  // once they pass post data then you just set post.title in each useState
-  //example: const [title, setTitle] = useState(post.title);
-  //post.title is get data after we click post, then it will justdisplay tehm in the input filed
-  const [title, setTitle] = useState(`${post.title}`);
-  const [description, setDesc] = useState(post.description);
+    // TODO: checking unlist removes edit button
+
+  const [title, setTitle] = useState(post.title);
+  const [desc, setDesc] = useState(post.description);
   const [content, setContent] = useState(post.content);
   const [categories, setCategories] = useState(post.categories);
   const [unlisted, setUnlisted] = useState();
   const [visibility, setVisibility] = useState();
+
+  const updatePost = async () => {
+    try {
+      const response = await axios.post(post.id, {
+        title: title,
+        description: desc,
+        content: content,
+        categories: categories,
+      }, {
+        headers: {
+          Authorization: "Bearer " + Identity.GetIdentity().token
+        }});
+      console.log(response.status);
+      onClose();
+    }
+    catch(error) {
+      console.log(error)
+    }
+  }
+
   return (
     <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay/>
-      <ModalContent>
+      <ModalContent minW="45em">
         <ModalHeader>Edit your post</ModalHeader>
         <ModalCloseButton/>
 
         <ModalBody>
           <FormControl>
             <FormLabel>Title</FormLabel>
-            <Input
-            placeholder="Title"
-            _placeholder={{ color: 'gray.500' }}
-            type="text"
-            value={title}
-            onChange={(e)=>setTitle(e.target.value)}
-        />
+            <Input value={title} onChange={(event) => {
+              setTitle(event.target.value);
+            }}/>
           </FormControl>
           
           <FormControl>
             <FormLabel>Description</FormLabel>
-            <Input
-            placeholder="Description"
-            _placeholder={{ color: 'gray.500' }}
-            type="text"
-            value={description}
-            onChange={(e)=>setDesc(e.target.value)}
-        />
+            <Textarea value={desc} onChange={(event) => {
+              setDesc(event.target.value);
+            }}/>
           </FormControl>
+
           <FormControl>
             <FormLabel>Content</FormLabel>
-            <Input
-            placeholder="Content"
-            _placeholder={{ color: 'gray.500' }}
-            type="text"
-            value={content}
-            onChange={(e)=>setContent(e.target.value)}
-        />
+            <Textarea minH="20em" value={content} onChange={(event) => {
+              setContent(event.target.value);
+            }}/>
           </FormControl>
+
           <FormControl>
-            <FormLabel>Categories</FormLabel>
-            <Input
-            placeholder="Categories"
-            _placeholder={{ color: 'gray.500' }}
-            type="text"
-            value={categories}
-            onChange={(e)=>setCategories(e.target.value)}
-        />
+            <FormLabel>Category</FormLabel>
+            <Input value={categories} onChange={(event) => {
+              setCategories(event.target.value);
+            }}/>
           </FormControl>
           
           <FormControl>
@@ -110,7 +98,7 @@ function EditDialog({ post, isOpen, onClose }) {
             <FormLabel>Unlisted</FormLabel>
             <Stack spacing={5} direction='row'>
               <Checkbox defaultChecked isChecked ={unlisted}  onChange={(e)=>setUnlisted(e.target.checked)}>
-              Unlisted
+                Unlisted
               </Checkbox>
             </Stack>
           </FormControl>
@@ -118,7 +106,7 @@ function EditDialog({ post, isOpen, onClose }) {
         </ModalBody>
 
         <ModalFooter>
-          <Button mr="2" bg="teal.200" onClick={()=>putPost(post, title, description, content, categories)}>
+          <Button mr="2" bg="teal.200" onClick={ () => updatePost() }>
             Save
           </Button>
           <Button onClick={onClose}>
