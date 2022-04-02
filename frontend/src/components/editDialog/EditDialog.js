@@ -49,6 +49,14 @@ function EditDialog({ post, isOpen, onClose }) {
     }
   }
 
+
+
+
+
+
+
+
+
   return (
     <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
       <ModalOverlay/>
@@ -106,7 +114,7 @@ function EditDialog({ post, isOpen, onClose }) {
         </ModalBody>
 
         <ModalFooter>
-          <Button mr="2" bg="teal.200" onClick={ () => updatePost() }>
+          <Button mr="2" bg="teal.200" onClick={ () => {updatePost(); window.location.reload();} }>
             Save
           </Button>
           <Button onClick={onClose}>
