@@ -19,8 +19,9 @@ import {
   Image,
   Grid,
   GridItem,
-  Textarea, useToast
+  Textarea, useToast, SimpleGrid, IconButton, Stack
 } from "@chakra-ui/react";
+import { Select } from '@chakra-ui/react'
 import axios from "axios";
 import { Form, Field, useField, useForm } from "react-final-form";
 import validate from "./validate";
@@ -28,13 +29,14 @@ import NavbarAdd from "../../components/navbar/NavbarAdd";
 import Identity from '../../model/Identity';
 import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
+import {  AddIcon, MinusIcon } from '@chakra-ui/icons'
+
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 //import Cookies from "universal-cookie";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-let identity = Identity.GetIdentity();
+let identity =Identity.GetIdentity();
 
 export default function CreatePost () {
-    //const { id, setId } = useState(identity.id);
     //const { token, setToken } = useState(localStorage.getItem("token"));
     //const { refreshToken, setRefreshToken } = useState(localStorage.getItem("refreshToken"));
     const [picture, setPicture] = useState('');
@@ -42,7 +44,25 @@ export default function CreatePost () {
     const toast = useToast();
     const toastIdRef = useRef();
     const [status , setStatus]= useState();
-    const [values, setValues]= useState();
+    const [cateSignle, setCateSignle]= useState('');
+    const [cate, setCate]=useState([]);
+    const addCategories=(cateSignle)=>{
+      //setCate(...name.value)
+      console.log(cateSignle);
+      setCate(prevArray => [...prevArray, cateSignle]);
+      setCateSignle("");
+    }
+    const deleteCategories=(cateSignle)=>{
+      //setCate(...name.value)
+      //console.log("--",input.value)
+      //console.log(cate)
+      const cate_ = [...cate];
+      const idx = cate_.indexOf(cateSignle);
+      cate_.splice(idx, 1);
+      setCate(() => [...cate_]);
+      setCateSignle("");
+
+    }
     function addToast(toast_data) {
         toastIdRef.current = toast(toast_data)
     }
@@ -61,15 +81,24 @@ export default function CreatePost () {
             console.log(data.data.items)
             for (let author of data.data.items) {
               console.log(author)
-              const response = axios.post(`${author.id}/inbox`, 
+              if (author.id != identity.id){
+              axios.post(`${author.id}/inbox`, 
               values,
               {
                 headers: {
                   'Content-Type': 'application/json',
                   "Authorization" : `Bearer ${token}`
                   
-                  }})
+                  }}).then((data)=>{
+                    console.log("success post in inbox");
+                    console.log(data)
+                }
+                  )
                   .catch(e=>console.log(e))
+
+
+              }
+              
             }
           }).catch((e)=>{
               console.log(e.response)
@@ -99,17 +128,26 @@ export default function CreatePost () {
           .then((data) => {
             console.log(data.data.items)
             
-            console.log("++++++++++++followers++++++++++++",values)
+            console.log("++++++++++++followers++++++++++++",data.data)
             for (let author of data.data.items) {
-              console.log(author)
-              const response = axios.post(`${author.id}/inbox`, 
+              console.log(author.id)
+              console.log(identity.id)
+              if (author.id != identity.id){
+                console.log("------------------")
+                axios.post(`${author.id}/inbox`, 
               values,
               {
                 headers: {
                   'Content-Type': 'application/json',
                   "Authorization" : `Bearer ${token}`
                   
-                  }})
+                  }}).then((data)=>{
+                    console.log("success indox", data)
+                  })
+
+
+              }
+              
             }
           }).catch((e)=>{
               console.log(e.response.status)
@@ -261,8 +299,20 @@ export default function CreatePost () {
                                     onChange={onChangePicture} />
                                 <Button variant='outline' onClick={() => (setPicture(""))}>Remove</Button>
                             </ButtonGroup>
-                            <InputControl name="categories" label="Categories" />
+                            {/* <CateControl name="categories" label="Categories" /> */}
+                            <Input  value={cate} readOnly></Input> 
+                              <SimpleGrid columns={2} spacing={10}>
+                              <ButtonGroup size='sm' isAttached variant='outline'>
+                              <Input mr='-px'
+                                value={cateSignle}
+                                onChange={(e)=>setCateSignle(e.target.value)}
+                                placeholder="Categories" 
+                              />
+                              <IconButton h='auto' onClick={() => addCategories(cateSignle)} icon={<AddIcon />} />
+                              <IconButton h='auto' onClick={() => deleteCategories(cateSignle)} icon={<MinusIcon />} /> 
+                              </ButtonGroup>
 
+                              </SimpleGrid>
                             <CheckboxControl name="unlisted">Unlisted</CheckboxControl>
                             <Field
                                 name="visibility"
@@ -299,6 +349,7 @@ export default function CreatePost () {
                                 <p>just for test , will delte in the future</p>
                                 {values['contentType']="text/plain"}
                                 {values['type']="post"}
+                                {values['categories']=JSON.stringify(cate)}
                                 {JSON.stringify(values, 0, 2)}
                             </Box>
                         </Box>
@@ -382,7 +433,47 @@ const InputControl = ({ name, label }) => {
     </Control>
   );
 };
+const CateControl = ({ name, label }) => {
+  const { input, meta } = useField(name);
+  const [cate, setCate]=useState([]);
+  const addCategories=(name)=>{
+    //setCate(...name.value)
+    setCate(prevArray => [...prevArray, input.value])
+  }
+  const deleteCategories=(name)=>{
+    //setCate(...name.value)
+    //console.log("--",input.value)
+    //console.log(cate)
+    const cate_ = [...cate];
+    const idx = cate_.indexOf(input.value);
+    cate_.splice(idx, 1);
+    setCate(() => [...cate_]);
 
+  }
+  return (
+    <Control name={name} my={4}>
+      <FormLabel htmlFor={name}>{label}</FormLabel>
+      <Input  value={cate} ></Input> 
+      <SimpleGrid columns={2} spacing={10}>
+      <ButtonGroup size='sm' isAttached variant='outline'>
+      <Input mr='-px'
+        {...input}
+        isInvalid={meta.error && meta.touched}
+        id={name}
+        placeholder={label}
+      />
+      <Error name={name} />
+      <IconButton h='auto' onClick={addCategories} aria-label='Add to friends' icon={<AddIcon />} />
+      <IconButton h='auto' onClick={deleteCategories} aria-label='Add to friends' icon={<MinusIcon />} />
+      </ButtonGroup>
+
+      </SimpleGrid>
+      
+     
+    </Control>
+    
+  );
+};
 
 const PercentComplete = props => {
   const form = useForm();
