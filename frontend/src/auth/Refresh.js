@@ -40,13 +40,41 @@ Identity : Identity.GetIdentity(),
     //console.log(e);
   }
   },
-  accessToken() {
+async refreshToken(){
     try {
       let decodedToken = jwt_decode(localStorage.getItem("token"));
       let currentDate = new Date();
       if (decodedToken.exp * 1000 < currentDate.getTime()) {
-        //console.log("Token expired.");
-        Refresh.refreshToken();
+          if (Refresh.Identity.refreshToken === "" || Refresh.Identity.refreshToken == null) {
+          window.alert("Ops! Please login again!")
+          window.location.assign("/")
+          window.localStorage.clear();
+          window.sessionStorage.clear();
+          throw Error("Attempt to refresh access token without a refresh token")
+              
+          }
+          await axios.post(`${base_url}refresh/`,
+          {refresh: Refresh.Identity.refreshToken}, {
+            headers: {
+              'Content-Type': 'application/json'
+            
+            }})
+          .then((data) => 
+          {
+            //console.log(data.data)
+            //console.log("-resfesgh-", Refresh.Identity.id)
+            Identity.UpdateIdentity(data.data.access, Refresh.Identity.refreshToken,Refresh.Identity.username,Refresh.Identity.id)
+            localStorage.setItem("id", Refresh.Identity.id);
+            localStorage.setItem("token", data.data.access);
+            localStorage.setItem("refreshToken",  Refresh.Identity.refreshToken)},
+          
+          ).catch((e)=>{
+            window.alert("Please login again!")
+            window.location.assign("/")
+            window.localStorage.clear();
+            window.sessionStorage.clear();
+            
+          })
     } else {
         //console.log("Valid token");  
         }
@@ -56,40 +84,6 @@ Identity : Identity.GetIdentity(),
     }
     },
 
-async refreshToken(){
-
-    if (Refresh.Identity.refreshToken === "" || Refresh.Identity.refreshToken == null) {
-        window.alert("Ops! Please login again!")
-        window.location.assign("/")
-        window.localStorage.clear();
-        window.sessionStorage.clear();
-        throw Error("Attempt to refresh access token without a refresh token")
-        
-    }
-    await axios.post(`${base_url}refresh/`,
-    {refresh: Refresh.Identity.refreshToken}, {
-      headers: {
-        'Content-Type': 'application/json'
-       
-      }})
-    .then((data) => 
-    {
-      //console.log(data.data)
-      //console.log("-resfesgh-", Refresh.Identity.id)
-      Identity.UpdateIdentity(data.data.access, Refresh.Identity.refreshToken,Refresh.Identity.username,Refresh.Identity.id)
-      localStorage.setItem("id", Refresh.Identity.id);
-      localStorage.setItem("token", data.data.access);
-      localStorage.setItem("refreshToken",  Refresh.Identity.refreshToken)},
-    
-    ).catch((e)=>{
-      window.alert("Please login again!")
-      window.location.assign("/")
-      window.localStorage.clear();
-      window.sessionStorage.clear();
-
-      
-    })
-
-},
+   
 };
 export {Refresh};

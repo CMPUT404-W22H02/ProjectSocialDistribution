@@ -224,13 +224,9 @@ export default function CreatePost () {
     const id = identity.id
     let token = localStorage.getItem("token")
     let refreshToken = localStorage.getItem("refreshToken")
-    //console.log("--", token)
-    //console.log("-1-", refreshToken)
-    let decodedToken = jwt_decode(token);
-    let currentDate = new Date();
 
     var info;
-    axios.get(`${id}`,
+    Refresh.refreshToken().then(axios.get(`${id}`,
       {
           headers: {
           "Content-Type": "application/json",
@@ -249,7 +245,7 @@ export default function CreatePost () {
           //console.log("error-----")
           //console.log(token)
           //console.log(e)
-      })
+      })) 
 
     // JWT exp is in seconds
   }

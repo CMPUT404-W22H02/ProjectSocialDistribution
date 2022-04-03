@@ -226,19 +226,8 @@ function Post({ postData }) {
   }
   
   const onSubmitLike = () =>{ 
-    let token = localStorage.getItem("token")
-    let decodedToken = jwt_decode(token);
-    let currentDate = new Date();
-
-    // JWT exp is in seconds
-    if (decodedToken.exp * 1000 < currentDate.getTime()) {
-        console.log("Token expired.");
-        Refresh.refreshToken()
-        
-    } else {
-        console.log("Valid token");  
-    }
-    axios.get(base_url+`authors/${current_user_id}`,
+    
+   Refresh.refreshToken().then(axios.get(base_url+`authors/${current_user_id}`,
     {
         headers: {
         "Content-Type": "application/json",
@@ -259,7 +248,7 @@ function Post({ postData }) {
               status: 'info', isClosable: true, duration: 1000,}) */
 
         console.log(e)
-    })
+    })) 
 }
 const sendLike=((values, token)=>{
   post_author_id=post_author_id.slice(-36, post_author_id.length)
@@ -295,41 +284,17 @@ const onsubmitValueLike = (current_user, follower) => {
   "summary":`${follower} Likes your post.`, 
   "author": current_user,
   "object": postData.id}
-  console.log(values)
+  //console.log(values)
 
   let token = localStorage.getItem("token")
-  let decodedToken = jwt_decode(token);
-  let currentDate = new Date();
-
-  // JWT exp is in seconds
-  if (decodedToken.exp * 1000 < currentDate.getTime()) {
-      console.log("Token expired.");
-      Refresh.refreshToken().then(()=>{token = localStorage.getItem("token");
+  Refresh.refreshToken().then(()=>{token = localStorage.getItem("token");
         sendLike(values, token)});
-      
-  } else {
-      console.log("Valid token");  
-      sendLike(values, token) 
-  }
+ 
   }
   const onSubmit = () =>{ 
     //console.log(postData)
-
-    let token = localStorage.getItem("token")
-    let decodedToken = jwt_decode(token);
-    let currentDate = new Date();
-
-    // JWT exp is in seconds
-    if (decodedToken.exp * 1000 < currentDate.getTime()) {
-        console.log("Token expired.");
-        Refresh.refreshToken();
-        
-    } else {
-        console.log("Valid token");  
-        
-    }
     
-    axios.get(base_url+`authors/${current_user_id}`,
+    Refresh.refreshToken().then(axios.get(base_url+`authors/${current_user_id}`,
     {
         headers: {
         "Content-Type": "application/json",
@@ -348,7 +313,7 @@ const onsubmitValueLike = (current_user, follower) => {
               status: 'info', isClosable: true, duration: 1000,}) */
 
         console.log(e)
-    })
+    }))
 }
   const sendFollow=((values, token)=>{
     post_author_id=post_author_id.slice(-36, post_author_id.length)
@@ -390,25 +355,11 @@ const onsubmitValueLike = (current_user, follower) => {
     "summary":`${follower} want to follow ${author}`, 
     "actor": current_user,
     "object":  postData.author}
-    // console.log("author", postData.author)
-    // console.log("user", current_user)
-    // console.log("CURR", current_user_id)
-    //console.log(values)
-
-    let token = localStorage.getItem("token")
-    let decodedToken = jwt_decode(token);
-    let currentDate = new Date();
-
-    // JWT exp is in seconds
-    if (decodedToken.exp * 1000 < currentDate.getTime()) {
-        console.log("Token expired.");
-        Refresh.refreshToken().then(()=>{token = localStorage.getItem("token");
+    let token = localStorage.getItem("token");
+    Refresh.refreshToken().then(()=>{
+      token = localStorage.getItem("token");
           sendFollow(values, token)});
-        
-    } else {
-        console.log("Valid token");  
-        sendFollow(values, token) 
-    }
+
     }
   return (
     <Flex width="50rem" minH="10rem" boxShadow="lg" py="2" alignContent="center" flexDirection="column">
