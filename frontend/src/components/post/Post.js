@@ -53,6 +53,7 @@ function Post({ postData }) {
 
   const [countRepeat, setCountRepeat]=useState(0);
   const {picture, setPic} = useState();
+  const[show, setShow]=useState(false)
   const toast = useToast();
   const toastIdRef = useRef();
   const [status , setStatus]= useState();
@@ -71,8 +72,38 @@ function Post({ postData }) {
   useEffect(() => {
     
     updateLike();
+    updateFllowe();
 
   }, [count])
+  const updateFllowe=()=>{
+    console.log(`${base_url}authors/${author_id}/followers/${identity.id}`)
+    axios.get(`${base_url}authors/${author_id}/followers/${identity.id}`, {
+      headers: {
+      'Content-Type': 'application/json',
+      "Authorization" : `Bearer ${localStorage.getItem("token")}`
+      
+      }})
+  .then((data) => {
+    console.log("----", data.data)
+    console.log(data.data.items.length)
+    if (data.data.items.length==0){
+        setShow(true)
+    }else{
+      setShow(false)
+    }
+    
+    console.log("++++++++++++followers++++111111111111++++++++",data.data.items)
+  }).catch((e)=>{
+      console.log(e.response.status)
+      if (e.response.status===401){
+        /* window.location.assign("/")
+        window.localStorage.clear();
+        window.sessionStorage.clear(); */
+        
+      }
+      
+  })
+  }
   const updateLike=()=>{
     //base_url+`authors/${current_user_id}/posts/${post_id}
     axios.get(`${postData.id}/likes`,
@@ -84,13 +115,13 @@ function Post({ postData }) {
        }})
    .then((data) => {
 
-     console.log(data.data.items)
+     //console.log(data.data.items)
      setCount(data.data.items.length)
 
    }
    
    ).catch((e)=>{
-       console.log(e.response.status)
+       //console.log(e.response.status)
        setStatus(e.response.status)
        
    })
@@ -350,6 +381,7 @@ const onsubmitValueLike = (current_user, follower) => {
               }})
           .then((data) => {
             console.log(data)
+            setShow(false)
             addToast({description: "send follow successfull",
               status: 'success', isClosable: true, duration: 1000,})},
           
@@ -399,6 +431,7 @@ const onsubmitValueLike = (current_user, follower) => {
       <Stack direction="column" spacing="2.5" px="4" justify="space-between">
         <HStack pt="4" ml="2" spacing="3">
         <Avatar size="md" src={picture}>
+          {show? 
           <AvatarBadge
             as={IconButton}
             size="xs"
@@ -409,6 +442,10 @@ const onsubmitValueLike = (current_user, follower) => {
             icon={<AddIcon />}
             onClick={()=>onSubmit()}
           />
+            :
+            null
+            }
+          
         </Avatar>
           <Heading size="md">{postData.author.display_name}</Heading>
         </HStack>
