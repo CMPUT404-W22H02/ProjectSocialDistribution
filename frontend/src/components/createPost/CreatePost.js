@@ -346,11 +346,10 @@ export default function CreatePost () {
                                 </Button>
                             </ButtonGroup>
                             <Box as="pre" my={10}>
-                                <p>just for test , will delte in the future</p>
-                                {values['contentType']="text/plain"}
+                                
                                 {values['type']="post"}
                                 {values['categories']=JSON.stringify(cate)}
-                                {JSON.stringify(values, 0, 2)}
+                                
                             </Box>
                         </Box>
 
@@ -431,47 +430,6 @@ const InputControl = ({ name, label }) => {
       />
       <Error name={name} />
     </Control>
-  );
-};
-const CateControl = ({ name, label }) => {
-  const { input, meta } = useField(name);
-  const [cate, setCate]=useState([]);
-  const addCategories=(name)=>{
-    //setCate(...name.value)
-    setCate(prevArray => [...prevArray, input.value])
-  }
-  const deleteCategories=(name)=>{
-    //setCate(...name.value)
-    //console.log("--",input.value)
-    //console.log(cate)
-    const cate_ = [...cate];
-    const idx = cate_.indexOf(input.value);
-    cate_.splice(idx, 1);
-    setCate(() => [...cate_]);
-
-  }
-  return (
-    <Control name={name} my={4}>
-      <FormLabel htmlFor={name}>{label}</FormLabel>
-      <Input  value={cate} ></Input> 
-      <SimpleGrid columns={2} spacing={10}>
-      <ButtonGroup size='sm' isAttached variant='outline'>
-      <Input mr='-px'
-        {...input}
-        isInvalid={meta.error && meta.touched}
-        id={name}
-        placeholder={label}
-      />
-      <Error name={name} />
-      <IconButton h='auto' onClick={addCategories} aria-label='Add to friends' icon={<AddIcon />} />
-      <IconButton h='auto' onClick={deleteCategories} aria-label='Add to friends' icon={<MinusIcon />} />
-      </ButtonGroup>
-
-      </SimpleGrid>
-      
-     
-    </Control>
-    
   );
 };
 
