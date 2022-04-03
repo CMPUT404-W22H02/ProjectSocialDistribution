@@ -21,7 +21,10 @@ import {
   AvatarBadge,
   useToast,
   InputGroup,
-  InputRightAddon
+  InputRightAddon,
+  Tag,
+  SimpleGrid,
+  Grid
 } from "@chakra-ui/react";
 import { FaComment, FaThumbsUp, FaShare } from "react-icons/fa";
 import Identity from "../../model/Identity";
@@ -39,6 +42,7 @@ let identity = Identity.GetIdentity();
 
 
 function Post({ postData }) {
+  var cateList=JSON.parse( postData.categories)
   var current_user_id=identity.id
   current_user_id=current_user_id.slice(-36, current_user_id.length)
   var author_id_url = postData.author.id
@@ -50,7 +54,6 @@ function Post({ postData }) {
 
   // TODO: postData.count is count for # of comments, atm it is tracking # of likes
   const [count, setCount]=useState(0);
-
   const [countRepeat, setCountRepeat]=useState(0);
   const {picture, setPic} = useState();
   const[show, setShow]=useState(false)
@@ -437,18 +440,31 @@ const onsubmitValueLike = (current_user, follower) => {
         </Container> : <Container fontWeight="medium" pt="4" color={'green'}>
           Host - {postData.author.host}
         </Container>}
-        <Container fontWeight="bold" pt="4" fontSize="xl">
-          {postData.title}
+        <Divider></Divider>
+        <Container fontWeight="bold" fontSize="xl">
+          <Flex>  
+            <Text minW={'5rem'} size='xl'>Title: </Text>
+           <Text>{postData.title} </Text>  
+          </Flex>
+       
         </Container>
+        <Divider></Divider>
         <Container minW="48rem">
-          {postData.description}
+          <Flex>
+            <Text size='xs'>Descrption:</Text> 
+            <Text>    {postData.description}   </Text>
+          </Flex>
+         
         </Container>
+        <Divider></Divider>
         <Container minW="48rem">
           {/* <Text fontSize="lg">{postData.content}</Text> */}
+          <Text> Content:</Text>
           <ReactMarkdown components={ChakraUIRenderer()} children={postData.content}/>
+          <Divider></Divider>
           <HStack mt="1">
             <Text fontWeight="medium">Categories: </Text>
-            <Text>{postData.categories}</Text>
+            {cateList.map((cate)=><Tag> {cate}    </Tag>)}
           </HStack>
           
         </Container>
