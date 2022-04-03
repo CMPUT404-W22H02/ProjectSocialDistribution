@@ -259,8 +259,8 @@ return (
                     Fllower list
                 </Heading>
                 {typeof folowerList !="undefined" & folowerList.length!=0?  
-                      folowerList.map((follow, i) => <Box rounded="md" bg="purple.400" color="white" px="15px" py="15px">
-                          <div key={i} > {follow.display_name} </div>
+                      folowerList.map((follow, i) => <Box rounded="md" bg="purple.400" color="white" px="15px" py="15px"  key={i}>
+                         {follow.display_name}
 
                       <Stack spacing={4} direction='row' align='center'>
 
