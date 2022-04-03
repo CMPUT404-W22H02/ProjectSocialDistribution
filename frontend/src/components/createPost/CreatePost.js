@@ -222,15 +222,13 @@ export default function CreatePost () {
     const onSubmit = async values => {
     //window.alert(JSON.stringify(values, 0, 2));
     const id = identity.id
-    let token = localStorage.getItem("token")
-    let refreshToken = localStorage.getItem("refreshToken")
 
     var info;
     Refresh.refreshToken().then(axios.get(`${id}`,
       {
           headers: {
           "Content-Type": "application/json",
-          "Authorization" : `Bearer ${token}`
+          "Authorization" : `Bearer ${localStorage.getItem("token")}`
   
           },
       })
@@ -240,7 +238,7 @@ export default function CreatePost () {
       values['content_type']='text/plain'
       values['type']="post"
       values['categories']=JSON.stringify(cate)
-      sendRequest(id, values, token)
+      sendRequest(id, values, localStorage.getItem("token"))
       }).catch(e => {
           //console.log("error-----")
           //console.log(token)

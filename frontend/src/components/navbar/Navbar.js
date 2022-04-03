@@ -24,6 +24,7 @@ import Identity from "../../model/Identity";
 import React from 'react';
 import axios from 'axios';
 import { useEffect } from 'react';
+import {Refresh} from "../../../src/auth/Refresh"
 let identity = Identity.GetIdentity();
 function Navbar() {
   const [userName, setUserName] = useState(identity.username);
@@ -39,11 +40,11 @@ function Navbar() {
 
   }
   useEffect((()=>{
-    axios.get(`${identity.id}`,
+   Refresh.refreshToken().then(axios.get(`${identity.id}`,
         {
             headers: {
             "Content-Type": "application/json",
-            "Authorization" : `Bearer ${identity.token}`
+            "Authorization" : `Bearer ${localStorage.getItem("token")}`
 
             },
         })
@@ -56,7 +57,7 @@ function Navbar() {
             console.log("error-----")
             //console.log(token)
             console.log(e)
-        })
+        })) 
 
   }))
 
