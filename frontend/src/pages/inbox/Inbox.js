@@ -202,7 +202,7 @@ function Inbox () {
                 </Badge>
                   <Stack spacing={3}>
                       {typeof followList !="undefined" & followList.length!=0?  
-                      followList.map((follow, i) => <Box rounded="md" bg="purple.400" color="white" px="15px" py="15px">
+                      followList.map((follow, i) => <Box rounded="md" bg="purple.400" color="white" px="15px" py="15px" key={i}>
                           <div key={i} > {follow.actor.display_name} want to follow you </div>
 
                       <Stack spacing={4} direction='row' align='center'>
@@ -225,7 +225,7 @@ function Inbox () {
                 </Badge>
                   <Stack spacing={2}>
                       {typeof likeList !="undefined" & likeList.length!=0? 
-                      likeList.map((follow, i) => <Box rounded="md" bg="teal.400" color="white" px="15px" py="15px">
+                      likeList.map((follow, i) => <Box rounded="md" bg="teal.400" color="white" px="15px" py="15px" key={i}>
                           <div  key={i} > {follow.author.display_name} like your post</div>
 
                       <Stack spacing={2} direction='row' align='center'>
@@ -245,7 +245,7 @@ function Inbox () {
                 </Badge>
                   <Stack spacing={2}>
                       {typeof postList !="undefined" & postList.length!=0? 
-                      postList.map((post, i) => <Box rounded="md" bg="blue.400" color="white" px="15px" py="15px">
+                      postList.map((post, i) => <Box rounded="md" bg="blue.400" color="white" px="15px" py="15px"  key={i} >
                           <div  key={i} > {post.author.display_name} public a post</div>
 
                       <Stack spacing={2} direction='row' align='center'>
@@ -265,7 +265,7 @@ function Inbox () {
                 </Badge>
                   <Stack spacing={2}>
                       {typeof folowerPostList !="undefined" & folowerPostList.length!=0? 
-                      folowerPostList .map((post, i) => <Box rounded="md" bg="white" color="balck" px="15px" py="15px">
+                      folowerPostList .map((post, i) => <Box rounded="md" bg="white" color="balck" px="15px" py="15px"   key={i}>
                           <div  key={i} > {post.author.display_name} public a post {post.title}</div>
                         <Post postData={post} key ={post.id}/>
                       <Stack spacing={2} direction='row' align='center'>
