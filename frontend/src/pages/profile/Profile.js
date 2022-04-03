@@ -68,6 +68,8 @@ export default function Profile(props) {
             },
         }).then((data)=>{
             console.log(data);
+            addToast({description: "update profile successfull",
+                status: 'success', isClosable: true, duration: 1000,})
         
         
         }
@@ -83,6 +85,7 @@ export default function Profile(props) {
 
     //console.log(author_id)
     useEffect(()=>{ 
+         
         axios.get(`${author_id}`,
         {
             headers: {
@@ -120,9 +123,7 @@ export default function Profile(props) {
                 
                 }})
             .then((data) => {
-              console.log(data.data)
               setFollowerList(data.data.items)
-              console.log("++++++++++++followers++++++++++++",data.data.items)
             }).catch((e)=>{
                 console.log(e.response.status)
                 if (e.response.status===401){
@@ -131,8 +132,7 @@ export default function Profile(props) {
                   window.sessionStorage.clear(); */
                   
                 }
-                addToast({description: "create post not successfull",
-                status: 'error', isClosable: true, duration: 1000,})
+                
                 
             })
 
@@ -208,8 +208,8 @@ return (
                         placeholder="Display name"
                         _placeholder={{ color: 'gray.500' }}
                         type="text"
-                        value={display_name}
-                        onChange={(e) => setDisplay_name(e.target.value)} />
+                        value={display_name || ''}
+                        onChange={(e) => setDisplay_name(e.target.value)} /> 
                 </FormControl>
 
 
