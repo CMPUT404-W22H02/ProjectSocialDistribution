@@ -76,7 +76,7 @@ function Post({ postData }) {
 
   }, [count])
   const updateFllowe=()=>{
-    console.log(`${base_url}authors/${author_id}/followers/${identity.id}`)
+    //console.log(`${base_url}authors/${author_id}/followers/${identity.id}`)
     axios.get(`${base_url}authors/${author_id}/followers/${identity.id}`, {
       headers: {
       'Content-Type': 'application/json',
@@ -84,15 +84,15 @@ function Post({ postData }) {
       
       }})
   .then((data) => {
-    console.log("----", data.data)
-    console.log(data.data.items.length)
+    //console.log("----", data.data)
+    //console.log(data.data.items.length)
     if (data.data.items.length==0){
         setShow(true)
     }else{
       setShow(false)
     }
     
-    console.log("++++++++++++followers++++111111111111++++++++",data.data.items)
+    //console.log("++++++++++++followers++++111111111111++++++++",data.data.items)
   }).catch((e)=>{
       console.log(e.response.status)
       if (e.response.status===401){
@@ -245,7 +245,7 @@ function Post({ postData }) {
     })
     .then(res => { 
     const info = res.data;
-    console.log("=============", info);
+    //console.log("=============", info);
      var follower = info.display_name
      onsubmitValueLike(info, follower);
     
@@ -269,13 +269,13 @@ const sendLike=((values, token)=>{
             
             }})
             .then((data) => {
-              console.log(data)
+              //console.log(data)
               updateLike();
               /* addToast({description: "send like successfull",
                 status: 'success', isClosable: true, duration: 1000,}) */
             },
             ).catch((e)=>{
-            console.log(e.response.status)
+            //console.log(e.response.status)
             setStatus(e.response.status)
             addToast({description: "not successfull",
             status: 'error', isClosable: true, duration: 1000,})
@@ -310,9 +310,8 @@ const onsubmitValueLike = (current_user, follower) => {
   }
   }
   const onSubmit = () =>{ 
-    console.log(postData)
+    //console.log(postData)
 
-    console.log("::;;", current_user_id)
     let token = localStorage.getItem("token")
     let decodedToken = jwt_decode(token);
     let currentDate = new Date();
@@ -337,13 +336,11 @@ const onsubmitValueLike = (current_user, follower) => {
     })
     .then(res => { 
     const info = res.data;
-    console.log("=============", info);
      var follower = info.display_name
       onsubmitValue(info, follower);
     
         
     }).catch(e => {
-        console.log("error-----follow")
         /* addToast({description: "Do not send again!",
               status: 'info', isClosable: true, duration: 1000,}) */
 
@@ -353,23 +350,7 @@ const onsubmitValueLike = (current_user, follower) => {
   const sendFollow=((values, token)=>{
     post_author_id=post_author_id.slice(-36, post_author_id.length)
 
-    /* axios.put(base_url+`authors/${post_author_id}/followers/${current_user_id}`,
-          values, {
-              headers: {
-              'Content-Type': 'application/json',
-              "Authorization" : `Bearer ${token}`
-              
-              }})
-          .then((data) => addToast({description: "send follow successfull",
-              status: 'success', isClosable: true, duration: 1000,}),
-          
-          ).catch((e)=>{
-              console.log(e.response.status)
-              setStatus(e.response.status)
-              addToast({description: "send follow not successfull",
-              status: 'error', isClosable: true, duration: 1000,})
-              
-          }) */
+   
     //axios.post(base_url+`authors/${post_author_id}/inbox`,
     //const tt = 'http://localhost:8000/authors/487019af-a194-4169-abca-8c8d606c4271'
           axios.post(`${author_id_url}/inbox`,
@@ -380,13 +361,13 @@ const onsubmitValueLike = (current_user, follower) => {
               
               }})
           .then((data) => {
-            console.log(data)
+            //console.log(data)
             setShow(false)
             addToast({description: "send follow successfull",
               status: 'success', isClosable: true, duration: 1000,})},
           
           ).catch((e)=>{
-              console.log(e.response.status)
+              //console.log(e.response.status)
               setStatus(e.response.status)
               addToast({description: "send follow not successfull",
               status: 'error', isClosable: true, duration: 1000,})
@@ -409,7 +390,7 @@ const onsubmitValueLike = (current_user, follower) => {
     // console.log("author", postData.author)
     // console.log("user", current_user)
     // console.log("CURR", current_user_id)
-    console.log(values)
+    //console.log(values)
 
     let token = localStorage.getItem("token")
     let decodedToken = jwt_decode(token);

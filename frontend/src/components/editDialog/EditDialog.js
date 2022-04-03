@@ -16,8 +16,10 @@ import {
   Stack,
   Checkbox,
   Radio,
-  RadioGroup
+  RadioGroup,
+  SimpleGrid,ButtonGroup, IconButton
 } from '@chakra-ui/react';
+import {  AddIcon, MinusIcon } from '@chakra-ui/icons'
 import Identity from '../../model/Identity';
 
 function EditDialog({ post, isOpen, onClose }) {
@@ -29,14 +31,28 @@ function EditDialog({ post, isOpen, onClose }) {
   const [categories, setCategories] = useState(post.categories);
   const [unlisted, setUnlisted] = useState();
   const [visibility, setVisibility] = useState();
+  const [cateSignle, setCateSignle]= useState('');
+  const [cate, setCate]=useState(post.categories);
+  const addCategories=(cateSignle)=>{
+    console.log(cateSignle);
+    setCate(prevArray => [...prevArray, cateSignle]);
+    setCateSignle("");
+  }
+  const deleteCategories=(cateSignle)=>{
+    const cate_ = [...cate];
+    const idx = cate_.indexOf(cateSignle);
+    cate_.splice(idx, 1);
+    setCate(() => [...cate_]);
+    setCateSignle("");
 
+  }
   const updatePost = async () => {
     try {
       const response = await axios.post(post.id, {
         title: title,
         description: desc,
         content: content,
-        categories: categories,
+        categories: cate,
       }, {
         headers: {
           Authorization: "Bearer " + Identity.GetIdentity().token
@@ -88,9 +104,22 @@ function EditDialog({ post, isOpen, onClose }) {
 
           <FormControl>
             <FormLabel>Category</FormLabel>
-            <Input value={categories} onChange={(event) => {
+            {/* <Input value={categories} onChange={(event) => {
               setCategories(event.target.value);
-            }}/>
+            }}/> */}
+            <Input  value={cate} readOnly></Input> 
+            <SimpleGrid columns={2} spacing={10}>
+            <ButtonGroup size='sm' isAttached variant='outline'>
+            <Input mr='-px'
+              value={cateSignle}
+              onChange={(e)=>setCateSignle(e.target.value)}
+              placeholder="Categories" 
+            />
+            <IconButton h='auto' onClick={() => addCategories(cateSignle)} icon={<AddIcon />} />
+            <IconButton h='auto' onClick={() => deleteCategories(cateSignle)} icon={<MinusIcon />} /> 
+            </ButtonGroup>
+
+            </SimpleGrid>
           </FormControl>
           
           <FormControl>

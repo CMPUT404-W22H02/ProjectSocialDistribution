@@ -24,7 +24,6 @@ function Inbox () {
     function addToast(toast_data) {
       toastIdRef.current = toast(toast_data)
   }
-    console.log(identity.id)
 
     useEffect(()=>{
         axios.get(`${id}/inboxfollows`,
@@ -35,12 +34,9 @@ function Inbox () {
             
             }})
             .then((data) => {
-            console.log(data)
-            console.log(data.data.items)
             //URL: ://service/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
             for (let each of data.data.items){
                 let author_id_= id.slice(-36, id.length)
-                console.log("---", each)
                 axios.get(`${base_url}authors/${author_id_}/followers/${each.actor.id}`, {
                         headers: {
                         'Content-Type': 'application/json',
@@ -48,13 +44,10 @@ function Inbox () {
                         
                         }})
                     .then((data) => {
-                      console.log("----", data.data)
-                      console.log(data.data.items.length)
                       if (data.data.items.length==0){
                           setFollowList(prevArray => [...prevArray, each]);
                       }
                       
-                      console.log("++++++++++++followers++++++++++++",data.data.items)
                     }).catch((e)=>{
                         console.log(e.response.status)
                         if (e.response.status===401){
@@ -88,7 +81,6 @@ function Inbox () {
             
             }})
             .then((data) => {
-            console.log(data)
             
             setLikeList(data.data.items)
             
@@ -108,7 +100,6 @@ function Inbox () {
             
             }})
             .then((data) => {
-            console.log(data)
             
             setPostList(data.data.items)
             
@@ -139,7 +130,6 @@ function Inbox () {
             
             }})
             .then((data) => {
-            console.log(data)
             
             for (let each of data.data.items){
                 if (each.visibility=="FRIENDS"){
@@ -163,14 +153,11 @@ function Inbox () {
     
             //let foreign_id =follow.actor.id.slice(-36, follow.actor.id.length)
 //console.log(foreign_id)
-            console.log(follow)
-            console.log("you click agree")
             axios.put(`${identity.id}/followers/${follow.actor.id}`, follow, {headers:{
                 'Content-Type': 'application/json',
                 "Authorization" : `Bearer ${localStorage.getItem("token")}`
               }})
               .then((data)=>{
-                  console.log(data)
                 addToast({description: "add user successfull",
                 status: 'success', isClosable: true, duration: 1000,});
                 const events_ = [...followList];

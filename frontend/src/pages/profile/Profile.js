@@ -49,12 +49,9 @@ export default function Profile(props) {
     function addToast(toast_data) {
         toastIdRef.current = toast(toast_data)
     }
-    console.log(author_id)
-    console.log(identity.id)
+   
     const updateProfile = () => {
-        console.log(userName)
-        console.log(display_name)
-        console.log(github)
+ 
         values['type']='author';
         values['id']=author_id;
         values['url']=author_id;

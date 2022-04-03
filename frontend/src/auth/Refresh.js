@@ -17,10 +17,10 @@ Identity : Identity.GetIdentity(),
       }
     }).then((data) => 
     {
-      console.log(typeof data !=="undefiend")
+      //console.log(typeof data !=="undefiend")
       Refresh.Identity = new Identity(data.data.access, data.data.refresh, data.data.user.username, data.data.user.id);
       Refresh.Identity.StoreIdentity();
-      console.log("--", Refresh.Identity)
+      //console.log("--", Refresh.Identity)
 
       window.location.assign("/home");
       
@@ -31,13 +31,13 @@ Identity : Identity.GetIdentity(),
 
     }).catch((error)=>{
       fail(error)
-      console.log("=",error)
+      //console.log("=",error)
 
 
     })
     
   } catch (e) {
-    console.log(e);
+    //console.log(e);
   }
   },
   accessToken() {
@@ -45,14 +45,14 @@ Identity : Identity.GetIdentity(),
       let decodedToken = jwt_decode(localStorage.getItem("token"));
       let currentDate = new Date();
       if (decodedToken.exp * 1000 < currentDate.getTime()) {
-        console.log("Token expired.");
+        //console.log("Token expired.");
         Refresh.refreshToken();
     } else {
-        console.log("Valid token");  
+        //console.log("Valid token");  
         }
       
     }catch (e) {
-      console.log(e);
+      //console.log(e);
     }
     },
 
@@ -75,8 +75,8 @@ async refreshToken(){
       }})
     .then((data) => 
     {
-      console.log(data.data)
-      console.log("-resfesgh-", Refresh.Identity.id)
+      //console.log(data.data)
+      //console.log("-resfesgh-", Refresh.Identity.id)
       Identity.UpdateIdentity(data.data.access, Refresh.Identity.refreshToken,Refresh.Identity.username,Refresh.Identity.id)
       localStorage.setItem("id", Refresh.Identity.id);
       localStorage.setItem("token", data.data.access);

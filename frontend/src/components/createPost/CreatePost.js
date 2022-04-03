@@ -78,9 +78,9 @@ export default function CreatePost () {
               
               }})
           .then((data) => {
-            console.log(data.data.items)
+            //console.log(data.data.items)
             for (let author of data.data.items) {
-              console.log(author)
+              //console.log(author)
               if (author.id != identity.id){
               axios.post(`${author.id}/inbox`, 
               values,
@@ -91,7 +91,7 @@ export default function CreatePost () {
                   
                   }}).then((data)=>{
                     console.log("success post in inbox");
-                    console.log(data)
+                    //console.log(data)
                 }
                   )
                   .catch(e=>console.log(e))
@@ -101,7 +101,7 @@ export default function CreatePost () {
               
             }
           }).catch((e)=>{
-              console.log(e.response)
+              //console.log(e.response)
               setStatus(e.response.status)
               if (e.response.status===401){
                 /* window.location.assign("/")
@@ -126,14 +126,14 @@ export default function CreatePost () {
               
               }})
           .then((data) => {
-            console.log(data.data.items)
+            //console.log(data.data.items)
             
-            console.log("++++++++++++followers++++++++++++",data.data)
+            //console.log("++++++++++++followers++++++++++++",data.data)
             for (let author of data.data.items) {
-              console.log(author.id)
-              console.log(identity.id)
+              //console.log(author.id)
+              //console.log(identity.id)
               if (author.id != identity.id){
-                console.log("------------------")
+                //console.log("------------------")
                 axios.post(`${author.id}/inbox`, 
               values,
               {
@@ -142,7 +142,7 @@ export default function CreatePost () {
                   "Authorization" : `Bearer ${token}`
                   
                   }}).then((data)=>{
-                    console.log("success indox", data)
+                    //console.log("success indox", data)
                   })
 
 
@@ -185,7 +185,7 @@ export default function CreatePost () {
           .then((data) => {
             addToast({description: "create post successfull",
               status: 'success', isClosable: true, duration: 1000,});
-              console.log("post - ", data)
+              //console.log("post - ", data)
               values = data.data;
               values['id'] = values['id']
               axios.get(`${id}`,
@@ -198,9 +198,9 @@ export default function CreatePost () {
                           })
                           .then(res => { 
                           values['author'] = res.data;
-                          console.log("values = ", values)
+                          //console.log("values = ", values)
                             if (values.visibility==="FRIENDS"){
-                              console.log(id)
+                              //console.log(id)
                               let id_uuid = id.slice(-36, id.length)
                               getAllFollowers(id_uuid, values, token)
                             }else{
@@ -209,7 +209,7 @@ export default function CreatePost () {
                           }
           
           )}).catch((e)=>{
-            console.log(e.response)
+            //console.log(e.response)
               console.log(e.response.status)
               setStatus(e.response.status)
               addToast({description: "create post not successfull",
@@ -224,8 +224,8 @@ export default function CreatePost () {
     const id = identity.id
     let token = localStorage.getItem("token")
     let refreshToken = localStorage.getItem("refreshToken")
-    console.log("--", token)
-    console.log("-1-", refreshToken)
+    //console.log("--", token)
+    //console.log("-1-", refreshToken)
     let decodedToken = jwt_decode(token);
     let currentDate = new Date();
 
@@ -246,9 +246,9 @@ export default function CreatePost () {
       values['categories']=JSON.stringify(cate)
       sendRequest(id, values, token)
       }).catch(e => {
-          console.log("error-----")
+          //console.log("error-----")
           //console.log(token)
-          console.log(e)
+          //console.log(e)
       })
 
     // JWT exp is in seconds
