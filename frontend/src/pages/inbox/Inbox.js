@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Heading, Stack, Badge, Toast, useToast, SimpleGrid } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Stack, Badge, Toast, useToast, SimpleGrid, Tabs, TabList, TabPanels, Tab, TabPanel } from '@chakra-ui/react';
 
 import axios from "axios";
 import { Link, useSearchParams } from 'react-router-dom';
@@ -194,9 +194,17 @@ function Inbox () {
           flexDirection="column"
       >
           <Box width="100%">
+          <Tabs isFitted variant='enclosed'>  
           
-            <SimpleGrid columns={2} spacingX='40px' spacingY='20px'>
-              <Box rounded="md" bg="purple.300" color="white" px="15px" py="15px">
+          <TabList mb='1em'>
+            <Tab _selected={{ color: 'white', bg: 'purple.500' }}>Follow</Tab>
+            <Tab _selected={{ color: 'white', bg: 'teal.500' }}>LIKE</Tab>
+            <Tab _selected={{ color: 'white', bg: 'blue.500' }}>PUBLIC POST</Tab>
+            <Tab _selected={{ color: 'white', bg: 'green.500' }}>FRIEND POST</Tab>
+            </TabList>
+            <TabPanels>
+            <TabPanel>
+            <Box rounded="md" bg="purple.300" color="white" px="15px" py="15px">
               <Badge variant='subtle' colorScheme='green'>
                     Follow
                 </Badge>
@@ -219,7 +227,9 @@ function Inbox () {
 
                   </Stack>
               </Box>
-              <Box rounded="md" bg="teal.300" color="white" px="15px" py="15px">
+            </TabPanel>
+            <TabPanel>
+            <Box rounded="md" bg="teal.300" color="white" px="15px" py="15px">
               <Badge  variant='subtle' colorScheme='green'>
                     Like
                 </Badge>
@@ -239,7 +249,9 @@ function Inbox () {
 
                   </Stack>
               </Box>
-              <Box rounded="md" bg="blue.300" color="white" px="15px" py="15px">
+            </TabPanel>
+            <TabPanel>
+            <Box rounded="md" bg="blue.300" color="white" px="15px" py="15px">
               <Badge  variant='subtle' colorScheme='green'>
                     Public Post
                 </Badge>
@@ -259,7 +271,9 @@ function Inbox () {
 
                   </Stack>
               </Box>
-              <Box rounded="md" bg="green.300" color="balck" px="15px" py="15px">
+            </TabPanel>
+            <TabPanel>
+            <Box rounded="md" bg="green.300" color="balck" px="15px" py="15px">
               <Badge  variant='subtle' >
                   Friend Post
                 </Badge>
@@ -279,7 +293,12 @@ function Inbox () {
 
                   </Stack>
               </Box>
-            </SimpleGrid>
+            </TabPanel>
+            </TabPanels>
+          </Tabs>
+              
+          
+          
           </Box>
       </Flex>
      </>
