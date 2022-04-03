@@ -13,6 +13,7 @@ function Inbox () {
     const [id, setId] = useState(identity.id);
     const [followList, setFollowList] =useState([]);
     const [likeList, setLikeList] =useState([]);
+    const [commentList, setCommentList] =useState([]);
     const [postList, setPostList] =useState([]);
     const [folowerPostList, setFollowerPostList] =useState([]);
     const [likeListLength, setLikeListLength] =useState(0);
@@ -83,6 +84,25 @@ function Inbox () {
             .then((data) => {
             
             setLikeList(data.data.items)
+            
+                
+            
+            }
+            ).catch((e)=>{
+            console.log(e.response.status)
+            
+            
+        })
+        axios.get(`${id}/inboxcomments`,
+        {
+            headers: {
+            'Content-Type': 'application/json',
+            "Authorization" : `Bearer ${localStorage.getItem("token")}`
+            
+            }})
+            .then((data) => {
+            
+            setCommentList(data.data.items)
             
                 
             
@@ -197,7 +217,8 @@ function Inbox () {
           <Tabs isFitted variant='enclosed'>  
           
           <TabList mb='1em'>
-            <Tab _selected={{ color: 'white', bg: 'purple.500' }}>Follow</Tab>
+            <Tab _selected={{ color: 'white', bg: 'purple.500' }}>FOLLOWSw</Tab>
+            <Tab _selected={{ color: 'white', bg: 'red.500' }}>COMMENTS</Tab>
             <Tab _selected={{ color: 'white', bg: 'teal.500' }}>LIKE</Tab>
             <Tab _selected={{ color: 'white', bg: 'blue.500' }}>PUBLIC POST</Tab>
             <Tab _selected={{ color: 'white', bg: 'green.500' }}>FRIEND POST</Tab>
@@ -234,6 +255,28 @@ function Inbox () {
                     Like
                 </Badge>
                   <Stack spacing={2}>
+                      {typeof commentList !="undefined" & commentList.length!=0? 
+                      commentList.map((follow, i) => <Box rounded="md" bg="teal.400" color="white" px="15px" py="15px" key={i}>
+                          <div  key={i} > {follow.author.display_name} commented on your post</div>
+
+                      <Stack spacing={2} direction='row' align='center'>
+  
+                      </Stack>
+                      </Box>
+                      )
+
+                      
+                      :<p>   This is no post list  yet     </p>}
+
+                  </Stack>
+              </Box>
+            </TabPanel>
+            <TabPanel>
+            <Box rounded="md" bg="teal.300" color="white" px="15px" py="15px">
+              <Badge  variant='subtle' colorScheme='green'>
+                    Like
+                </Badge>
+                  <Stack spacing={2}>
                       {typeof likeList !="undefined" & likeList.length!=0? 
                       likeList.map((follow, i) => <Box rounded="md" bg="teal.400" color="white" px="15px" py="15px" key={i}>
                           <div  key={i} > {follow.author.display_name} like your post</div>
@@ -258,7 +301,8 @@ function Inbox () {
                   <Stack spacing={2}>
                       {typeof postList !="undefined" & postList.length!=0? 
                       postList.map((post, i) => <Box rounded="md" bg="blue.400" color="white" px="15px" py="15px"  key={i} >
-                          <div  key={i} > {post.author.display_name} public a post</div>
+                          <div  key={i} > {post.author.display_name} public a post {post.title}</div>
+                        <Post postData={post} key ={post.id}/>
 
                       <Stack spacing={2} direction='row' align='center'>
   

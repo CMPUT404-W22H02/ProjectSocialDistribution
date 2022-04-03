@@ -172,6 +172,11 @@ function Post({ postData }) {
               
               }})
               .then((data)=>console.log(data))
+              const getComments = async () => {
+                const data = await fetchComments(postData.comments);
+                setComments(data);
+              }
+              getComments();
       
             }).catch((e)=>{
           console.log(e.response.status)
