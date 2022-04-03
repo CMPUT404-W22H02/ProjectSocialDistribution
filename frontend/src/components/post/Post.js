@@ -49,7 +49,7 @@ function Post({ postData }) {
   const [ comments, setComments ] = useState([]);
 
   // TODO: postData.count is count for # of comments, atm it is tracking # of likes
-  const [count, setCount]=useState(postData.count);
+  const [count, setCount]=useState(0);
 
   const [countRepeat, setCountRepeat]=useState(0);
   const {picture, setPic} = useState();
@@ -67,6 +67,37 @@ function Post({ postData }) {
     }
     getComments();
   }, [postData.comments])
+  //URL: ://service/authors/{AUTHOR_ID}/posts/{POST_ID}/likes
+  useEffect(() => {
+    
+    updateLike();
+
+  }, [count])
+  const updateLike=()=>{
+    //base_url+`authors/${current_user_id}/posts/${post_id}
+    axios.get(`${postData.id}/likes`,
+    {
+       headers: {
+       'Content-Type': 'application/json',
+       "Authorization" : `Bearer ${localStorage.getItem("token")}`
+       
+       }})
+   .then((data) => {
+
+     console.log(data.data.items)
+     setCount(data.data.items.length)
+
+   }
+   
+   ).catch((e)=>{
+       console.log(e.response.status)
+       setStatus(e.response.status)
+       
+   })
+
+
+
+  }
 
   var [post_author_id, setPostAuthId] = useState(postData.author.id)
   const author = postData.author.display_name
@@ -208,10 +239,10 @@ const sendLike=((values, token)=>{
             }})
             .then((data) => {
               console.log(data)
-              setCount(count+1)
-              addToast({description: "send like successfull",
-                status: 'success', isClosable: true, duration: 1000,})},
-            
+              updateLike();
+              /* addToast({description: "send like successfull",
+                status: 'success', isClosable: true, duration: 1000,}) */
+            },
             ).catch((e)=>{
             console.log(e.response.status)
             setStatus(e.response.status)

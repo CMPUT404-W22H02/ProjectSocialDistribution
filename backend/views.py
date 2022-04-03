@@ -14,6 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from msilib.schema import SelfReg
 from uuid import uuid4
 
 from django.shortcuts import get_object_or_404
@@ -430,6 +431,7 @@ class PostLikesAPIView(ListAPIView, UtilityAPI):
     def get_queryset(self):
         queryset = super().get_queryset()
         post_id = self.get_post_id()
+        print("post_id", post_id)
         return queryset.filter(object=post_id)
     
     def list(self, request, *args, **kwargs):
@@ -437,6 +439,7 @@ class PostLikesAPIView(ListAPIView, UtilityAPI):
         queryset = self.get_queryset()
 
         serializer = self.get_serializer(queryset, many=True)
+        print("data", serializer.data)
         response[self.ritems] = serializer.data
         return Response(response)
 
