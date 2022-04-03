@@ -24,13 +24,12 @@ import Identity from '../../model/Identity';
 
 function EditDialog({ post, isOpen, onClose }) {
     // TODO: checking unlist removes edit button
-
   const [title, setTitle] = useState(post.title);
   const [desc, setDesc] = useState(post.description);
   const [content, setContent] = useState(post.content);
   const [categories, setCategories] = useState(post.categories);
   const [unlisted, setUnlisted] = useState();
-  const [visibility, setVisibility] = useState();
+  const [visibility, setVisibility] = useState(post.visibility)
   const [cateSignle, setCateSignle]= useState('');
   const [cate, setCate]=useState(post.categories);
   const addCategories=(cateSignle)=>{
@@ -126,10 +125,12 @@ function EditDialog({ post, isOpen, onClose }) {
             <FormLabel>Visibility</FormLabel>
               <RadioGroup onChange={setVisibility} value={visibility}>
                 <Stack direction='row'>
-                  <Radio visibility="PUBLIC">PUBLIC</Radio>
-                  <Radio visibility="FRIENDS" >FRIENDS</Radio>
+                  <Radio value='PUBLIC'>PUBLIC</Radio>
+                  <Radio value='FRIENDS'>FRIENDS</Radio>
                 </Stack>
               </RadioGroup>
+
+
           </FormControl>
           <FormControl>
             <FormLabel>Unlisted</FormLabel>
@@ -143,7 +144,7 @@ function EditDialog({ post, isOpen, onClose }) {
         </ModalBody>
 
         <ModalFooter>
-          <Button mr="2" bg="teal.200" onClick={ () => {updatePost(); window.location.reload();} }>
+          <Button mr="2" bg="teal.200" onClick={ () => {updatePost();/*  window.location.reload(); */} }>
             Save
           </Button>
           <Button onClick={onClose}>
