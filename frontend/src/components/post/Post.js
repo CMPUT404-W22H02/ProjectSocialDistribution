@@ -464,7 +464,7 @@ const onsubmitValueLike = (current_user, follower) => {
           <Divider></Divider>
           <HStack mt="1">
             <Text fontWeight="medium">Categories: </Text>
-            {cateList.map((cate)=><Tag> {cate}    </Tag>)}
+            {cateList.map((cate, i)=><Tag key={i}> {cate}    </Tag>)}
           </HStack>
           
         </Container>
