@@ -57,7 +57,6 @@ Identity : Identity.GetIdentity(),
     },
 
 async refreshToken(){
-  console.log("refresh")
 
     if (Refresh.Identity.refreshToken === "" || Refresh.Identity.refreshToken == null) {
         window.alert("Ops! Please login again!")

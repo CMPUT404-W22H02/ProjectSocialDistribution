@@ -7,6 +7,7 @@ import {
 } from "@chakra-ui/react";
 import Navbar from "../../components/navbar";
 import Post from "../../components/post";
+import {Refresh} from "../../../src/auth/Refresh"
 import { fetchAllPosts as fetchAll } from "../../model/util";
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 function HomePage() {
@@ -21,7 +22,7 @@ function HomePage() {
     }, []); */
     useEffect(() => {
       let posts=[]
-      axios.get(`${base_url}publicposts/`, 
+      Refresh.refreshToken().then(axios.get(`${base_url}publicposts/`, 
         {
           headers: {
             Authorization: "Bearer " + localStorage.getItem("token")
@@ -41,7 +42,7 @@ function HomePage() {
         console.log("=",error);
 
 
-  })},[] );
+  }))},[] );
  
 console.log(posts)
 
@@ -53,7 +54,7 @@ console.log(posts)
       height="100vh"
     >
       <Navbar/>
-      <Flex flexDirection="column" align="center">
+      <Flex flexDirection="column" align="center" >
         <VStack spacing="4" my="5">
           {posts.map((post, i) => <Post onChange={(post)=> setPost(post)} postData={post} key ={i}/>)}
         </VStack>

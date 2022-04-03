@@ -74,13 +74,13 @@ function Post({ postData }) {
   //URL: ://service/authors/{AUTHOR_ID}/posts/{POST_ID}/likes
   useEffect(() => {
     
-    updateLike();
+   
     updateFllowe();
-
+    updateLike();
   }, [count])
   const updateFllowe=()=>{
     //console.log(`${base_url}authors/${author_id}/followers/${identity.id}`)
-    axios.get(`${base_url}authors/${author_id}/followers/${identity.id}`, {
+    Refresh.refreshToken().then(axios.get(`${base_url}authors/${author_id}/followers/${identity.id}`, {
       headers: {
       'Content-Type': 'application/json',
       "Authorization" : `Bearer ${localStorage.getItem("token")}`
@@ -105,7 +105,7 @@ function Post({ postData }) {
         
       }
       
-  })
+  }))
   }
   const updateLike=()=>{
     //base_url+`authors/${current_user_id}/posts/${post_id}
