@@ -598,7 +598,7 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
                 obj = Like.objects.get(object=request.data['object'], author__id=request.data['author']['id'])
             elif content_type == 'follow':
                 obj = Follow.objects.get(actor__id=request.data['actor']['id'], object__id=request.data['object']['id'])
-            response = Response(serializer.data, status=status.HTTP_201_CREATED)
+            response = Response(status=status.HTTP_201_CREATED)
         except:
             serializer.is_valid(raise_exception=True)
             self.perform_create(serializer)
