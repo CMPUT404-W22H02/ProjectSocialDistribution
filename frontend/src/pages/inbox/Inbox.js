@@ -37,9 +37,40 @@ function Inbox () {
             .then((data) => {
             console.log(data)
             console.log(data.data.items)
+            //URL: ://service/authors/{AUTHOR_ID}/followers/{FOREIGN_AUTHOR_ID}
+            for (let each of data.data.items){
+                let author_id_= id.slice(-36, id.length)
+                console.log("---", each)
+                axios.get(`${base_url}authors/${author_id_}/followers/${each.actor.id}`, {
+                        headers: {
+                        'Content-Type': 'application/json',
+                        "Authorization" : `Bearer ${localStorage.getItem("token")}`
+                        
+                        }})
+                    .then((data) => {
+                      console.log("----", data.data)
+                      console.log(data.data.items.length)
+                      if (data.data.items.length==0){
+                          setFollowList(prevArray => [...prevArray, each]);
+                      }
+                      
+                      console.log("++++++++++++followers++++++++++++",data.data.items)
+                    }).catch((e)=>{
+                        console.log(e.response.status)
+                        if (e.response.status===401){
+                          /* window.location.assign("/")
+                          window.localStorage.clear();
+                          window.sessionStorage.clear(); */
+                          
+                        }
+                        addToast({description: "create post not successfull",
+                        status: 'error', isClosable: true, duration: 1000,})
+                        
+                    })
+            }
             
 
-            setFollowList(data.data.items)
+            
             
             
             
