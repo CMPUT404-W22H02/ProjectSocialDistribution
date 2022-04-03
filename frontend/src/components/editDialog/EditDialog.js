@@ -28,10 +28,10 @@ function EditDialog({ post, isOpen, onClose }) {
   const [desc, setDesc] = useState(post.description);
   const [content, setContent] = useState(post.content);
   const [categories, setCategories] = useState(post.categories);
-  const [unlisted, setUnlisted] = useState();
+  const [unlisted, setUnlisted] = useState(post.unlisted);
   const [visibility, setVisibility] = useState(post.visibility)
   const [cateSignle, setCateSignle]= useState('');
-  const [cate, setCate]=useState(post.categories);
+  const [cate, setCate]=useState(JSON.parse(post.categories) );
   const addCategories=(cateSignle)=>{
     console.log(cateSignle);
     setCate(prevArray => [...prevArray, cateSignle]);
@@ -51,7 +51,7 @@ function EditDialog({ post, isOpen, onClose }) {
         title: title,
         description: desc,
         content: content,
-        categories: cate,
+        categories: JSON.stringify(cate),
       }, {
         headers: {
           Authorization: "Bearer " + Identity.GetIdentity().token
@@ -60,7 +60,14 @@ function EditDialog({ post, isOpen, onClose }) {
       onClose();
     }
     catch(error) {
-      console.log(error)
+      console.log(error);
+      console.log({
+        title: title,
+        description: desc,
+        content: content,
+        categories: cate,
+      })
+
     }
   }
 
@@ -144,7 +151,7 @@ function EditDialog({ post, isOpen, onClose }) {
         </ModalBody>
 
         <ModalFooter>
-          <Button mr="2" bg="teal.200" onClick={ () => {updatePost();/*  window.location.reload(); */} }>
+          <Button mr="2" bg="teal.200" onClick={ () => {updatePost();window.location.reload(); } }>
             Save
           </Button>
           <Button onClick={onClose}>
