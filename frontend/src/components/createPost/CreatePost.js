@@ -175,7 +175,6 @@ export default function CreatePost () {
 
 
     function sendRequest(id, values, token){
-
       axios.post(`${id}/posts/`,
           values, {
               headers: {
@@ -243,6 +242,8 @@ export default function CreatePost () {
       info = res.data;
       //values['author']=info
       values['content_type']='text/plain'
+      values['type']="post"
+      values['categories']=JSON.stringify(cate)
       sendRequest(id, values, token)
       }).catch(e => {
           console.log("error-----")
@@ -347,8 +348,7 @@ export default function CreatePost () {
                             </ButtonGroup>
                             <Box as="pre" my={10}>
                                 
-                                {values['type']="post"}
-                                {values['categories']=JSON.stringify(cate)}
+                                
                                 
                             </Box>
                         </Box>

@@ -9,9 +9,6 @@ const validate = values => {
     if (!values.content) {
         errors.content = 'Required'
       }
-    if (!values.categories) {
-    errors.categories = 'Required'
-    }
 
     if (!values.visibility) {
       errors.visibility = 'Please choose public/friend'
