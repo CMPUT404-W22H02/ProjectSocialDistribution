@@ -31,7 +31,9 @@ import {AddIcon} from '@chakra-ui/icons';
 import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
 import {useParams } from "react-router-dom";
-import { fetchComments, fetchAuthorObj } from "../../model/util";
+import ReactMarkdown from 'react-markdown';
+import ChakraUIRenderer from 'chakra-ui-markdown-renderer';
+import { fetchComments} from "../../model/util";
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 let identity = Identity.GetIdentity();
 
@@ -45,10 +47,13 @@ function Post({ postData }) {
   const { isOpen: isEditOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isCommentOpen, onToggle } = useDisclosure();
   const [ comments, setComments ] = useState([]);
-  const [count, setCount]=useState(postData.count);
+
+  // TODO: postData.count is count for # of comments, atm it is tracking # of likes
+  const [count, setCount]=useState(0);
+
   const [countRepeat, setCountRepeat]=useState(0);
-  //const [id, setId] = useState();
   const {picture, setPic} = useState();
+  const[show, setShow]=useState(false)
   const toast = useToast();
   const toastIdRef = useRef();
   const [status , setStatus]= useState();
@@ -63,8 +68,68 @@ function Post({ postData }) {
     }
     getComments();
   }, [postData.comments])
+  //URL: ://service/authors/{AUTHOR_ID}/posts/{POST_ID}/likes
+  useEffect(() => {
+    
+    updateLike();
+    updateFllowe();
 
-  // TODO: check with userID to hide/show edit dialog button
+  }, [count])
+  const updateFllowe=()=>{
+    //console.log(`${base_url}authors/${author_id}/followers/${identity.id}`)
+    axios.get(`${base_url}authors/${author_id}/followers/${identity.id}`, {
+      headers: {
+      'Content-Type': 'application/json',
+      "Authorization" : `Bearer ${localStorage.getItem("token")}`
+      
+      }})
+  .then((data) => {
+    //console.log("----", data.data)
+    //console.log(data.data.items.length)
+    if (data.data.items.length==0){
+        setShow(true)
+    }else{
+      setShow(false)
+    }
+    
+    //console.log("++++++++++++followers++++111111111111++++++++",data.data.items)
+  }).catch((e)=>{
+      console.log(e.response.status)
+      if (e.response.status===401){
+        /* window.location.assign("/")
+        window.localStorage.clear();
+        window.sessionStorage.clear(); */
+        
+      }
+      
+  })
+  }
+  const updateLike=()=>{
+    //base_url+`authors/${current_user_id}/posts/${post_id}
+    axios.get(`${postData.id}/likes`,
+    {
+       headers: {
+       'Content-Type': 'application/json',
+       "Authorization" : `Bearer ${localStorage.getItem("token")}`
+       
+       }})
+   .then((data) => {
+
+     //console.log(data.data.items)
+     setCount(data.data.items.length)
+
+   }
+   
+   ).catch((e)=>{
+       //console.log(e.response.status)
+       setStatus(e.response.status)
+       
+   })
+
+
+
+  }
+
   var [post_author_id, setPostAuthId] = useState(postData.author.id)
   const author = postData.author.display_name
   
@@ -180,7 +245,7 @@ function Post({ postData }) {
     })
     .then(res => { 
     const info = res.data;
-    console.log("=============", info);
+    //console.log("=============", info);
      var follower = info.display_name
      onsubmitValueLike(info, follower);
     
@@ -204,13 +269,13 @@ const sendLike=((values, token)=>{
             
             }})
             .then((data) => {
-              console.log(data)
-              setCount(count+1)
-              addToast({description: "send like successfull",
-                status: 'success', isClosable: true, duration: 1000,})},
-            
+              //console.log(data)
+              updateLike();
+              /* addToast({description: "send like successfull",
+                status: 'success', isClosable: true, duration: 1000,}) */
+            },
             ).catch((e)=>{
-            console.log(e.response.status)
+            //console.log(e.response.status)
             setStatus(e.response.status)
             addToast({description: "not successfull",
             status: 'error', isClosable: true, duration: 1000,})
@@ -227,9 +292,6 @@ const onsubmitValueLike = (current_user, follower) => {
   "summary":`${follower} Likes your post.`, 
   "author": current_user,
   "object": postData.id}
-  // console.log("author", postData.author)
-  // console.log("user", current_user)
-  // console.log("CURR", current_user_id)
   console.log(values)
 
   let token = localStorage.getItem("token")
@@ -248,9 +310,8 @@ const onsubmitValueLike = (current_user, follower) => {
   }
   }
   const onSubmit = () =>{ 
-    console.log(postData)
+    //console.log(postData)
 
-    console.log("::;;", current_user_id)
     let token = localStorage.getItem("token")
     let decodedToken = jwt_decode(token);
     let currentDate = new Date();
@@ -275,13 +336,11 @@ const onsubmitValueLike = (current_user, follower) => {
     })
     .then(res => { 
     const info = res.data;
-    console.log("=============", info);
      var follower = info.display_name
       onsubmitValue(info, follower);
     
         
     }).catch(e => {
-        console.log("error-----follow")
         /* addToast({description: "Do not send again!",
               status: 'info', isClosable: true, duration: 1000,}) */
 
@@ -291,23 +350,7 @@ const onsubmitValueLike = (current_user, follower) => {
   const sendFollow=((values, token)=>{
     post_author_id=post_author_id.slice(-36, post_author_id.length)
 
-    /* axios.put(base_url+`authors/${post_author_id}/followers/${current_user_id}`,
-          values, {
-              headers: {
-              'Content-Type': 'application/json',
-              "Authorization" : `Bearer ${token}`
-              
-              }})
-          .then((data) => addToast({description: "send follow successfull",
-              status: 'success', isClosable: true, duration: 1000,}),
-          
-          ).catch((e)=>{
-              console.log(e.response.status)
-              setStatus(e.response.status)
-              addToast({description: "send follow not successfull",
-              status: 'error', isClosable: true, duration: 1000,})
-              
-          }) */
+   
     //axios.post(base_url+`authors/${post_author_id}/inbox`,
     //const tt = 'http://localhost:8000/authors/487019af-a194-4169-abca-8c8d606c4271'
           axios.post(`${author_id_url}/inbox`,
@@ -318,12 +361,13 @@ const onsubmitValueLike = (current_user, follower) => {
               
               }})
           .then((data) => {
-            console.log(data)
+            //console.log(data)
+            setShow(false)
             addToast({description: "send follow successfull",
               status: 'success', isClosable: true, duration: 1000,})},
           
           ).catch((e)=>{
-              console.log(e.response.status)
+              //console.log(e.response.status)
               setStatus(e.response.status)
               addToast({description: "send follow not successfull",
               status: 'error', isClosable: true, duration: 1000,})
@@ -346,7 +390,7 @@ const onsubmitValueLike = (current_user, follower) => {
     // console.log("author", postData.author)
     // console.log("user", current_user)
     // console.log("CURR", current_user_id)
-    console.log(values)
+    //console.log(values)
 
     let token = localStorage.getItem("token")
     let decodedToken = jwt_decode(token);
@@ -365,9 +409,10 @@ const onsubmitValueLike = (current_user, follower) => {
     }
   return (
     <Flex width="50rem" minH="10rem" boxShadow="lg" py="2" alignContent="center" flexDirection="column">
-      <Stack direction="column" spacing="3" px="4" justify="space-between">
+      <Stack direction="column" spacing="2.5" px="4" justify="space-between">
         <HStack pt="4" ml="2" spacing="3">
         <Avatar size="md" src={picture}>
+          {show? 
           <AvatarBadge
             as={IconButton}
             size="xs"
@@ -378,34 +423,45 @@ const onsubmitValueLike = (current_user, follower) => {
             icon={<AddIcon />}
             onClick={()=>onSubmit()}
           />
+            :
+            null
+            }
+          
         </Avatar>
           <Heading size="md">{postData.author.display_name}</Heading>
         </HStack>
+
         {postData.author.host == 'https://psdt11.herokuapp.com/' ?
         <Container fontWeight="medium" pt="4" color={'blue'}>
           Host - {postData.author.host}
         </Container> : <Container fontWeight="medium" pt="4" color={'green'}>
           Host - {postData.author.host}
         </Container>}
-        <Container fontWeight="medium" pt="4">
+        <Container fontWeight="bold" pt="4" fontSize="xl">
           {postData.title}
         </Container>
-        <Container minH="10" minW="48rem" color={"grey"}>
-          Description - {postData.description} Categories - [{postData.categories}]
+        <Container minW="48rem">
+          {postData.description}
         </Container>
-        <Container minH="10" minW="48rem">
-          {postData.content}
+        <Container minW="48rem">
+          {/* <Text fontSize="lg">{postData.content}</Text> */}
+          <ReactMarkdown components={ChakraUIRenderer()} children={postData.content}/>
+          <HStack mt="1">
+            <Text fontWeight="medium">Categories: </Text>
+            <Text>{postData.categories}</Text>
+          </HStack>
+          
         </Container>
         <HStack justify="space-between">
           <ButtonGroup isAttached>
             <Button onClick={onSubmitLike} leftIcon={<FaThumbsUp/>} variant="ghost">
             {count} Likes
             </Button>
-            <Button onClick={onShare} leftIcon={<FaShare />} colorScheme='teal' variant='outline'>
-            Share
-            </Button>
             <Button leftIcon={<FaComment/>} variant="ghost" onClick={onToggle}>
               Comments
+            </Button>
+            <Button onClick={onShare} leftIcon={<FaShare />} colorScheme='teal' variant='ghost'>
+              Share
             </Button>
           </ButtonGroup>
           {current_user_id==post_author_id.slice(-36, post_author_id.length)?<Button variant="solid" onClick={onOpen} right="0">Edit</Button>:null}

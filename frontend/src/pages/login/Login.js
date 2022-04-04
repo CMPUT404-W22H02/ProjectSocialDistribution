@@ -19,14 +19,9 @@ import Identity from "../../model/Identity";
 import {Refresh} from "../../auth/Refresh"
 
 let UserIdentity = Identity.GetIdentity();
-//console.log(UserIdentity)
+
 
 function Login() {
-//   if (Identity.GetIdentity().IsAuthenticated()) {
-//     window.location.assign("/home")
-//     console.log(Identity.GetIdentity().refreshToken)
-// }
-  //function Login({ setToken }) {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading]=useState(false)

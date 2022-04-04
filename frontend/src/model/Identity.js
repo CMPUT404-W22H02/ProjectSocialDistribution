@@ -31,9 +31,9 @@ class Identity {
 
         let username = localStorage.getItem("username");
         let id = localStorage.getItem("id");
+        let git=localStorage.getItem("github");
 
-
-        return new Identity(token, refreshToken, username, id);
+        return new Identity(token, refreshToken, username, id, git);
     }
 
     /**

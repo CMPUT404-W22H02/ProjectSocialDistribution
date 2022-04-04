@@ -38,7 +38,7 @@ class AuthorSerializer(ModelSerializer):
 
     class Meta:
         model = Author
-        fields = ['type', 'id', 'url', 'host', 'display_name', 'github']
+        fields = ['type', 'id', 'url', 'host', 'display_name', 'github', 'profile_image']
 
 class LoginSerializer(TokenObtainPairSerializer):
 
@@ -168,7 +168,6 @@ class InboxPostSerializer(ModelSerializer):
 
     class Meta:
         model = Post
-
         exclude = ['author']
     
     def create(self, validated_data):
@@ -206,9 +205,6 @@ class InboxFollowSerializer(ModelSerializer):
         exclude = ['actor', 'object']
     
     def create(self, validated_data):
-        print(validated_data)
-        print("-------")
-        print(self.context)
         validated_data['actor'] = self.context['actor']
         validated_data['object'] = self.context['object']
         return super().create(validated_data)

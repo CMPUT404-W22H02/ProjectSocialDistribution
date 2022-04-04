@@ -15,7 +15,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from uuid import uuid4
-
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from requests import get
@@ -430,6 +429,7 @@ class PostLikesAPIView(ListAPIView, UtilityAPI):
     def get_queryset(self):
         queryset = super().get_queryset()
         post_id = self.get_post_id()
+        
         return queryset.filter(object=post_id)
     
     def list(self, request, *args, **kwargs):
@@ -487,8 +487,8 @@ class AuthorLikedAPIView(ListAPIView, UtilityAPI):
 class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
     """Get, send, and clear content from an author's inbox."""
 
-    #authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
-    #permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
     local_only_methods = ['GET']
     http_method_names = ['get', 'post', 'delete', 'head', 'options'] 
 
@@ -599,9 +599,9 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
         adapted_object = adapter.adapt_data()
         request.data.update(adapted_object)
         content_type = request.data['type']
+
         # If the object already exists on server, skip creation
         serializer = self.get_serializer(data=request.data)
-        #print(serializer.errors)
         try:
             if content_type == 'post':
                 obj = Post.objects.get(id=request.data['id'])
@@ -610,7 +610,6 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
             elif content_type == 'like':
                 obj = Like.objects.get(object=request.data['object'], author__id=request.data['author']['id'])
             elif content_type == 'follow':
-                print("3333333333")
                 obj = Follow.objects.get(actor__id=request.data['actor']['id'], object__id=request.data['object']['id'])
             response = Response(status=status.HTTP_201_CREATED)
         except:

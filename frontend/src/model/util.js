@@ -4,13 +4,13 @@ import {Refresh} from "../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
 
 
+const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 async function fetchAllPosts(success=()=>{}, fail = ()=>{}) {
   const posts = [];
-
-    await axios.get(`http://localhost:8000/publicposts/`, 
+    await  Refresh.refreshToken().then(axios.get(`${base_url}publicposts/`, 
     {
       headers: {
-        Authorization: "Bearer " + Identity.GetIdentity().token
+        Authorization: "Bearer " + localStorage.getItem("token")
       }}).then((response) => 
   {
     const postList = response.data.items;
@@ -28,10 +28,11 @@ async function fetchAllPosts(success=()=>{}, fail = ()=>{}) {
     console.log("=",error);
 
 
-  })
+  }))
 
 }
 /* async function fetchAllPosts() {
+
   const posts = [];
   let decodedToken = jwt_decode( localStorage.getItem("token"));
   let currentDate = new Date();
@@ -109,4 +110,26 @@ async function fetchAuthorObj() {
   }
 }
 
-export { fetchAllPosts, fetchComments, fetchAuthorObj };
+async function fetchGithub(){
+  // get Github username
+  let gitUrl=Identity.GetIdentity().git;
+  let gitName="";
+  let i=gitName.length-1;
+  while (gitName[i]!='/'){
+    gitName+=gitUrl[i];
+
+    i--;
+  }
+  gitName=[...gitName].reverse().join("");  // reverse the string
+
+  try{
+    const response = await axios.get("https://api.github.com/users/"+gitName+"/events");
+    return response.data;
+  }
+  catch (error){
+    console.log(error);
+    return null;
+  }
+}
+
+export { fetchAllPosts, fetchComments, fetchAuthorObj ,fetchGithub};
