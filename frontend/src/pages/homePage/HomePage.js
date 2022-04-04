@@ -102,19 +102,14 @@ console.log("===", github)
               </TabPanel>
               <TabPanel>
 
-              </TabPanel>
                 <VStack spacing="2" my="3">
                 {typeof github !="undefined" & github.length!=0? 
                 github.map((post, i) => <GithubPost onChange={(post)=> setGithub(post)} postData={post} key ={i}/>)
 
                 : <p>No post yet</p> }
-
-
-
-
-
-                  
                 </VStack>
+              </TabPanel>
+
 
               </TabPanels>
         
