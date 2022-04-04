@@ -218,7 +218,7 @@ function Inbox () {
           
           <TabList mb='1em'>
             <Tab _selected={{ color: 'white', bg: 'purple.500' }}>FOLLOWSw</Tab>
-            <Tab _selected={{ color: 'white', bg: 'red.500' }}>COMMENTS</Tab>
+            <Tab _selected={{ color: 'white', bg: 'cyan.500' }}>COMMENTS</Tab>
             <Tab _selected={{ color: 'white', bg: 'teal.500' }}>LIKE</Tab>
             <Tab _selected={{ color: 'white', bg: 'blue.500' }}>PUBLIC POST</Tab>
             <Tab _selected={{ color: 'white', bg: 'green.500' }}>FRIEND POST</Tab>
@@ -244,19 +244,19 @@ function Inbox () {
                       )
 
                       
-                      :<p>   This is no follower list  yet     </p>}
+                      :<p>   There is no follower list  yet     </p>}
 
                   </Stack>
               </Box>
             </TabPanel>
             <TabPanel>
-            <Box rounded="md" bg="teal.300" color="white" px="15px" py="15px">
+            <Box rounded="md" bg="cyan.300" color="white" px="15px" py="15px">
               <Badge  variant='subtle' colorScheme='green'>
-                    Like
+                    Comment
                 </Badge>
                   <Stack spacing={2}>
                       {typeof commentList !="undefined" & commentList.length!=0? 
-                      commentList.map((follow, i) => <Box rounded="md" bg="teal.400" color="white" px="15px" py="15px" key={i}>
+                      commentList.map((follow, i) => <Box rounded="md" bg="cyan.400" color="white" px="15px" py="15px" key={i}>
                           <div  key={i} > {follow.author.display_name} commented on your post</div>
 
                       <Stack spacing={2} direction='row' align='center'>
@@ -266,7 +266,7 @@ function Inbox () {
                       )
 
                       
-                      :<p>   This is no post list  yet     </p>}
+                      :<p>   There is no comment yet     </p>}
 
                   </Stack>
               </Box>
@@ -288,7 +288,7 @@ function Inbox () {
                       )
 
                       
-                      :<p>   This is no post list  yet     </p>}
+                      :<p>   There is no like list  yet     </p>}
 
                   </Stack>
               </Box>
