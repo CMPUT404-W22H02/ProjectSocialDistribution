@@ -105,7 +105,7 @@ console.log("===", github)
               </TabPanel>
                 <VStack spacing="2" my="3">
                 {typeof github !="undefined" & github.length!=0? 
-                github.map((post, i) => <GithubPost onChange={(post)=> setPost(post)} postData={post} key ={i}/>)
+                github.map((post, i) => <GithubPost onChange={(post)=> setGithub(post)} postData={post} key ={i}/>)
 
                 : <p>No post yet</p> }
 
