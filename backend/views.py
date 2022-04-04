@@ -446,7 +446,7 @@ class ImagePostAPIView(RetrieveUpdateDestroyAPIView, UtilityAPI):
         file = serializer.data['image']
         base64Encoded = b64encode(file.read())
 
-        return base64Encoded
+        return Response(base64Encoded)
 
 
 class PostLikesAPIView(ListAPIView, UtilityAPI):
