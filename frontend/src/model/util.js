@@ -31,6 +31,36 @@ async function fetchAllPosts(success=()=>{}, fail = ()=>{}) {
   }))
 
 }
+
+async function fetchGithubPosts(success=()=>{}, fail = ()=>{}) {
+const githubPosts = [];
+  const response = await axios.get(`${base_url}authors/`, {
+    headers: {
+      Authorization: "Bearer " + Identity.GetIdentity().token
+    }});
+  
+  const authorList = response.data.items;
+
+  for (let author of authorList) {
+    if(author.github.length>1){
+      var github = author.github.split(".com/")[1]
+      const response = await axios.get(`https://api.github.com/users/${github}/events`)
+        .then((response)=>{
+      for (let data of response.data.slice(0, 3)){
+        githubPosts.push(data)
+      }
+      githubPosts.sort((a, b) => a['created_at'] - b['created_at']);
+      console.log(githubPosts)
+      success(githubPosts)
+    })
+    .catch((error)=>{
+      console.log(error);
+      fail(error);
+    })
+    }
+  }
+}
+
 /* async function fetchAllPosts() {
 
   const posts = [];
@@ -110,4 +140,4 @@ async function fetchAuthorObj() {
   }
 }
 
-export { fetchAllPosts, fetchComments, fetchAuthorObj };
+export { fetchAllPosts, fetchComments, fetchAuthorObj, fetchGithubPosts };

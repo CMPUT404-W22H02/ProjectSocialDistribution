@@ -86,6 +86,7 @@ export default function JoinOurTeam() {
     target.append("username",userName)
     target.append("password",password1)
     target.append("display_name",display_name)
+    target.append("github",github)
     axios
       .post(`${base_url}register/`, target,{
         headers: {
