@@ -253,7 +253,11 @@ export default function CreatePost () {
 
 
     return (
-    <><NavbarAdd /><Grid
+    <Box 
+    margin="-20px"
+    height="100vh"
+  >
+  <NavbarAdd /><Grid
             templateRows='repeat(3, 1fr)'
             templateColumns='repeat(5, 1fr)'
             gap={10}
@@ -366,7 +370,7 @@ export default function CreatePost () {
                 </GridItem>
 
                 
-        </Grid></>
+        </Grid></Box>
     )
 };
 

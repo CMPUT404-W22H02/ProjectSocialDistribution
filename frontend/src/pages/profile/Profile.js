@@ -157,7 +157,11 @@ export default function Profile(props) {
 
 return (
 
-      <><Navbar /><SimpleGrid row={2} spacingX='40px' spacingY='20px'>
+    <Box 
+    margin="-20px"
+    height="100vh"
+  >
+    <Navbar/><SimpleGrid row={2} spacingX='40px' spacingY='20px'>
 
         <Flex
             minH={'auto'}
@@ -276,7 +280,7 @@ return (
             </Stack>
 
         </Flex>
-    </SimpleGrid></>
+    </SimpleGrid></Box>
 
 );
 }

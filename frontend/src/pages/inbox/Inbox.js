@@ -208,7 +208,11 @@ function Inbox () {
 
   
   return (
-    <><Navbar /><Flex
+    <Box 
+    margin="-20px"
+    height="100vh"
+  >
+    <Navbar/><Flex
           height="100vh"
           alignItems="center"
           flexDirection="column"
@@ -345,7 +349,7 @@ function Inbox () {
           
           </Box>
       </Flex>
-     </>
+     </Box>
   );
 };
 
