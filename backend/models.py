@@ -32,6 +32,9 @@ def profile_img_path(instance, filename):
     fileExtension = filename.split(".")[-1]
     return 'profile/{user}/{fileName}'.format(user=id, fileName="profile."+fileExtension)
 
+def post_img_path(instance, filename):
+    return 'posts/{filename}'.format(filename=filename)
+
 class Node(Model):
     api_domain = URLField(primary_key=True)
     api_prefix = CharField(max_length=255, blank=True, null=True)
@@ -119,6 +122,8 @@ class Post(Model):
     content = CharField(blank=True, max_length=5000, null=True)
 
     author = ForeignKey(Author, on_delete=CASCADE, null=True)
+    image = ImageField(upload_to=post_img_path, blank=True, null=True)
+    image_id = URLField(blank=True)
 
     # SQLite does not support JSONField, so only enable for production
     # categories = JSONField(default=list)
