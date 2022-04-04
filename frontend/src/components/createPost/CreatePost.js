@@ -39,7 +39,8 @@ let identity =Identity.GetIdentity();
 export default function CreatePost () {
     //const { token, setToken } = useState(localStorage.getItem("token"));
     //const { refreshToken, setRefreshToken } = useState(localStorage.getItem("refreshToken"));
-    const [picture, setPicture] = useState('');
+    const [picture, setPicture] = useState(null);
+    const [imageId, setImageId] = useState("");
     const [show, setShow] = useState(false);
     const toast = useToast();
     const toastIdRef = useRef();
@@ -66,7 +67,7 @@ export default function CreatePost () {
         toastIdRef.current = toast(toast_data)
     }
     const onChangePicture = e => {
-        setPicture(URL.createObjectURL(e.target.files[0]));
+        setPicture(e.target.files[0]);
     };
 
     function getAllAuthors(values, token ){
@@ -111,11 +112,8 @@ export default function CreatePost () {
               status: 'error', isClosable: true, duration: 1000,})
               
           })
-
-
-
-
     }
+
     function getAllFollowers(id, values, token ){
       axios.get(`${base_url}authors/${id}/followers`, {
               headers: {
@@ -159,17 +157,7 @@ export default function CreatePost () {
               status: 'error', isClosable: true, duration: 1000,})
               
           })
-
-
-
-
     }
-
-
-
-
-
-
 
     function sendRequest(id, values, token){
       axios.post(`${id}/posts/`,
@@ -184,7 +172,9 @@ export default function CreatePost () {
               status: 'success', isClosable: true, duration: 1000,});
               //console.log("post - ", data)
               values = data.data;
-              values['id'] = values['id']
+              // values['id'] = values['id']
+              setImageId(values['id'])
+
               axios.get(`${id}`,
                           {
                               headers: {
@@ -231,22 +221,38 @@ export default function CreatePost () {
       .then(res => { 
       info = res.data;
       //values['author']=info
-      values['content_type']='text/plain'
-      values['type']="post"
-      values['categories']=JSON.stringify(cate)
-      sendRequest(id, values, localStorage.getItem("token"))
+      // values['content_type']='text/plain'
+      // const values = new FormData();
+      // values.append('type', 'post')
+      // values.append("categories", JSON.stringify(cate))
+      // values['type']="post";
+      values['categories']=JSON.stringify(cate);
+
+      // const formData = serialize(values)
+
+      if (picture !== null) {
+        const formData = new FormData();
+        formData.append('categories', JSON.stringify(cate));
+        formData.append('image', picture);
+        formData.append('unlisted', true);
+        formData.append('image', picture)
+
+        sendRequest(id, formData, localStorage.getItem("token"));
+
+        // formData.append("image_id", imageId);
+        values['image_id'] = imageId;
+
+        // #TODO: Dirty workaround, should make api call instead
+        values['content'] += ` ![](${base_url}media/posts/${picture.name})`
+      }
+      
+      sendRequest(id, values, localStorage.getItem("token"));
       }).catch(e => {
-          //console.log("error-----")
-          //console.log(token)
-          //console.log(e)
+          console.log(e);
       })) 
 
     // JWT exp is in seconds
   }
-
-          
-
-
 
     return (
     <Box 
@@ -292,7 +298,7 @@ export default function CreatePost () {
                                     type="file"
                                     name="myImage"
                                     onChange={onChangePicture} />
-                                <Button variant='outline' onClick={() => (setPicture(""))}>Remove</Button>
+                                <Button variant='outline' onClick={() => (setPicture(null))}>Remove</Button>
                             </ButtonGroup>
                             {/* <CateControl name="categories" label="Categories" /> */}
                             <Input  value={cate} readOnly></Input> 
