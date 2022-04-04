@@ -257,7 +257,7 @@ return (
                 boxShadow={'lg'}
                 p={6}>
                 <Heading lineHeight={1.1} fontSize={{ base: '2xl', sm: '3xl' }}>
-                    Fllower list
+                    Follower list
                 </Heading>
                 {typeof folowerList !="undefined" & folowerList.length!=0?  
                       folowerList.map((follow, i) => <Box rounded="md" bg="purple.400" color="white" px="15px" py="15px"  key={i}>

@@ -399,7 +399,6 @@ const onsubmitValueLike = (current_user, follower) => {
         <Divider></Divider>
         <Container fontWeight="bold" fontSize="xl">
           <Flex>  
-            <Text minW={'5rem'} size='xl'>Title: </Text>
            <Text>{postData.title} </Text>  
           </Flex>
        
@@ -407,7 +406,6 @@ const onsubmitValueLike = (current_user, follower) => {
         <Divider></Divider>
         <Container minW="48rem">
           <Flex>
-            <Text size='xs'>Descrption:</Text> 
             <Text>    {postData.description}   </Text>
           </Flex>
          
@@ -415,7 +413,6 @@ const onsubmitValueLike = (current_user, follower) => {
         <Divider></Divider>
         <Container minW="48rem">
           {/* <Text fontSize="lg">{postData.content}</Text> */}
-          <Text> Content:</Text>
           <ReactMarkdown components={ChakraUIRenderer()} children={postData.content}/>
           <Divider></Divider>
           <HStack mt="1">
@@ -459,7 +456,8 @@ const onsubmitValueLike = (current_user, follower) => {
           ml="6"
           my="2"
         >
-          {comments.map((comment, i) => <Comment commentData={comment} key ={i}/>)}
+          {postData.visibility=="PUBLIC"?
+          comments.map((comment, i) => <Comment commentData={comment} key ={i}/>):null}
         </VStack>
       </Collapse>
     </Flex>
