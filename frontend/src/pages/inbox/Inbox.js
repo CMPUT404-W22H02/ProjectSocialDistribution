@@ -217,7 +217,7 @@ function Inbox () {
           <Tabs isFitted variant='enclosed'>  
           
           <TabList mb='1em'>
-            <Tab _selected={{ color: 'white', bg: 'purple.500' }}>FOLLOWSw</Tab>
+            <Tab _selected={{ color: 'white', bg: 'purple.500' }}>FOLLOW</Tab>
             <Tab _selected={{ color: 'white', bg: 'cyan.500' }}>COMMENTS</Tab>
             <Tab _selected={{ color: 'white', bg: 'teal.500' }}>LIKE</Tab>
             <Tab _selected={{ color: 'white', bg: 'blue.500' }}>PUBLIC POST</Tab>

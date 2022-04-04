@@ -416,7 +416,7 @@ const InputControl = ({ name, label }) => {
   return (
     <Control name={name} my={4}>
       <FormLabel htmlFor={name}>{label}</FormLabel>
-      <Input
+      <Textarea
         {...input}
         isInvalid={meta.error && meta.touched}
         id={name}
