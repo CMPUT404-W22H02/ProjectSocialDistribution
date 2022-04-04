@@ -638,8 +638,8 @@ class InboxAPIView(ListCreateAPIView, DestroyModelMixin, UtilityAPI):
 class PublicFeedView(ListAPIView, UtilityAPI):
     """Gathers public posts from all connected nodes."""
 
-    # authentication_classes = [JWTTokenUserAuthentication]
-    # permission_classes = [IsAuthenticated]
+    authentication_classes = [JWTTokenUserAuthentication]
+    permission_classes = [IsAuthenticated]
 
     def list(self, request, *args, **kwargs):
         public_posts = self.posts_response_template
@@ -683,7 +683,6 @@ class PublicFeedView(ListAPIView, UtilityAPI):
             except Exception as e:
                 print(e)
         public_posts[self.ritems] = posts
-        breakpoint()
         return Response(data=public_posts)
     
 class AdaptView(UpdateAPIView):
