@@ -22,7 +22,7 @@ function HomePage() {
    useEffect(() => {
     let githubPosts = [];
 
-      axios.get(`${base_url}authors/`, {
+    Refresh.refreshToken().then(axios.get(`${base_url}authors/`, {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token")
         }})
@@ -40,7 +40,7 @@ function HomePage() {
               })
             }
           }
-          });
+          }))  
     }, []); 
 
     useEffect(() => {
