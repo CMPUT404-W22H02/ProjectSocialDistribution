@@ -5,7 +5,7 @@ import {
   Container,
   Box,
   VStack,
-  HStack
+  HStack, Tabs, TabList, TabPanels, Tab, TabPanel
 } from "@chakra-ui/react";
 import Navbar from "../../components/navbar";
 import GithubPost from "../../components/Github";
@@ -18,16 +18,10 @@ function HomePage() {
   const [github, setGithub] = useState([])
   const [posts, setPosts] = useState([])
   const [post, setPost] = useState({})
-  const githubPosts = [];
+  
+   useEffect(() => {
+    let githubPosts = [];
 
-  /* useEffect(() => {
-    fetchAll(
-      (data)=>setPosts(data), 
-      (fail)=>{console.log("_-----------fail")});
-      
-    }, []); */
-
-    useEffect(() => {
       axios.get(`${base_url}authors/`, {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token")
@@ -41,6 +35,7 @@ function HomePage() {
                   .then((response)=>{
                 for (let data of response.data.slice(0, 4)){
                   githubPosts.push(data)
+                  setGithub(prevArray => [...prevArray, data]);
                 }
               })
             }
@@ -48,9 +43,13 @@ function HomePage() {
               
             console.log("check this")
             console.log(githubPosts)
-            setGithub(githubPosts)
-            console.log(github)
+            //setGithub(githubPosts)
+            console.log("-11--", github)
           });
+    }, []); 
+
+    useEffect(() => {
+      
       let posts=[]
       Refresh.refreshToken().then(axios.get(`${base_url}publicposts/`, 
         {
@@ -76,7 +75,7 @@ function HomePage() {
  
 console.log(posts)
 console.log("------------")
-console.log(github)
+console.log("===", github)
 
 
 //console.log("---", posts)
@@ -87,15 +86,40 @@ console.log(github)
     >
       <Navbar/>
       <Flex flexDirection="column" align="center" >
-        <HStack>
-        <VStack spacing="2" my="3">
-          <Container>Github Feed {github}</Container>
-          {github.map((post, i) => <GithubPost onChange={(post)=> setPost(post)} postData={post} key ={i}/>)}
-        </VStack>
-        <VStack spacing="4" my="5">
-          {posts.map((post, i) => <Post onChange={(post)=> setPost(post)} postData={post} key ={i}/>)}
-        </VStack>
-        </HStack>
+      <Tabs isFitted variant='enclosed'>  
+          
+      <TabList mb='1em'>
+            <Tab _selected={{ color: 'white', bg: 'teal.300' }}>Public Post</Tab>
+            <Tab _selected={{ color: 'white', bg: 'cyan.300' }}>Github Post</Tab>
+            </TabList>
+            <TabPanels>
+              <TabPanel>
+                 <VStack spacing="4" my="5">
+                 {typeof posts !="undefined" & posts.length!=0? 
+                  posts.map((post, i) => <Post onChange={(post)=> setPost(post)} postData={post} key ={i}/>)
+                :<p> no post yet</p>}
+                </VStack>
+              </TabPanel>
+              <TabPanel>
+
+              </TabPanel>
+                <VStack spacing="2" my="3">
+                {typeof github !="undefined" & github.length!=0? 
+                github.map((post, i) => <GithubPost onChange={(post)=> setPost(post)} postData={post} key ={i}/>)
+
+                : <p>No post yet</p> }
+
+
+
+
+
+                  
+                </VStack>
+
+              </TabPanels>
+        
+       </Tabs>
+      
       </Flex>
     </Box>
   );
