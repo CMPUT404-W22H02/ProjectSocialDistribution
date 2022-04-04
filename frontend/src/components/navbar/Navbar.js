@@ -100,7 +100,6 @@ function Navbar() {
             </Center>
             
             <MenuDivider />
-            <MenuItem>Your Servers</MenuItem>
             <MenuItem><a href="/profile">Profile Settings</a></MenuItem>
             <MenuItem onClick={signOut}>Logout</MenuItem>
           </MenuList>

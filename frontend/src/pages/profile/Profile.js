@@ -274,7 +274,7 @@ return (
                       )
 
                       
-                      :<p>   This is no follower list  yet     </p>}
+                      :<p>   There is no follower list  yet     </p>}
                 
                
             </Stack>
