@@ -41,7 +41,6 @@ Identity : Identity.GetIdentity(),
   }
   },
 async refreshToken(){
-  console.log("refresh_1")
     try {
       let decodedToken = jwt_decode(localStorage.getItem("token"));
       let currentDate = new Date();
@@ -54,7 +53,6 @@ async refreshToken(){
           throw Error("Attempt to refresh access token without a refresh token")
               
           }
-          console.log("refresh_2")
           await axios.post(`${base_url}refresh/`,
           {refresh: Refresh.Identity.refreshToken}, {
             headers: {
@@ -65,7 +63,6 @@ async refreshToken(){
           {
             //console.log(data.data)
             //console.log("-resfesgh-", Refresh.Identity.id)
-            console.log("refresh_3")
             Identity.UpdateIdentity(data.data.access, Refresh.Identity.refreshToken,Refresh.Identity.username,Refresh.Identity.id)
             localStorage.setItem("id", Refresh.Identity.id);
             localStorage.setItem("token", data.data.access);
@@ -79,7 +76,7 @@ async refreshToken(){
             
           })
     } else {
-        console.log("Valid token");  
+        //console.log("Valid token");  
         }
       
     }catch (e) {

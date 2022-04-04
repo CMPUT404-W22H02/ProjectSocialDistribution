@@ -31,7 +31,7 @@ function EditDialog({ post, isOpen, onClose }) {
   const [unlisted, setUnlisted] = useState(post.unlisted);
   const [visibility, setVisibility] = useState(post.visibility)
   const [cateSignle, setCateSignle]= useState('');
-  const [cate, setCate]=useState(JSON.parse(post.categories) );
+  const [cate, setCate]=useState(post.categories);
   const addCategories=(cateSignle)=>{
     //console.log(cateSignle);
     setCate(prevArray => [...prevArray, cateSignle]);
@@ -43,6 +43,29 @@ function EditDialog({ post, isOpen, onClose }) {
     cate_.splice(idx, 1);
     setCate(() => [...cate_]);
     setCateSignle("");
+
+  }
+  const deletePost=async()=>{
+    try {
+      const response = await axios.post(post.id, {
+        title: title,
+        description: desc,
+        content: content,
+        categories: JSON.stringify(cate),
+        unlisted:true
+      }, {
+        headers: {
+          Authorization: "Bearer " + Identity.GetIdentity().token
+        }});
+      console.log(response.status);
+      onClose();
+    }
+    catch(error) {
+      //console.log(error);
+      
+
+    }
+
 
   }
   const updatePost = async () => {
@@ -105,10 +128,9 @@ function EditDialog({ post, isOpen, onClose }) {
 
           <FormControl>
             <FormLabel>Category</FormLabel>
-            {/* <Input value={categories} onChange={(event) => {
-              setCategories(event.target.value);
-            }}/> */}
             <Input  value={cate} readOnly></Input> 
+           
+            
             <SimpleGrid columns={2} spacing={10}>
             <ButtonGroup size='sm' isAttached variant='outline'>
             <Input mr='-px'
@@ -146,6 +168,9 @@ function EditDialog({ post, isOpen, onClose }) {
         </ModalBody>
 
         <ModalFooter>
+        <Button mr="2"  bg="red.400" onClick={ () => {deletePost();window.location.reload(); } }>
+            Delete
+          </Button>
           <Button mr="2" bg="teal.200" onClick={ () => {updatePost();window.location.reload(); } }>
             Save
           </Button>

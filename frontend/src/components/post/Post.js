@@ -42,7 +42,14 @@ let identity = Identity.GetIdentity();
 
 
 function Post({ postData }) {
-  var cateList=JSON.parse( postData.categories)
+  var cateList=[]
+
+  if (typeof postData.categories =="object"){
+    cateList=postData.categories
+  }else{
+    cateList=JSON.parse(postData.categories)
+  }
+
   var current_user_id=identity.id
   current_user_id=current_user_id.slice(-36, current_user_id.length)
   var author_id_url = postData.author.id

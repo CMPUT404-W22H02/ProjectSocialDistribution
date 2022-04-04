@@ -5,7 +5,7 @@ import {
   Container,
   Box,
   VStack,
-  HStack, Tabs, TabList, TabPanels, Tab, TabPanel
+  HStack, Tabs, TabList, TabPanels, Tab, TabPanel, Spinner
 } from "@chakra-ui/react";
 import Navbar from "../../components/navbar";
 import GithubPost from "../../components/Github";
@@ -54,11 +54,17 @@ function HomePage() {
       {
         const postList = response.data.items;
         //console.log(postList)
+        
         posts.push(...postList);
         posts.sort((a, b) => b.published - a.published);
         
         if (typeof response !=="undefiend"){
-          setPosts(posts)
+          for (let each of posts){
+            if (each.unlisted==false){
+              setPosts(prevArray => [...prevArray, each]);
+            }
+          }
+          //setPosts(posts)
         }
         
 
@@ -76,7 +82,8 @@ function HomePage() {
       height="100vh"
     >
       <Navbar/>
-      <Flex flexDirection="column" align="center" >
+      <Flex 
+      flexDirection="column" align="center" >
       <Tabs isFitted variant='enclosed'>  
           
       <TabList mb='1em'>
@@ -88,7 +95,14 @@ function HomePage() {
                  <VStack spacing="4" my="5">
                  {typeof posts !="undefined" & posts.length!=0? 
                   posts.map((post, i) => <Post onChange={(post)=> setPost(post)} postData={post} key ={i}/>)
-                :<p> no post yet</p>}
+                :<Spinner
+                thickness='4px'
+                speed='0.65s'
+                emptyColor='gray.200'
+                color='blue.500'
+                size='xl'
+                label='Loading ...'
+              />}
                 </VStack>
               </TabPanel>
               <TabPanel>
@@ -97,7 +111,14 @@ function HomePage() {
                 {typeof github !="undefined" & github.length!=0? 
                 github.map((post, i) => <GithubPost onChange={(post)=> setGithub(post)} postData={post} key ={i}/>)
 
-                : <p>No post yet</p> }
+                : <Spinner
+                thickness='4px'
+                speed='0.65s'
+                emptyColor='gray.200'
+                color='blue.500'
+                size='xl'
+                label='Loading ...'
+              />} 
                 </VStack>
               </TabPanel>
 

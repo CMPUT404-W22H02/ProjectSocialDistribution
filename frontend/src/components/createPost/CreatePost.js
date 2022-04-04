@@ -41,7 +41,7 @@ export default function CreatePost () {
     //const { refreshToken, setRefreshToken } = useState(localStorage.getItem("refreshToken"));
     const [picture, setPicture] = useState(null);
     const [imageId, setImageId] = useState("");
-    const [show, setShow] = useState(false);
+    const [show, setShow] = useState(true);
     const toast = useToast();
     const toastIdRef = useRef();
     const [status , setStatus]= useState();
@@ -205,6 +205,8 @@ export default function CreatePost () {
           
 
     }
+    console.log("--------", picture)
+    console.log(typeof cate)
     const onSubmit = async values => {
     //window.alert(JSON.stringify(values, 0, 2));
     const id = identity.id
@@ -227,15 +229,18 @@ export default function CreatePost () {
       // values.append("categories", JSON.stringify(cate))
       // values['type']="post";
       values['categories']=JSON.stringify(cate);
+      //values['categories']=cate;
+      
+      
 
       // const formData = serialize(values)
-
       if (picture !== null) {
         const formData = new FormData();
         formData.append('categories', JSON.stringify(cate));
         formData.append('image', picture);
         formData.append('unlisted', true);
-        formData.append('image', picture)
+        formData.append('image', picture);
+
 
         sendRequest(id, formData, localStorage.getItem("token"));
 
@@ -286,12 +291,10 @@ export default function CreatePost () {
                         >
                             <InputControl w={400} name="title" label="Title" />
                             <InputControl w={400} name="description" label="Description" />
-                            {!picture ?
-
+                            
                                 <InputControl name="content" label="Content" />
-                                :
-                                setShow(true)
-                            }
+                             
+                                
 
                             <ButtonGroup size='sm' isAttached variant='outline'>
                                 <input
