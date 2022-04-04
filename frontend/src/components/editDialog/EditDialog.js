@@ -33,7 +33,7 @@ function EditDialog({ post, isOpen, onClose }) {
   const [cateSignle, setCateSignle]= useState('');
   const [cate, setCate]=useState(JSON.parse(post.categories) );
   const addCategories=(cateSignle)=>{
-    console.log(cateSignle);
+    //console.log(cateSignle);
     setCate(prevArray => [...prevArray, cateSignle]);
     setCateSignle("");
   }
@@ -60,13 +60,8 @@ function EditDialog({ post, isOpen, onClose }) {
       onClose();
     }
     catch(error) {
-      console.log(error);
-      console.log({
-        title: title,
-        description: desc,
-        content: content,
-        categories: cate,
-      })
+      //console.log(error);
+      
 
     }
   }

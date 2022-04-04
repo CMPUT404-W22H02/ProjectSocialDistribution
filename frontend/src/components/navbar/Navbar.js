@@ -54,9 +54,9 @@ function Navbar() {
         setdispalyName(info.display_name)
             
         }).catch(e => {
-            console.log("error-----")
+            //console.log("error-----")
             //console.log(token)
-            console.log(e)
+            //console.log(e)
         })) 
 
   }))

@@ -48,7 +48,6 @@ export default function CreatePost () {
     const [cate, setCate]=useState([]);
     const addCategories=(cateSignle)=>{
       //setCate(...name.value)
-      console.log(cateSignle);
       setCate(prevArray => [...prevArray, cateSignle]);
       setCateSignle("");
     }
@@ -90,7 +89,6 @@ export default function CreatePost () {
                   "Authorization" : `Bearer ${token}`
                   
                   }}).then((data)=>{
-                    console.log("success post in inbox");
                     //console.log(data)
                 }
                   )
@@ -150,7 +148,6 @@ export default function CreatePost () {
               
             }
           }).catch((e)=>{
-              console.log(e.response.status)
               setStatus(e.response.status)
               if (e.response.status===401){
                 /* window.location.assign("/")
@@ -210,7 +207,6 @@ export default function CreatePost () {
           
           )}).catch((e)=>{
             //console.log(e.response)
-              console.log(e.response.status)
               setStatus(e.response.status)
               addToast({description: "create post not successfull",
               status: 'error', isClosable: true, duration: 1000,})

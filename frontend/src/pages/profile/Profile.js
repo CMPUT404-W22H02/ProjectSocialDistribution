@@ -67,7 +67,6 @@ export default function Profile(props) {
 
             },
         }).then((data)=>{
-            console.log(data);
             addToast({description: "update profile successfull",
                 status: 'success', isClosable: true, duration: 1000,})
         
@@ -79,7 +78,6 @@ export default function Profile(props) {
     const onChangePicture = e => {
     setPicture(URL.createObjectURL(e.target.files[0]));
     };
-    console.log("----------", picture)
     //console.log(token,"---")
     //console.log(identity)
 
@@ -110,9 +108,8 @@ export default function Profile(props) {
         setGithub(info.github)
             
         }).catch(e => {
-            console.log("error-----")
             //console.log(token)
-            console.log(e)
+            //console.log(e)
         })
 
         let author_id_= author_id.slice(-36, author_id.length)
@@ -125,7 +122,7 @@ export default function Profile(props) {
             .then((data) => {
               setFollowerList(data.data.items)
             }).catch((e)=>{
-                console.log(e.response.status)
+                //console.log(e.response.status)
                 if (e.response.status===401){
                   /* window.location.assign("/")
                   window.localStorage.clear();

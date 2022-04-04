@@ -50,7 +50,7 @@ function Inbox () {
                       }
                       
                     }).catch((e)=>{
-                        console.log(e.response.status)
+                        //console.log(e.response.status)
                         if (e.response.status===401){
                           /* window.location.assign("/")
                           window.localStorage.clear();
@@ -70,7 +70,7 @@ function Inbox () {
             
             }
             ).catch((e)=>{
-            console.log(e.response.status)
+            //console.log(e.response.status)
             
             
         })
@@ -89,7 +89,7 @@ function Inbox () {
             
             }
             ).catch((e)=>{
-            console.log(e.response.status)
+            //console.log(e.response.status)
             
             
         })
@@ -108,7 +108,7 @@ function Inbox () {
             
             }
             ).catch((e)=>{
-            console.log(e.response.status)
+            //console.log(e.response.status)
             
             
         })
@@ -127,7 +127,7 @@ function Inbox () {
             
             }
             ).catch((e)=>{
-            console.log(e.response.status)
+            //console.log(e.response.status)
             
             
         })
@@ -162,7 +162,7 @@ function Inbox () {
             
             }
             ).catch((e)=>{
-            console.log(e.response.status)
+            //console.log(e.response.status)
             
             
         })
@@ -189,7 +189,7 @@ function Inbox () {
 
               })
               .catch((error)=>{
-                console.log(error.response.staus)
+                //console.log(error.response.staus)
                 
               })
 
@@ -198,7 +198,7 @@ function Inbox () {
 
     }
     const rejectfunction=()=>{
-        console.log("you click agree")
+        console.log("you click disagree")
 
 
 
