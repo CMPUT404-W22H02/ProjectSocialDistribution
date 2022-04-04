@@ -46,15 +46,15 @@ function Login() {
       username,
       password
     },
-    (data)=>{  console.log("-2-", data);  addToast({description: "success login",status: 'success', isClosable: true, duration: 1000,})},
-    (fail)=>{   console.log("-1-", fail);  addToast({description: "username/password is not correct",status: 'error', isClosable: true, duration: 1000,}); setLoading(false)}
+    (data)=>{  addToast({description: "success login",status: 'success', isClosable: true, duration: 1000,})},
+    (fail)=>{   addToast({description: "username/password is not correct",status: 'error', isClosable: true, duration: 1000,}); setLoading(false)}
 
     
     
     )
     setUserName("")
     setPassword("")
-    console.log(vaild)
+    
     //console.log("access---\n",data.data.access, "refresh---\n", data.data.refresh, "username---\n", data.data.user.username, data.data.user.id)
    
     //refreshToken()

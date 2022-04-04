@@ -25,7 +25,7 @@ async function fetchAllPosts(success=()=>{}, fail = ()=>{}) {
 
   }).catch((error)=>{
     fail(error);
-    console.log("=",error);
+    //("=",error);
 
 
   }))
@@ -54,7 +54,7 @@ const githubPosts = [];
       success(githubPosts)
     })
     .catch((error)=>{
-      console.log(error);
+      //console.log(error);
       fail(error);
     })
     }
@@ -117,7 +117,7 @@ async function fetchComments(commentsUrl) {
     comments.push(...commentList);
   }
   catch (error) {
-    console.log(error);
+    //console.log(error);
     return [];
   }
 
@@ -135,7 +135,7 @@ async function fetchAuthorObj() {
     return response.data;
   }
   catch (error) {
-    console.log(error);
+    //console.log(error);
     return null;
   }
 }

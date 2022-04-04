@@ -104,7 +104,7 @@ export default function JoinOurTeam() {
         setValidated(false);
         addToast({description: "Success send information to admin",
         status: 'success', isClosable: true,duration: 1000,})
-        console.log(response)
+        
         setToken(response.data.token)
         setRefrensh(response.data.refresh)
         //console.log(response.data.refresh)

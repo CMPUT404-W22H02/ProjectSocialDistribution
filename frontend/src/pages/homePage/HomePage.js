@@ -40,11 +40,6 @@ function HomePage() {
               })
             }
           }
-              
-            console.log("check this")
-            console.log(githubPosts)
-            //setGithub(githubPosts)
-            console.log("-11--", github)
           });
     }, []); 
 
@@ -68,14 +63,10 @@ function HomePage() {
         
 
       }).catch((error)=>{
-        console.log("=",error);
 
 
   }))},[] );
  
-console.log(posts)
-console.log("------------")
-console.log("===", github)
 
 
 //console.log("---", posts)

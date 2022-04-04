@@ -97,7 +97,7 @@ function Post({ postData }) {
     
     //console.log("++++++++++++followers++++111111111111++++++++",data.data.items)
   }).catch((e)=>{
-      console.log(e.response.status)
+     // console.log(e.response.status)
       if (e.response.status===401){
         /* window.location.assign("/")
         window.localStorage.clear();
@@ -162,7 +162,7 @@ function Post({ postData }) {
           .then((data) => {
             addToast({description: "comment added.",
               status: 'success', isClosable: true, duration: 1000,});
-          console.log(data)
+          //console.log(data)
           values['id'] = data.data.id;
           axios.post(`${author_id_url}/inbox`,
           values, {
@@ -179,7 +179,7 @@ function Post({ postData }) {
               getComments();
       
             }).catch((e)=>{
-          console.log(e.response.status)
+          //console.log(e.response.status)
           setStatus(e.response.status)
           /* addToast({description: "send follow not successfull",
           status: 'error', isClosable: true, duration: 1000,}) */
@@ -248,11 +248,11 @@ function Post({ postData }) {
     
         
     }).catch(e => {
-        console.log("error---like--")
+        //console.log("error---like--")
         /* addToast({description: "Do not send again!",
               status: 'info', isClosable: true, duration: 1000,}) */
 
-        console.log(e)
+        //console.log(e)
     })) 
 }
 const sendLike=((values, token)=>{
@@ -317,7 +317,7 @@ const onsubmitValueLike = (current_user, follower) => {
         /* addToast({description: "Do not send again!",
               status: 'info', isClosable: true, duration: 1000,}) */
 
-        console.log(e)
+        //console.log(e)
     }))
 }
   const sendFollow=((values, token)=>{
