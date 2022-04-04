@@ -261,7 +261,7 @@ function Inbox () {
                   <Stack spacing={2}>
                       {typeof commentList !="undefined" & commentList.length!=0? 
                       commentList.map((follow, i) => <Box rounded="md" bg="cyan.400" color="white" px="15px" py="15px" key={i}>
-                          <div  key={i} > {follow.author.display_name} commented on your post</div>
+                          <div  key={i} > {follow.author.display_name} commented {follow.comment} your post</div>
 
                       <Stack spacing={2} direction='row' align='center'>
   
@@ -283,7 +283,7 @@ function Inbox () {
                   <Stack spacing={2}>
                       {typeof likeList !="undefined" & likeList.length!=0? 
                       likeList.map((follow, i) => <Box rounded="md" bg="teal.400" color="white" px="15px" py="15px" key={i}>
-                          <div  key={i} > {follow.author.display_name} like your post</div>
+                         <a href={follow.object}> <div  key={i} > {follow.author.display_name} liked your post</div> </a>
 
                       <Stack spacing={2} direction='row' align='center'>
   
