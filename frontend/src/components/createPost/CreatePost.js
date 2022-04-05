@@ -162,7 +162,7 @@ export default function CreatePost () {
     }
 
     function sendRequest(id, values, token){
-      axios.post(`${id}/posts/`,
+      Refresh.refreshToken().then(axios.post(`${id}/posts/`,
           values, {
               headers: {
               'Content-Type': 'application/json',
@@ -203,13 +203,11 @@ export default function CreatePost () {
               addToast({description: "create post not successfull",
               status: 'error', isClosable: true, duration: 1000,})
               
-          })
+          })) 
           
 
     }
 
-    console.log("--------", picture)
-    console.log(typeof cate)
     const onSubmit = async values => {
     //window.alert(JSON.stringify(values, 0, 2));
     const id = identity.id
