@@ -42,6 +42,7 @@ export default function CreatePost () {
     const [picture, setPicture] = useState(null);
     const [imageId, setImageId] = useState("");
     const [show, setShow] = useState(true);
+    const [showPicture, setShowPicture] = useState(null);
     const toast = useToast();
     const toastIdRef = useRef();
     const [status , setStatus]= useState();
@@ -67,6 +68,7 @@ export default function CreatePost () {
         toastIdRef.current = toast(toast_data)
     }
     const onChangePicture = e => {
+      setShowPicture(URL.createObjectURL(e.target.files[0]));
         setPicture(e.target.files[0]);
     };
 
@@ -205,6 +207,7 @@ export default function CreatePost () {
           
 
     }
+
     console.log("--------", picture)
     console.log(typeof cate)
     const onSubmit = async values => {
@@ -301,7 +304,7 @@ export default function CreatePost () {
                                     type="file"
                                     name="myImage"
                                     onChange={onChangePicture} />
-                                <Button variant='outline' onClick={() => (setPicture(null))}>Remove</Button>
+                                <Button variant='outline' onClick={() => {setPicture(null);setShowPicture(null)}}>Remove</Button>
                             </ButtonGroup>
                             {/* <CateControl name="categories" label="Categories" /> */}
                             <Input  value={cate} readOnly></Input> 
@@ -365,7 +368,7 @@ export default function CreatePost () {
                     {show?
                     
                     <><Text mb='10px'>Picture:</Text>
-                    <Image  size="xl" src={picture}></Image></>
+                    <Image  size="xl" src={showPicture}></Image></>
 
                     :
                     <Textarea isDisabled placeholder='Here is image' />
