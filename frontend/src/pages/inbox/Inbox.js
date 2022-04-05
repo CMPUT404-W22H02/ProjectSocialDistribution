@@ -120,7 +120,6 @@ function Inbox () {
             
             }})
             .then((data) => {
-                console.log(data.data)
                 for (let each of data.data.items){
                     console.log(each)
                     if (each.unlisted==false){
@@ -305,13 +304,13 @@ function Inbox () {
               </Box>
             </TabPanel>
             <TabPanel>
-            <Box rounded="md" bg="blue.300" color="white" px="15px" py="15px">
+            <Box rounded="md" bg="blue.300" color="balck" px="15px" py="15px">
               <Badge  variant='subtle' colorScheme='green'>
                     Public Post
                 </Badge>
                   <Stack spacing={2}>
                       {typeof postList !="undefined" & postList.length!=0? 
-                      postList.map((post, i) => <Box rounded="md" bg="blue.400" color="white" px="15px" py="15px"  key={i} >
+                      postList.map((post, i) => <Box rounded="md" bg="white" color="balck" px="15px" py="15px"  key={i} >
                           <div  key={i} > {post.author.display_name} public a post {post.title}</div>
                         <Post postData={post} key ={post.id}/>
 
