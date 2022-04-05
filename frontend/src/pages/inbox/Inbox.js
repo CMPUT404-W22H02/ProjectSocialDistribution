@@ -120,8 +120,15 @@ function Inbox () {
             
             }})
             .then((data) => {
-            
-            setPostList(data.data.items)
+                console.log(data.data)
+                for (let each of data.data.items){
+                    console.log(each)
+                    if (each.unlisted==false){
+                        setPostList(prevArray => [...prevArray, each]) 
+                    }
+    
+                }
+           
             
                 
             
