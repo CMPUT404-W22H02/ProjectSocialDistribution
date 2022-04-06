@@ -15,7 +15,8 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from uuid import uuid4
-
+from msilib.schema import SelfReg
+from base64 import b64encode, b64decode
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from requests import get
@@ -418,6 +419,36 @@ class CommentsAPIView(ListCreateAPIView, UtilityAPI):
         response[self._items] = serializer.data
         return Response(response)
 
+class ImagePostAPIView(RetrieveUpdateDestroyAPIView, UtilityAPI):
+    """Retrieve the image of a post"""
+    queryset = Post.objects.all()
+
+    serializer_class = PostDetailsSerializer
+
+    authentication_classes = [JWTTokenUserAuthentication, BasicAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    http_method_names = ['get']
+
+    def get_object(self):
+        queryset = self.get_queryset()
+        post_id = self.get_post_id()
+
+        post = get_object_or_404(queryset, id=post_id)
+        image = get_object_or_404(queryset, id=post.image_id)
+
+        return image
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+
+        file = serializer.data['image']
+        base64Encoded = b64encode(file.read())
+
+        return Response(base64Encoded)
+
+
 class PostLikesAPIView(ListAPIView, UtilityAPI):
     """Get the likes on a post."""
     queryset = Like.objects.all()
@@ -430,6 +461,7 @@ class PostLikesAPIView(ListAPIView, UtilityAPI):
     def get_queryset(self):
         queryset = super().get_queryset()
         post_id = self.get_post_id()
+        
         return queryset.filter(object=post_id)
     
     def list(self, request, *args, **kwargs):
