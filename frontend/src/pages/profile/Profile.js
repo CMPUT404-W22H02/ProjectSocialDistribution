@@ -35,7 +35,8 @@ export default function Profile(props) {
     const token = identity.token
     const { refreshToken, setRefreshToken } = useState(identity.refreshToken);
     const [ value, setValue] = useState({});
-    const [picture, setPicture] = useState('');
+    const [picture, setPicture] = useState(null);
+    const [showPicture, setShowPicture] = useState(null);
     const [userName, setUserName] = useState(identity.username);
     const [display_name, setDisplay_name] = useState("");
     const [github, setGithub] = useState("");
@@ -52,14 +53,21 @@ export default function Profile(props) {
    
     const updateProfile = () => {
  
-        values['type']='author';
+        /* values['type']='author';
         values['id']=author_id;
         values['url']=author_id;
         values['github'] = github;
-        values['display_name'] = display_name;
+        values['display_name'] = display_name; */
+        const formData = new FormData();
+        formData.append('type', 'author');
+        formData.append('id', author_id);
+        formData.append('url', author_id);
+        formData.append('github', github);
+        formData.append('display_name', display_name);
+        formData.append('profile_image', picture);
         //values['host'] = 'https://psdt11.herokuapp.com/';
         axios.post(`${author_id}`,
-        values,
+        formData,
         {
             headers: {
             "Content-Type": "application/json",
@@ -67,6 +75,7 @@ export default function Profile(props) {
 
             },
         }).then((data)=>{
+            console.log("---", data)
             addToast({description: "update profile successfull",
                 status: 'success', isClosable: true, duration: 1000,})
         
@@ -76,10 +85,11 @@ export default function Profile(props) {
 
     }
     const onChangePicture = e => {
-    setPicture(URL.createObjectURL(e.target.files[0]));
+        setShowPicture(URL.createObjectURL(e.target.files[0]));  
+    setPicture(e.target.files[0]);
     };
-    //console.log(token,"---")
-    //console.log(identity)
+    console.log(picture,"---")
+    console.log("==", showPicture)
 
     //console.log(author_id)
     useEffect(()=>{ 
@@ -93,7 +103,9 @@ export default function Profile(props) {
             },
         })
         .then(res => { 
+            console.log("--", res.data)
         const info = res.data;
+        console.log("===", info)
         if(info.id){
             setValue( info );
             //console.log(token)
@@ -106,6 +118,10 @@ export default function Profile(props) {
         setUserName(info.username)
         setDisplay_name(info.display_name)
         setGithub(info.github)
+        if (info.profile_image!=null){
+           setShowPicture(info.profile_image) 
+        }
+        
             
         }).catch(e => {
             //console.log(token)
@@ -176,7 +192,7 @@ return (
                 </Heading>
                 <FormControl id="userName">
                     <Center>
-                        <Avatar size="xl" src={picture}>
+                        <Avatar size="xl" src={showPicture}>
                         </Avatar>
                     </Center>
 
@@ -186,7 +202,7 @@ return (
                         type="file"
                         name="myImage"
                         onChange={onChangePicture} />
-                    <Button variant='outline' onClick={() => (setPicture(""))}>Remove</Button>
+                    <Button variant='outline' onClick={() => {setPicture(null); setShowPicture(null)}}>Remove</Button>
                 </ButtonGroup>
 
 

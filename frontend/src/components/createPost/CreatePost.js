@@ -71,6 +71,8 @@ export default function CreatePost () {
       setShowPicture(URL.createObjectURL(e.target.files[0]));
         setPicture(e.target.files[0]);
     };
+    console.log(showPicture)
+    console.log(picture)
 
     function getAllAuthors(values, token ){
       axios.get(`${base_url}authors/`, {
