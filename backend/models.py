@@ -126,8 +126,8 @@ class Post(Model):
     image_id = URLField(blank=True)
 
     # SQLite does not support JSONField, so only enable for production
-    # categories = JSONField(default=list)
-    categories = CharField(max_length=255, blank=True, null=True)
+    categories = JSONField(default=list)
+    # categories = CharField(max_length=255, blank=True, null=True)
 
     # Comment data
     count = IntegerField(default=0)
