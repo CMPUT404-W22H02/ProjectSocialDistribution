@@ -23,6 +23,17 @@ import {  AddIcon, MinusIcon } from '@chakra-ui/icons'
 import Identity from '../../model/Identity';
 
 function EditDialog({ post, isOpen, onClose }) {
+  var cateList=[]
+
+  if (typeof post.categories =="object" & post.categories.length>0){
+    cateList=post.categories
+
+  }else if(typeof post.categories =="string" & post.categories.length>0) {
+
+    cateList=JSON.parse(post.categories)
+  }else{
+    cateList="no cate"
+  }
     // TODO: checking unlist removes edit button
   const [title, setTitle] = useState(post.title);
   const [desc, setDesc] = useState(post.description);
@@ -31,7 +42,7 @@ function EditDialog({ post, isOpen, onClose }) {
   const [unlisted, setUnlisted] = useState(post.unlisted);
   const [visibility, setVisibility] = useState(post.visibility)
   const [cateSignle, setCateSignle]= useState('');
-  const [cate, setCate]=useState(post.categories);
+  const [cate, setCate]=useState(cateList);
   const addCategories=(cateSignle)=>{
     //console.log(cateSignle);
     setCate(prevArray => [...prevArray, cateSignle]);
