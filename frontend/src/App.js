@@ -12,6 +12,7 @@ import NotFound404 from "./pages/NotFound";
 import useToken from "./components/App/useToken"
 import PleaseSignIn from "./pages/NotFound/PleaseSinIn"
 import CreatePost from './components/createPost';
+import Inbox from './pages/inbox'
 function App() {
 
   return (
@@ -34,6 +35,9 @@ function App() {
           <Route exact path='/create' element={<PrivateRoute/>}>
               <Route path="/create" element={<CreatePost />} />
           </Route>
+          <Route exact path='/inbox' element={<PrivateRoute/>}>
+              <Route path="/inbox" element={<Inbox />} />
+          </Route>
 
           {/* <Route path="*" element={<NotFound404 />} /> */}
         </Routes>
@@ -44,56 +48,6 @@ function App() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-  //const token = getToken();
-  /* const { token, setToken } = useToken();
-  console.log(token)
-  if(!token) {
-    console.log("---1")
-    return (
-      <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login"/>}/> 
-        <Route path="/login" element={<Login setToken={setToken}/>}/>
-        <Route path="/register" element={<Registration />}/>
-        <Route path="/home" element={<PleaseSignIn />} />
-        <Route path="/profile" element={<PleaseSignIn />} />
-        <Route path="*" element={<NotFound404 />} />
-      </Routes>
-    </BrowserRouter>
-    )
-  }
-
-  // Specify paths here
-  console.log("---2")
-  return (
-    <><p>{console.log("---3")} </p><div className="wrapper">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" />} />
-          <Route path="/login" element={<Login setToken={setToken} />} />
-          <Route path="/home" element={<HomePage />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/register" element={<Registration />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-
-
-          <Route path="*" element={<NotFound404 />} />
-        </Routes>
-      </BrowserRouter>
-    </div></>
-  );
-   */
 }
 
 export default App;

@@ -19,14 +19,9 @@ import Identity from "../../model/Identity";
 import {Refresh} from "../../auth/Refresh"
 
 let UserIdentity = Identity.GetIdentity();
-//console.log(UserIdentity)
+
 
 function Login() {
-//   if (Identity.GetIdentity().IsAuthenticated()) {
-//     window.location.assign("/home")
-//     console.log(Identity.GetIdentity().refreshToken)
-// }
-  //function Login({ setToken }) {
   const [username, setUserName] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading]=useState(false)
@@ -47,15 +42,21 @@ function Login() {
   const handleLoginClick= async e=> {
     e.preventDefault();
     setLoading(true)
-    Refresh.loginUser({
+    const vaild = Refresh.loginUser({
       username,
       password
-    });
+    },
+    (data)=>{  addToast({description: "success login",status: 'success', isClosable: true, duration: 1000,})},
+    (fail)=>{   addToast({description: "username/password is not correct",status: 'error', isClosable: true, duration: 1000,}); setLoading(false)}
+
+    
+    
+    )
     setUserName("")
     setPassword("")
-    //console.log("access---\n",data.data.access, "refresh---\n", data.data.refresh, "username---\n", data.data.user.username, data.data.user.id)
     
-    addToast({description: "success login",status: 'success', isClosable: true, duration: 1000,})
+    //console.log("access---\n",data.data.access, "refresh---\n", data.data.refresh, "username---\n", data.data.user.username, data.data.user.id)
+   
     //refreshToken()
     //setInterval(Refresh.refreshToken(), 2000)
     //window.location.assign("/home")

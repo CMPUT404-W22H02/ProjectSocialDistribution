@@ -19,8 +19,9 @@ import {
   Image,
   Grid,
   GridItem,
-  Textarea, useToast
+  Textarea, useToast, SimpleGrid, IconButton, Stack
 } from "@chakra-ui/react";
+import { Select } from '@chakra-ui/react'
 import axios from "axios";
 import { Form, Field, useField, useForm } from "react-final-form";
 import validate from "./validate";
@@ -28,28 +29,50 @@ import NavbarAdd from "../../components/navbar/NavbarAdd";
 import Identity from '../../model/Identity';
 import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
-const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000/';
+import {  AddIcon, MinusIcon } from '@chakra-ui/icons'
+
+const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 //import Cookies from "universal-cookie";
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
-let identity = Identity.GetIdentity();
+let identity =Identity.GetIdentity();
 
 export default function CreatePost () {
-    //const { id, setId } = useState(identity.id);
     //const { token, setToken } = useState(localStorage.getItem("token"));
     //const { refreshToken, setRefreshToken } = useState(localStorage.getItem("refreshToken"));
-    const [picture, setPicture] = useState('');
-    const [show, setShow] = useState(false);
+    const [picture, setPicture] = useState(null);
+    const [imageId, setImageId] = useState("");
+    const [show, setShow] = useState(true);
+    const [showPicture, setShowPicture] = useState(null);
     const toast = useToast();
     const toastIdRef = useRef();
     const [status , setStatus]= useState();
-    const [values, setValues]= useState();
+    const [cateSignle, setCateSignle]= useState('');
+    const [cate, setCate]=useState([]);
+    const addCategories=(cateSignle)=>{
+      //setCate(...name.value)
+      setCate(prevArray => [...prevArray, cateSignle]);
+      setCateSignle("");
+    }
+    const deleteCategories=(cateSignle)=>{
+      //setCate(...name.value)
+      //console.log("--",input.value)
+      //console.log(cate)
+      const cate_ = [...cate];
+      const idx = cate_.indexOf(cateSignle);
+      cate_.splice(idx, 1);
+      setCate(() => [...cate_]);
+      setCateSignle("");
+
+    }
     function addToast(toast_data) {
         toastIdRef.current = toast(toast_data)
     }
     const onChangePicture = e => {
-        setPicture(URL.createObjectURL(e.target.files[0]));
+      setShowPicture(URL.createObjectURL(e.target.files[0]));
+        setPicture(e.target.files[0]);
     };
-    function getAllFollowers(id, values, token ){
+
+    function getAllAuthors(values, token ){
       axios.get(`${base_url}authors/`, {
               headers: {
               'Content-Type': 'application/json',
@@ -57,21 +80,29 @@ export default function CreatePost () {
               
               }})
           .then((data) => {
-            console.log(data.data.items)
-            values['type']='post'
+            //console.log(data.data.items)
             for (let author of data.data.items) {
-              console.log(author)
-              const response = axios.post(`${author.id}/inbox`, 
+              //console.log(author)
+              if (author.id != identity.id){
+              axios.post(`${author.id}/inbox`, 
               values,
               {
                 headers: {
                   'Content-Type': 'application/json',
                   "Authorization" : `Bearer ${token}`
                   
-                  }})
+                  }}).then((data)=>{
+                    //console.log(data)
+                }
+                  )
+                  .catch(e=>console.log(e))
+
+
+              }
+              
             }
           }).catch((e)=>{
-              console.log(e.response.status)
+              //console.log(e.response)
               setStatus(e.response.status)
               if (e.response.status===401){
                 /* window.location.assign("/")
@@ -83,79 +114,158 @@ export default function CreatePost () {
               status: 'error', isClosable: true, duration: 1000,})
               
           })
-
-
-
-
     }
 
+    function getAllFollowers(id, values, token ){
+      axios.get(`${base_url}authors/${id}/followers`, {
+              headers: {
+              'Content-Type': 'application/json',
+              "Authorization" : `Bearer ${token}`
+              
+              }})
+          .then((data) => {
+            //console.log(data.data.items)
+            
+            //console.log("++++++++++++followers++++++++++++",data.data)
+            for (let author of data.data.items) {
+              //console.log(author.id)
+              //console.log(identity.id)
+              if (author.id != identity.id){
+                //console.log("------------------")
+                axios.post(`${author.id}/inbox`, 
+              values,
+              {
+                headers: {
+                  'Content-Type': 'application/json',
+                  "Authorization" : `Bearer ${token}`
+                  
+                  }}).then((data)=>{
+                    //console.log("success indox", data)
+                  })
 
 
-
-
-
+              }
+              
+            }
+          }).catch((e)=>{
+              setStatus(e.response.status)
+              if (e.response.status===401){
+                /* window.location.assign("/")
+                window.localStorage.clear();
+                window.sessionStorage.clear(); */
+                
+              }
+              addToast({description: "create post not successfull",
+              status: 'error', isClosable: true, duration: 1000,})
+              
+          })
+    }
 
     function sendRequest(id, values, token){
-      axios.post(`${id}/posts/`,
+      Refresh.refreshToken().then(axios.post(`${id}/posts/`,
           values, {
               headers: {
               'Content-Type': 'application/json',
               "Authorization" : `Bearer ${token}`
               
               }})
-          .then((data) => addToast({description: "create post successfull",
-              status: 'success', isClosable: true, duration: 1000,}),
+          .then((data) => {
+            addToast({description: "create post successfull",
+              status: 'success', isClosable: true, duration: 1000,});
+              //console.log("post - ", data)
+              values = data.data;
+              // values['id'] = values['id']
+              setImageId(values['id'])
+
+              axios.get(`${id}`,
+                          {
+                              headers: {
+                              "Content-Type": "application/json",
+                              "Authorization" : `Bearer ${token}`
+                      
+                              },
+                          })
+                          .then(res => { 
+                          values['author'] = res.data;
+                          //console.log("values = ", values)
+                            if (values.visibility==="FRIENDS"){
+                              //console.log(id)
+                              let id_uuid = id.slice(-36, id.length)
+                              getAllFollowers(id_uuid, values, token)
+                            }else{
+                              getAllAuthors(values, token)
+                            }
+                          }
           
-          ).catch((e)=>{
-              console.log(e.response.status)
+          )}).catch((e)=>{
+            //console.log(e.response)
               setStatus(e.response.status)
               addToast({description: "create post not successfull",
               status: 'error', isClosable: true, duration: 1000,})
               
-          })
+          })) 
+          
 
     }
+
     const onSubmit = async values => {
     //window.alert(JSON.stringify(values, 0, 2));
     const id = identity.id
-    let token = localStorage.getItem("token")
-    let refreshToken = localStorage.getItem("refreshToken")
-    console.log("--", token)
-    console.log("-1-", refreshToken)
-    let decodedToken = jwt_decode(token);
-    let currentDate = new Date();
+
+    var info;
+    Refresh.refreshToken().then(axios.get(`${id}`,
+      {
+          headers: {
+          "Content-Type": "application/json",
+          "Authorization" : `Bearer ${localStorage.getItem("token")}`
+  
+          },
+      })
+      .then(res => { 
+      info = res.data;
+      //values['author']=info
+      // values['content_type']='text/plain'
+      // const values = new FormData();
+      // values.append('type', 'post')
+      // values.append("categories", JSON.stringify(cate))
+      // values['type']="post";
+      values['categories']=JSON.stringify(cate);
+      //values['categories']=cate;
+      
+      
+
+      // const formData = serialize(values)
+      if (picture !== null) {
+        const formData = new FormData();
+        formData.append('categories', JSON.stringify(cate));
+        formData.append('image', picture);
+        formData.append('unlisted', true);
+        formData.append('image', picture);
+
+
+        sendRequest(id, formData, localStorage.getItem("token"));
+
+        // formData.append("image_id", imageId);
+        values['image_id'] = imageId;
+
+        // #TODO: Dirty workaround, should make api call instead
+        values['content'] += ` ![](${base_url}media/posts/${picture.name})`
+      }
+      
+      sendRequest(id, values, localStorage.getItem("token"));
+      }).catch(e => {
+          console.log(e);
+      })) 
 
     // JWT exp is in seconds
-    if (decodedToken.exp * 1000 < currentDate.getTime()) {
-        console.log("Token expired.");
-        Refresh.refreshToken().then(()=>{token = localStorage.getItem("token");
-        console.log(id)
-          sendRequest(id, values, token)});
-          console.log(values.visibility==="FRIENDS")
-          if (values.visibility==="FRIENDS"){
-            console.log(id)
-            let id_uuid = id.slice(-36, id.length)
-          getAllFollowers(id_uuid, values, token)
-          }
-
-          
-        
-    } else {
-        console.log("Valid token");  
-        sendRequest(id, values, token) ;
-        console.log(values.visibility==="FRIENDS")
-        /*if (values.visibility==="FRIENDS"){
-          console.log(id)*/
-          let id_uuid = id.slice(-36, id.length)
-          getAllFollowers(id_uuid, values, token)
-        
-    }
-    }
-
-
+  }
 
     return (
-    <><NavbarAdd /><Grid
+    <Box 
+    margin="-20px"
+    height="100vh"
+  >
+  <NavbarAdd /><Grid
             templateRows='repeat(3, 1fr)'
             templateColumns='repeat(5, 1fr)'
             gap={10}
@@ -182,22 +292,32 @@ export default function CreatePost () {
                         >
                             <InputControl w={400} name="title" label="Title" />
                             <InputControl w={400} name="description" label="Description" />
-                            {!picture ?
-
+                            
                                 <InputControl name="content" label="Content" />
-                                :
-                                setShow(true)
-                            }
+                             
+                                
 
                             <ButtonGroup size='sm' isAttached variant='outline'>
                                 <input
                                     type="file"
                                     name="myImage"
                                     onChange={onChangePicture} />
-                                <Button variant='outline' onClick={() => (setPicture(""))}>Remove</Button>
+                                <Button variant='outline' onClick={() => {setPicture(null);setShowPicture(null)}}>Remove</Button>
                             </ButtonGroup>
-                            <InputControl name="categories" label="Categories" />
+                            {/* <CateControl name="categories" label="Categories" /> */}
+                            <Input  value={cate} readOnly></Input> 
+                              <SimpleGrid columns={2} spacing={10}>
+                              <ButtonGroup size='sm' isAttached variant='outline'>
+                              <Input mr='-px'
+                                value={cateSignle}
+                                onChange={(e)=>setCateSignle(e.target.value)}
+                                placeholder="Categories" 
+                              />
+                              <IconButton h='auto' onClick={() => addCategories(cateSignle)} icon={<AddIcon />} />
+                              <IconButton h='auto' onClick={() => deleteCategories(cateSignle)} icon={<MinusIcon />} /> 
+                              </ButtonGroup>
 
+                              </SimpleGrid>
                             <CheckboxControl name="unlisted">Unlisted</CheckboxControl>
                             <Field
                                 name="visibility"
@@ -231,10 +351,9 @@ export default function CreatePost () {
                                 </Button>
                             </ButtonGroup>
                             <Box as="pre" my={10}>
-                                <p>just for test , will delte in the future</p>
-                                {values['contentType']="text/plain"}
-                                {values['type']="post"}
-                                {JSON.stringify(values, 0, 2)}
+                                
+                                
+                                
                             </Box>
                         </Box>
 
@@ -247,7 +366,7 @@ export default function CreatePost () {
                     {show?
                     
                     <><Text mb='10px'>Picture:</Text>
-                    <Image  size="xl" src={picture}></Image></>
+                    <Image  size="xl" src={showPicture}></Image></>
 
                     :
                     <Textarea isDisabled placeholder='Here is image' />
@@ -257,7 +376,7 @@ export default function CreatePost () {
                 </GridItem>
 
                 
-        </Grid></>
+        </Grid></Box>
     )
 };
 
@@ -307,7 +426,7 @@ const InputControl = ({ name, label }) => {
   return (
     <Control name={name} my={4}>
       <FormLabel htmlFor={name}>{label}</FormLabel>
-      <Input
+      <Textarea
         {...input}
         isInvalid={meta.error && meta.touched}
         id={name}
@@ -317,7 +436,6 @@ const InputControl = ({ name, label }) => {
     </Control>
   );
 };
-
 
 const PercentComplete = props => {
   const form = useForm();

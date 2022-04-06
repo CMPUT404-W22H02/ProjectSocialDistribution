@@ -26,7 +26,7 @@ import { SmallCloseIcon } from '@chakra-ui/icons';
 
 
 export default function JoinOurTeam() {
-  const base_url = process.env.REACT_APP_API_URL || 'http://localhost:8000/';
+  const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
   
   const [token, setToken]=useState("");
   const [refrensh, setRefrensh]=useState("");
@@ -57,7 +57,11 @@ export default function JoinOurTeam() {
     if (password1 !== password2) {
         addToast({description: "The 2 passwords your provided does not match",
                   status: 'error', isClosable: true, duration: 1000,})
-    }else{
+    }else if (!userName){
+      addToast({description: "username is required",
+      status: 'error', isClosable: true, duration: 1000,})
+    }
+    else{
       //uploadImage()
       submit()
 
@@ -82,6 +86,7 @@ export default function JoinOurTeam() {
     target.append("username",userName)
     target.append("password",password1)
     target.append("display_name",display_name)
+    target.append("github",github)
     axios
       .post(`${base_url}register/`, target,{
         headers: {
@@ -99,7 +104,7 @@ export default function JoinOurTeam() {
         setValidated(false);
         addToast({description: "Success send information to admin",
         status: 'success', isClosable: true,duration: 1000,})
-        console.log(response)
+        
         setToken(response.data.token)
         setRefrensh(response.data.refresh)
         //console.log(response.data.refresh)

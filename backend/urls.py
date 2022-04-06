@@ -22,7 +22,7 @@ from .views import (AdaptView, AuthorDetailAPIView, AuthorLikedAPIView,
                     AuthorsAPIView, CommentLikesAPIView, CommentsAPIView,
                     FollowerDetailAPIView, FollowersAPIView, InboxAPIView, InboxCommentsAPIView,
                     PostDetailAPIView, PostLikesAPIView, PostsAPIView,
-                    PublicFeedView, InboxLikesAPIView, InboxFollowsAPIView)
+                    PublicFeedView, InboxLikesAPIView, InboxFollowsAPIView, ImagePostAPIView)
 from .viewsets import LoginViewSet, RefreshViewSet, RegistrationViewSet
 
 router = DefaultRouter()

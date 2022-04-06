@@ -184,6 +184,9 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+
 django_on_heroku.settings(locals(), test_runner=False)
 
 AUTH_USER_MODEL = 'backend.NodeUser'

@@ -18,14 +18,17 @@ import {
 
 
 } from '@chakra-ui/react';
-import { AddIcon, InfoIcon } from '@chakra-ui/icons';
+import { AddIcon, EmailIcon } from '@chakra-ui/icons';
 import { useState, } from "react";
 import Identity from "../../model/Identity";
 import React from 'react';
+import axios from 'axios';
+import { useEffect } from 'react';
+import {Refresh} from "../../../src/auth/Refresh"
 let identity = Identity.GetIdentity();
 function Navbar() {
   const [userName, setUserName] = useState(identity.username);
-
+  const [dispaly_name, setdispalyName] = useState('');
   const signOut= () => {
     // clear identity
     window.localStorage.clear();
@@ -36,6 +39,27 @@ function Navbar() {
     clearTimeout();
 
   }
+  useEffect((()=>{
+   Refresh.refreshToken().then(axios.get(`${identity.id}`,
+        {
+            headers: {
+            "Content-Type": "application/json",
+            "Authorization" : `Bearer ${localStorage.getItem("token")}`
+
+            },
+        })
+        .then(res => { 
+        const info = res.data;
+        //console.log(res)
+        setdispalyName(info.display_name)
+            
+        }).catch(e => {
+            //console.log("error-----")
+            //console.log(token)
+            //console.log(e)
+        })) 
+
+  }))
 
   return (
     <Flex 
@@ -54,6 +78,10 @@ function Navbar() {
       </Box>
       <Stack direction="row" spacing="7">
       <Grid justify="flex-end" align="flex-end">
+       <a href="/inbox"> <IconButton style={{ bottom: -7, right: 3 }} size='sm' icon={<EmailIcon />} > </IconButton>               </a>
+        
+      </Grid>
+      <Grid justify="flex-end" align="flex-end">
        <a href="/create"> <IconButton style={{ bottom: -7, right: 3 }} size='sm' icon={<AddIcon />} > </IconButton>               </a>
         
       </Grid>
@@ -66,11 +94,12 @@ function Navbar() {
             <Center>
               <Avatar size="2xl"/>
             </Center>
-            <Center py="2">
+            <Center py="1">
               <Text>{userName}</Text>
+              
             </Center>
+            
             <MenuDivider />
-            <MenuItem>Your Servers</MenuItem>
             <MenuItem><a href="/profile">Profile Settings</a></MenuItem>
             <MenuItem onClick={signOut}>Logout</MenuItem>
           </MenuList>

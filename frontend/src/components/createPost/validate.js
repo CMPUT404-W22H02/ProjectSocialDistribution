@@ -6,12 +6,7 @@ const validate = values => {
     if (!values.description) {
       errors.description = 'Required'
     }
-    if (!values.content) {
-        errors.content = 'Required'
-      }
-    if (!values.categories) {
-    errors.categories = 'Required'
-    }
+  
 
     if (!values.visibility) {
       errors.visibility = 'Please choose public/friend'
