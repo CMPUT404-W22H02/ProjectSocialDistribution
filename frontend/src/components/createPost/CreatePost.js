@@ -25,7 +25,7 @@ import { Select } from '@chakra-ui/react'
 import axios from "axios";
 import { Form, Field, useField, useForm } from "react-final-form";
 import validate from "./validate";
-import NavbarAdd from "../../components/navbar/NavbarAdd";
+import Navbar from "../../components/navbar/Navbar";
 import Identity from '../../model/Identity';
 import {Refresh} from "../../../src/auth/Refresh"
 import jwt_decode from "jwt-decode";
@@ -267,7 +267,7 @@ export default function CreatePost () {
     margin="-20px"
     height="100vh"
   >
-  <NavbarAdd /><Grid
+  <Navbar /><Grid
             templateRows='repeat(3, 1fr)'
             templateColumns='repeat(5, 1fr)'
             gap={10}

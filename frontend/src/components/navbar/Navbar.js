@@ -29,6 +29,7 @@ let identity = Identity.GetIdentity();
 function Navbar() {
   const [userName, setUserName] = useState(identity.username);
   const [dispaly_name, setdispalyName] = useState('');
+  const [showPicture, setShowPicture] = useState(null);
   const signOut= () => {
     // clear identity
     window.localStorage.clear();
@@ -39,6 +40,9 @@ function Navbar() {
     clearTimeout();
 
   }
+  const onChangePicture = e => {
+    setShowPicture(URL.createObjectURL(e.target.files[0]));  
+};
   useEffect((()=>{
    Refresh.refreshToken().then(axios.get(`${identity.id}`,
         {
@@ -52,7 +56,7 @@ function Navbar() {
         const info = res.data;
         //console.log(res)
         setdispalyName(info.display_name)
-            
+          setShowPicture(info.profile_image)
         }).catch(e => {
             //console.log("error-----")
             //console.log(token)
@@ -88,11 +92,12 @@ function Navbar() {
           
         <Menu>
           <MenuButton>
-            <Avatar size="md"/>
+            <Avatar size="md" src={showPicture}/>
           </MenuButton>
           <MenuList alignItems="center">
             <Center>
-              <Avatar size="2xl"/>
+                <Avatar size="xl" src={showPicture}>
+                </Avatar>
             </Center>
             <Center py="1">
               <Text>{userName}</Text>
