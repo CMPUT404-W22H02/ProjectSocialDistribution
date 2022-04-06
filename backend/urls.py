@@ -38,6 +38,8 @@ urlpatterns = [
     path('authors/<str:author_id>/posts/', PostsAPIView.as_view(), name='api_posts'),
     path('authors/<str:author_id>/posts/<str:post_id>', PostDetailAPIView.as_view(), name='api_post_detail'),
     path('authors/<str:author_id>/posts/<str:post_id>/comments', CommentsAPIView.as_view(), name='api_comments'),
+    path('authors/<str:author_id>/posts/<str:post_id>/image', ImagePostAPIView.as_view(), name='api_image_post'),
+
 
     # Likes
     path('authors/<str:author_id>/posts/<str:post_id>/likes', PostLikesAPIView.as_view(), name='api_post_likes'),
