@@ -1,3 +1,6 @@
+//Source - https://chakra-templates.dev/forms/authentication
+//MIT License by https://github.com/hauptrolle/chakra-templates
+
 import {
   Box,
   Stack,
