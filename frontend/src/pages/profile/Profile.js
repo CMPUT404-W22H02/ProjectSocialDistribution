@@ -25,6 +25,7 @@ import axios from "axios";
 import Navbar from "../../components/navbar";
 import useToken from "../../components/App/useToken";
 import Identity from '../../model/Identity';
+import {Refresh} from "../../../src/auth/Refresh"
 const base_url = process.env.REACT_APP_API_URL || 'https://psdt11.herokuapp.com/';
 //import Cookies from "universal-cookie";
 
@@ -66,7 +67,7 @@ export default function Profile(props) {
         formData.append('display_name', display_name);
         formData.append('profile_image', picture);
         //values['host'] = 'https://psdt11.herokuapp.com/';
-        axios.post(`${author_id}`,
+        Refresh.refreshToken().then(axios.post(`${author_id}`,
         formData,
         {
             headers: {
@@ -81,7 +82,7 @@ export default function Profile(props) {
         
         
         }
-        ).catch((error)=>{console.log(error)})
+        ).catch((error)=>{console.log(error)})) 
 
     }
     const onChangePicture = e => {
