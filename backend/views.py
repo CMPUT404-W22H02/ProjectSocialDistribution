@@ -15,7 +15,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 from uuid import uuid4
-from msilib.schema import SelfReg
+
 from base64 import b64encode, b64decode
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
