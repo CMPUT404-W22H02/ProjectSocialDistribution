@@ -42,6 +42,15 @@ let identity = Identity.GetIdentity();
 
 
 function Post({ postData }) {
+  var showPicture=null
+  if (postData.author.profile_image!=null){
+    showPicture=postData.author.profile_image
+    if (showPicture.slice(0, 6)=="/media"){
+      showPicture="https://psdt11.herokuapp.com"+postData.author.profile_image
+    }
+  }else{
+    showPicture=null
+  }
   var cateList=[]
 
   if (typeof postData.categories =="object"){
@@ -58,6 +67,8 @@ function Post({ postData }) {
   const { isOpen: isEditOpen, onOpen, onClose } = useDisclosure();
   const { isOpen: isCommentOpen, onToggle } = useDisclosure();
   const [ comments, setComments ] = useState([]);
+  /* const [showPicture, setShowPicture] = useState(postData.author.profile_image); */
+  console.log(postData.author.profile_image)
 
   // TODO: postData.count is count for # of comments, atm it is tracking # of likes
   const [count, setCount]=useState(0);
@@ -377,7 +388,7 @@ const onsubmitValueLike = (current_user, follower) => {
     <Flex width="50rem" minH="10rem" boxShadow="lg" py="2" alignContent="center" flexDirection="column">
       <Stack direction="column" spacing="2.5" px="4" justify="space-between">
         <HStack pt="4" ml="2" spacing="3">
-        <Avatar size="md" src={picture}>
+        <Avatar size="md" src={showPicture}>
           {show? 
           <AvatarBadge
             as={IconButton}

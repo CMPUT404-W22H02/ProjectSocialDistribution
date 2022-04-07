@@ -40,9 +40,6 @@ function Navbar() {
     clearTimeout();
 
   }
-  const onChangePicture = e => {
-    setShowPicture(URL.createObjectURL(e.target.files[0]));  
-};
   useEffect((()=>{
    Refresh.refreshToken().then(axios.get(`${identity.id}`,
         {
